@@ -31,3 +31,6 @@ Inside the `client` directory, run:
 npm run dev
 
 The client will start on `http://localhost:5173`
+
+**Access API Documentation:**
+Visit `http://localhost:3001/api-docs` to view the Swagger API documentation.
