@@ -38,7 +38,7 @@ The server will start on `http://localhost:3001`
 - Inside the `client` directory, run:
 npm run dev
 
-The client will start on `http://localhost:5173`
+The client will start on `https://localhost:5173`
 
 <br>
 
