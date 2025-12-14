@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -10,4 +11,10 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    https: {
+      key: readFileSync('./certs/localhost+2-key.pem'),
+      cert: readFileSync('./certs/localhost+2.pem'),
+    },
+  },
 })
