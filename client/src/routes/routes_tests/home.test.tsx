@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 
 
-function home() {
+function home({ user }: { user: any }) {
 
   const navigate = useNavigate();
 
@@ -11,17 +11,22 @@ function home() {
     navigate('/login');
 }
 
+  function handleLogout() {
+    // TODO: implement logout
+  }
+
+
   return (
     <>
 
     <div className="h-screen flex items-center justify-center flex-col">
       <div>
       <h1 className="text-6xl font-bold text-black">
-        Welcome!
+        Welcome {user ? user.username : " "}!
       </h1>
       </div>
       <div className="mt-4">
-      <Button text="login" onClick={handleLogin}/>
+      {!user ? <Button text="login" onClick={handleLogin}/> : <Button text="logout" onClick={handleLogout}/>}
       </div>
     </div>
 
