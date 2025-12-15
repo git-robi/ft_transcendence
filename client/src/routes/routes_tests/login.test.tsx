@@ -33,7 +33,7 @@ function login({ setUser }: { setUser: (user: any) => void }) {
   return (
     <div className="h-screen flex items-center justify-center">
 
-      <form onSubmit={(e) => handleSubmit(e)} className="bg-white p-6 rounded shadow-md" > {/*add on submit logic*/}
+      <form onSubmit={(e) => handleSubmit(e)} className="bg-white p-6 rounded shadow-md" > 
         <h2 className="text-xl font-bold mb-4 flex justify-center">Login</h2>
         <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="border p-2 mb-2 w-full" />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-2 mb-2 w-full" />

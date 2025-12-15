@@ -30,11 +30,10 @@ router.get("/", (req: Request, res: Response) => {
     res.status(200).json({message: "Test endpoint is working"});
 });
 
-const cookieOptions: CookieOptions = {
+const cookieOptions : CookieOptions = {
     httpOnly: true, //cookies cannot be accessed by js on the client
     secure: process.env.NODE_ENV === 'production', //it only sends cookies over https in production
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', //it will prevent csrf attacks
-    path: '/',
+    sameSite: 'strict', //it will prevent csrf attacks
     maxAge: 30 * 24 * 60 * 60 * 1000 //will expire in 30 days 
 }
 

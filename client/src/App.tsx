@@ -2,10 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Home from './routes/routes_tests/home.test';
 import Login from './routes/routes_tests/login.test';
+import Auth from "./APIs/auth";
 
+Auth.defaults.withCredentials = true;
 
-
-function App() {
+const App = () => {
 
   const [user, setUser] = useState(null);
 
@@ -13,27 +14,17 @@ function App() {
 
   useEffect(() => {
         const fetchUser = async () => {
-    
             try {
-                const res = await fetch("http://localhost:3001/api/v1/test/me", {
-                  credentials: "include",
-                });
-
-                if (!res.ok) {
-                  setUser(null);
-                  return;
-                }
-
-                const data = await res.json();
-                setUser(data);
+                const res = await Auth.get("/me");
+                setUser(res.data);
             } catch (err) {
                 setUser(null);
+                console.error(err);
             } finally {
                 setLoading(false);
             }
         }
-        
-            fetchUser();
+        fetchUser();
     }, []);
 
     if (loading) {
