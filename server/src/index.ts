@@ -1,7 +1,7 @@
 import express, {Request, Response} from "express";
 import dotenv from "dotenv"
 
-import test from "./routes/test"
+import auth  from "./routes/auth"
 import cors from "cors"
 
 
@@ -26,7 +26,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 
 app.use(express.json()); 
-app.use("/api/v1/test", test);
+app.use("/api/v1/auth", auth);
 
 
 

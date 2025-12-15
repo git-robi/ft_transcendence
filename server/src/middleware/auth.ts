@@ -10,6 +10,23 @@ type AuthedRequest = Request & {
     };
 };
 
+const getCookieToken = (req: Request): string | null => {
+    const cookieHeader = req.headers.cookie;
+    if (!cookieHeader) return null;
+
+    const cookies = cookieHeader.split(";").map((c) => c.trim());
+    for (const cookie of cookies) {
+        const eqIndex = cookie.indexOf("=");
+        if (eqIndex === -1) continue;
+
+        const key = cookie.slice(0, eqIndex);
+        const value = cookie.slice(eqIndex + 1);
+        if (key === "token") return decodeURIComponent(value);
+    }
+
+    return null;
+};
+
 const getTokenId = (token: string): number | null => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
@@ -24,7 +41,7 @@ const getTokenId = (token: string): number | null => {
 
 export const protect = async (req: AuthedRequest, res: Response, next: NextFunction) => {
     try {
-        const token = (req as any).cookies?.token;
+        const token = getCookieToken(req);
 
         if (!token) {
             return res.status(401).json({ message: "Not authorized, no token" });

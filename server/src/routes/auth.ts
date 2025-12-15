@@ -33,7 +33,8 @@ router.get("/", (req: Request, res: Response) => {
 const cookieOptions: CookieOptions = {
     httpOnly: true, //cookies cannot be accessed by js on the client
     secure: process.env.NODE_ENV === 'production', //it only sends cookies over https in production
-    sameSite: 'strict', //it will prevent csrf attacks
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', //it will prevent csrf attacks
+    path: '/',
     maxAge: 30 * 24 * 60 * 60 * 1000 //will expire in 30 days 
 }
 

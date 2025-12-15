@@ -1,6 +1,6 @@
 import Button from "../../components/Button.test";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import Auth from "../../APIs/auth";
 
 
 
@@ -8,31 +8,17 @@ function home({ user, setUser }: { user: any, setUser: (user: any) => void }) {
 
   const navigate = useNavigate();
 
-  function handleLogin() {
+   const handleLogin = () => {
     navigate('/login');
-}
+  };
 
-  function handleLogout() {
-    // TODO: implement logout
-    
-    // Call backend logout endpoint
-    fetch('http://localhost:3001/api/v1/test/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-    .then(response => {
-      if (response.ok) {
-        setUser(null);
-        navigate("/");
-      }
-    })
-    .catch(error => {
-      console.error('Logout failed:', error);
-      setUser(null);
-      navigate("/");
-    });
-  }
+  const handleLogout = async () => {
+    await Auth.post("/logout");
+    setUser(null);
+    navigate("/");
 
+  };
+  
 
   return (
     <>

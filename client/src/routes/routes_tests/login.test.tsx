@@ -1,6 +1,7 @@
 import Button from "../../components/Button.test";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Auth from "../../APIs/auth";
 
 function login({ setUser }: { setUser: (user: any) => void }) {
 
@@ -19,36 +20,14 @@ function login({ setUser }: { setUser: (user: any) => void }) {
     }
 
     try {
-      const res = await fetch("http://localhost:3001/api/v1/test/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ name, password }),
-      });
-       
-      // handle response from api
-      console.log("Response:", res);
-      //console.log("Response status:", res.status);
       
-
-      if (!res.ok) {
-        console.error("Login failed");
-        return;
-      } 
-
-      console.log("Login successful");
-      const data = await res.json();
-
-      // set user state
-      setUser(data.user);
+      const res = await Auth.post("/login", {name, password});
+      setUser(res.data.user);
       navigate("/");
-      
 
     } catch (err) {
-      console.error("Invalid credentials")
+      console.error("Invalid credentials");
     }
-    
-    console.log('Login attempt with:', { name, password });
   };
 
   return (
