@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 function login() {
 
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -13,8 +13,8 @@ function login() {
 
     //check input correctness
     // this is a very basic check, we can add more validation later
-    if (!username.trim() || !password.trim()) {
-      console.error("Username and password are required");
+    if (!name.trim() || !password.trim()) {
+      console.error("Name and password are required");
       return;
     }
 
@@ -23,20 +23,22 @@ function login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ name, password }),
       });
        
       // handle response from api
       console.log("Response:", res);
-      console.log("Response status:", res.status);
+      //console.log("Response status:", res.status);
       
 
       if (!res.ok) {
         console.error("Login failed");
         return;
-      }
+      } 
 
       console.log("Login successful");
+      //const data = await res.json();
+      //console.log("Response data:", data);
 
       // set user state
 
@@ -47,7 +49,7 @@ function login() {
       console.error("Invalid credentials")
     }
     
-    console.log('Login attempt with:', { username, password });
+    console.log('Login attempt with:', { name, password });
   };
 
   return (
@@ -55,7 +57,7 @@ function login() {
 
       <form onSubmit={(e) => handleSubmit(e)} className="bg-white p-6 rounded shadow-md" > {/*add on submit logic*/}
         <h2 className="text-xl font-bold mb-4 flex justify-center">Login</h2>
-        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} className="border p-2 mb-2 w-full" />
+        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="border p-2 mb-2 w-full" />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-2 mb-2 w-full" />
         <div className="flex justify-end">
         <Button text="Login" type="submit" />
