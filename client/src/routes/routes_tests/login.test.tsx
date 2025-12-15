@@ -8,17 +8,40 @@ function login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    //check input correctness
+    // this is a very basic check, we can add more validation later
+    if (!username.trim() || !password.trim()) {
+      console.error("Username and password are required");
+      return;
+    }
+
     try {
-      //make call to API
+      const res = await fetch("http://localhost:3001/api/v1/test/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+      });
+       
+      // handle response from api
+      console.log("Response:", res);
+      console.log("Response status:", res.status);
+      
+
+      if (!res.ok) {
+        console.error("Login failed");
+        return;
+      }
+
+      console.log("Login successful");
+
       // set user state
+
       navigate("/");
       
-      // TODO: Implement actual API call and navigation
-      // For now, just log the successful login
-      console.log("Login successful - would navigate to home page");
 
     } catch (err) {
       console.error("Invalid credentials")
