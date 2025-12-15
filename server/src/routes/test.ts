@@ -2,6 +2,7 @@ import express, { CookieOptions, Request, Response } from "express";
 import db from "../db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { protect } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -79,5 +80,14 @@ router.post('/login', async (req: Request, res: Response) => {
     res.status(200).json({ user: { id: userData.id, name: userData.name }});
 })
 
+
+//get data of logged in user
+
+router.get('/me', protect, async (req: any, res: Response) => {
+    
+    console.log(req.user);
+    res.json(req.user);
+
+})
 
 export default router;
