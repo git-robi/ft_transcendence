@@ -13,6 +13,7 @@ function App() {
 
   useEffect(() => {
         const fetchUser = async () => {
+    
             try {
                 const res = await fetch("http://localhost:3001/api/v1/test/me", {
                   credentials: "include",
@@ -27,12 +28,12 @@ function App() {
                 setUser(data);
             } catch (err) {
                 setUser(null);
-                console.error(err);
             } finally {
                 setLoading(false);
             }
         }
-        fetchUser();
+        
+            fetchUser();
     }, []);
 
     if (loading) {
@@ -46,8 +47,8 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/" element={<Home user={user}/>} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Home user={user} setUser={setUser}/>} />
+          <Route path="/login" element={<Login setUser={setUser}/>} />
         </Routes>
       </Router>
     </>

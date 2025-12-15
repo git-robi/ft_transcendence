@@ -2,7 +2,7 @@ import Button from "../../components/Button.test";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function login() {
+function login({ setUser }: { setUser: (user: any) => void }) {
 
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -37,11 +37,10 @@ function login() {
       } 
 
       console.log("Login successful");
-      //const data = await res.json();
-      //console.log("Response data:", data);
+      const data = await res.json();
 
       // set user state
-
+      setUser(data.user);
       navigate("/");
       
 
