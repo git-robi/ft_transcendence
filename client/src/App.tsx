@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Home from './routes/routes_tests/home.test';
 import Login from './routes/routes_tests/login.test';
 import Auth from "./APIs/auth";
+import PrivacyPolicy from './routes/routes_tests/PrivacyPolicy';
+import TermsOfService from './routes/routes_tests/TermsOfService';
 
 Auth.defaults.withCredentials = true;
 
@@ -40,6 +42,8 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home user={user} setUser={setUser}/>} />
           <Route path="/login" element={<Login setUser={setUser}/>} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
         </Routes>
       </Router>
     </>
