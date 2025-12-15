@@ -1,4 +1,7 @@
-import express, {Request, Response} from "express";
+import express, { CookieOptions, Request, Response } from "express";
+import db from "../db";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const router = express.Router();
 
@@ -25,6 +28,48 @@ const router = express.Router();
 router.get("/", (req: Request, res: Response) => {
     res.status(200).json({message: "Test endpoint is working"});
 });
+
+const cookieOptions: CookieOptions = {
+    httpOnly: true, //cookies cannot be accessed by js on the client
+    secure: process.env.NODE_ENV === 'production', //it only sends cookies over https in production
+    sameSite: 'strict', //it will prevent csrf attacks
+    maxAge: 30 * 24 * 60 * 60 * 1000 //will expire in 30 days 
+}
+
+const generateToken = (id : number) => {
+    return jwt.sign({id}, process.env.JWT_SECRET as string, {
+        expiresIn: '30d'
+    });
+} //it signes tokens with userid
+
+//login checkpoint
+router.post('/login', async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    //check username 
+     const user = await db.query ('SELECT * FROM users WHERE username = $1', [username]);
+    if (user.rows.length === 0) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const userData = user.rows[0];
+
+    const isMatch = await bcrypt.compare(password, userData.password);
+
+    if (!isMatch){
+        return res.status(400).json({ message: 'Invalid credentials' });
+    } 
+    
+    const token = generateToken(userData.id);
+
+    res.cookie('token', token, cookieOptions);
+
+    res.json({ user: { id: userData.id, username: userData.username }});
+})
 
 
 export default router;
