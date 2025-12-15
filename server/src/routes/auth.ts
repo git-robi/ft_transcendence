@@ -2,7 +2,7 @@ import express, { CookieOptions, Request, Response } from "express";
 import db from "../db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { protect } from "../middleware/auth";
+import {protect } from "../middleware/auth";
 
 const router = express.Router();
 
