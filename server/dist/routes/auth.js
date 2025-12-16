@@ -1,11 +1,22 @@
-import express, { CookieOptions, Request, Response } from "express";
-import db from "../db";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import {protect } from "../middleware/auth";
-
-const router = express.Router();
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const db_1 = __importDefault(require("../db"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const auth_1 = require("../middleware/auth");
+const router = express_1.default.Router();
 /**
  * @swagger
  * /api/v1/auth/:
@@ -24,25 +35,21 @@ const router = express.Router();
  *                   type: string
  *                   example: Test endpoint is working
  */
-
 //healthcheck endpoint
-router.get("/", (req: Request, res: Response) => {
-    res.status(200).json({message: "Test endpoint is working"});
+router.get("/", (req, res) => {
+    res.status(200).json({ message: "Test endpoint is working" });
 });
-
-const cookieOptions : CookieOptions = {
+const cookieOptions = {
     httpOnly: true, //cookies cannot be accessed by js on the client
     secure: process.env.NODE_ENV === 'production', //it only sends cookies over https in production
     sameSite: 'strict', //it will prevent csrf attacks
     maxAge: 30 * 24 * 60 * 60 * 1000 //will expire in 30 days 
-}
-
-const generateToken = (id : number) => {
-    return jwt.sign({id}, process.env.JWT_SECRET as string, {
+};
+const generateToken = (id) => {
+    return jsonwebtoken_1.default.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d'
     });
-} //it signes tokens with userid
-
+}; //it signes tokens with userid
 //login checkpoint
 /**
  * @swagger
@@ -91,43 +98,30 @@ const generateToken = (id : number) => {
  *       400:
  *         description: Invalid input or invalid credentials
  */
-router.post('/login', async (req: Request, res: Response) => {
-
+router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('Login request received:', req.body);
-
     const { name, password } = req.body;
-
     if (typeof name !== "string" || typeof password !== "string") {
         return res.status(400).json({ message: "Invalid input" });
     }
-
     const normalizedName = name.trim();
-
     if (!normalizedName || !password) {
         return res.status(400).json({ message: "Please provide all required fields" });
     }
     //check username 
-     const user = await db.query ('SELECT * FROM users WHERE name = $1', [normalizedName]);
+    const user = yield db_1.default.query('SELECT * FROM users WHERE name = $1', [normalizedName]);
     if (user.rows.length === 0) {
         return res.status(400).json({ message: 'Invalid credentials' });
     }
-
     const userData = user.rows[0];
-
     //const isMatch = await bcrypt.compare(password, userData.password);
-
     //if (!isMatch){
-      //  return res.status(400).json({ message: 'Invalid credentials' });
+    //  return res.status(400).json({ message: 'Invalid credentials' });
     //} 
-    
     const token = generateToken(userData.id);
-
     res.cookie('token', token, cookieOptions);
-
-    res.status(200).json({ user: { id: userData.id, name: userData.name }});
-})
-
-
+    res.status(200).json({ user: { id: userData.id, name: userData.name } });
+}));
 //get data of logged in user
 /**
  * @swagger
@@ -152,13 +146,10 @@ router.post('/login', async (req: Request, res: Response) => {
  *       401:
  *         description: Not authorized
  */
-router.get('/me', protect, async (req: any, res: Response) => {
-    
+router.get('/me', auth_1.protect, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.user);
     res.json(req.user);
-
-})
-
+}));
 //logout endpoint
 /**
  * @swagger
@@ -184,8 +175,7 @@ router.get('/me', protect, async (req: any, res: Response) => {
  *                   example: Logged out successfully
  */
 router.post('/logout', (req, res) => {
-    res.cookie('token', '', {...cookieOptions, maxAge: 1});
+    res.cookie('token', '', Object.assign(Object.assign({}, cookieOptions), { maxAge: 1 }));
     res.json({ message: 'Logged out successfully' });
-})
-
-export default router;
+});
+exports.default = router;
