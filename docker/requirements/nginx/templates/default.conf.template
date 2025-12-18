@@ -5,7 +5,7 @@ server {
 	listen ${NGINX_PORT}; #temporary, to go away
 
 	root /var/www/;
-	index index.html index.htm index.php;
+	index index.html;
 
 	server_name				${NGINX_HOST};
 	#ssl_certificate			/etc/nginx/ssl/t42bcn.cert;
@@ -16,6 +16,12 @@ server {
 	
 	location / {
 		try_files $uri $uri/ /index.html;
+	}
+
+	location /api {
+		proxy_pass http://backend:3001;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
 	}
 	#redirect http to https?
 	#error 404?
