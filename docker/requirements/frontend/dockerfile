@@ -1,6 +1,6 @@
 FROM alpine:3.21
 
-RUN apk update && apk add --no-interactive --no-cache npm 
+RUN apk update && apk add --no-interactive --no-cache npm nodejs 
 COPY ./client /app/
 WORKDIR /app
 RUN npm install
