@@ -51,7 +51,7 @@ services:
     image: frontend:react
     volumes:
       - ../client:/src:ro
-      - frontend_data:/app 
+      - frontend_data:/app/dist 
     networks:
       - t42bcnet
     restart: unless-stopped
