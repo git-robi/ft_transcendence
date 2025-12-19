@@ -1,0 +1,30 @@
+server {
+	#listen ${NGINX_PORT} ssl;
+	#listen [::]:${NGINX_PORT} ssl;
+
+	listen ${NGINX_PORT}; #temporary, to go away
+
+	root /var/www/;
+	index index.html;
+
+	server_name				${NGINX_HOST};
+	#ssl_certificate			/etc/nginx/ssl/t42bcn.cert;
+	#ssl_certificate_key		/etc/nginx/ssl/t42bcn.key;
+	#ssl_trusted_certificate	/etc/nginx/ssl/ca_t42bcn.crt;
+	#ssl_protocols			TLSv1.2 TLSv1.3;
+	#ssl_ciphers				HIGH:!aNULL:!MD5;
+	
+	location / {
+		try_files $uri $uri/ /index.html;
+	}
+
+	location /api {
+		proxy_pass http://backend:3001/api/v1/auth;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+	#redirect http to https?
+	#error 404?
+
+}
+
