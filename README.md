@@ -42,16 +42,18 @@ PostgreSQL connection variables (used in `server/src/db/index.ts`):
 - `PGPORT`
 
 
-## Set up postgres database with Prisma ORM
+### Database Setup (PostgreSQL)
 
-We use postgres together with Prisma. That means that you need to have postgres installed and running on your computer.
-Then you need to fill the DATABASE_URL in .env with DATABASE_URL="postgresql://postgres@localhost:5432/pong_test".
+So far we have a PostgreSQL database with a `users` table to test the workflow
 
-To set up Prisma you need to run 3 commands:
+1. Create a PostgreSQL database (name should match `PGDATABASE`).
+2. Apply the schema running:
 
-1. `npx prisma migrate dev` - it inits a database with the schema in prisma schema
-2. `npx prisma generate` - it creates the prisma client, which we need for interacting with the database using ts instead of sql
-3. `npx prisma db seed` - it populates the tables with the data in the seed.ts file
+
+psql -h "$PGHOST" -U "$PGUSER" -d "$PGDATABASE" -p "$PGPORT" -f server/db/schema.
+
+After this, you can start the server and the client 
+
 
 
 
