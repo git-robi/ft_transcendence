@@ -6,29 +6,6 @@ import {protect } from "../middleware/auth";
 
 const router = express.Router();
 
-/**
- * @swagger
- * /api/v1/auth/:
- *   get:
- *     summary: Health check endpoint
- *     description: Returns a message indicating that the system is working
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Test endpoint is working
- */
-
-//healthcheck endpoint
-router.get("/", (req: Request, res: Response) => {
-    res.status(200).json({message: "Test endpoint is working"});
-});
 
 const cookieOptions : CookieOptions = {
     httpOnly: true, //cookies cannot be accessed by js on the client
@@ -44,7 +21,62 @@ const generateToken = (id : number) => {
 } //it signes tokens with userid
 
 //Register endpoint
-
+/**
+ * @swagger
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: Register
+ *     description: Creates a new user and sets a JWT in an HTTP-only cookie.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: nemo
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: nemo@example.com
+ *               password:
+ *                 type: string
+ *                 minLength: 12
+ *                 example: my_password_123
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: nemo
+ *                     email:
+ *                       type: string
+ *                       example: nemo@example.com
+ *       400:
+ *         description: Invalid input or user already exists
+ */
 router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -56,6 +88,11 @@ router.post('/register', async (req, res) => {
 
     if (userExists.rows.length > 0) {
         return res.status(400).json({ message: 'User already exists' });
+    }
+
+    //password requirements
+    if (password.length() < 12) {
+        return res.status(400).json({ message: 'Password must be at least 12 characters'});
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
