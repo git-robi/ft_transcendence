@@ -2,7 +2,7 @@
 
   "compilerOptions": {
     // File Layout
-     "rootDir": "./src",
+     //"rootDir": "./src",
      "outDir": "./dist",
      "module": "commonjs",
      "target": "es2016",
