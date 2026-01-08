@@ -3,7 +3,6 @@ import db from "../db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {protect } from "../middleware/auth";
-import passport from 'passport';
 
 const router = express.Router();
 
