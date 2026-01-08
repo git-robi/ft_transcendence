@@ -3,6 +3,7 @@ import db from "../db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {protect } from "../middleware/auth";
+import passport from 'passport';
 
 const router = express.Router();
 
@@ -250,6 +251,17 @@ router.get('/me', protect, async (req: any, res: Response) => {
 router.post('/logout', (req, res) => {
     res.cookie('token', '', {...cookieOptions, maxAge: 1});
     res.json({ message: 'Logged out successfully' });
+})
+
+// auth with google
+router.get('/google', passport.authenticate("google", {
+    scope: ['profile']
+}))
+
+//callback for google auth
+router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
+    res.send("you reached a callback uri")
+
 })
 
 export default router;
