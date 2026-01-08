@@ -1,33 +1,11 @@
 import express, { CookieOptions, Request, Response } from "express";
 import db from "../db";
+import { prisma } from "../../prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {protect } from "../middleware/auth";
 const router = express.Router();
 
-/**
- * @swagger
- * /api/v1/auth/:
- *   get:
- *     summary: Health check endpoint
- *     description: Returns a message indicating that the system is working
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Test endpoint is working
- */
-
-//healthcheck endpoint
-router.get("/", (req: Request, res: Response) => {
-    res.status(200).json({message: "Test endpoint is working"});
-});
 
 const cookieOptions : CookieOptions = {
     httpOnly: true, //cookies cannot be accessed by js on the client
@@ -43,7 +21,62 @@ const generateToken = (id : number) => {
 } //it signes tokens with userid
 
 //Register endpoint
-
+/**
+ * @swagger
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: Register
+ *     description: Creates a new user and sets a JWT in an HTTP-only cookie.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: nemo
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: nemo@example.com
+ *               password:
+ *                 type: string
+ *                 minLength: 12
+ *                 example: my_password_123
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: nemo
+ *                     email:
+ *                       type: string
+ *                       example: nemo@example.com
+ *       400:
+ *         description: Invalid input or user already exists
+ */
 router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -51,21 +84,43 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Please provide all required fields' });
     }
 
-    const userExists = await db.query ('SELECT * FROM users WHERE email = $1', [email]);
+    //const userExists = await db.query ('SELECT * FROM users WHERE email = $1', [email]);
 
-    if (userExists.rows.length > 0) {
+    const userExists = await prisma.users.findMany({
+        where: {
+            email: email
+        }
+    });
+
+    if (userExists.length > 0) {
         return res.status(400).json({ message: 'User already exists' });
+    }
+
+    //password requirements
+    if (password.length() < 12) {
+        return res.status(400).json({ message: 'Password must be at least 12 characters'});
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await db.query ('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email', [name, email, hashedPassword]);
+        const newUser = await prisma.users.create({
+        data: {
+            name,
+            email,
+            password: hashedPassword,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+        },
+    });
 
-    const token = generateToken(newUser.rows[0].id);
+    const token = generateToken(newUser.id); 
 
     res.cookie('token', token, cookieOptions);
 
-    return res.status(201).json({ user: newUser.rows[0] });
+    return res.status(201).json({ user: newUser }); 
 
 });
 
@@ -132,13 +187,18 @@ router.post('/login', async (req: Request, res: Response) => {
     if (!normalizedEmail || !password) {
         return res.status(400).json({ message: "Please provide all required fields" });
     }
-    //check username 
-     const user = await db.query ('SELECT * FROM users WHERE name = $1', [normalizedEmail]);
-    if (user.rows.length === 0) {
+    
+    const user = await prisma.users.findMany({
+        where: {
+            email: normalizedEmail
+        }
+    })
+ 
+    if (user.length === 0) {
         return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const userData = user.rows[0];
+    const userData = user[0];
 
     const isMatch = await bcrypt.compare(password, userData.password);
 
