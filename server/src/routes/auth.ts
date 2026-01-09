@@ -15,7 +15,7 @@ const cookieOptions : CookieOptions = {
     maxAge: 30 * 24 * 60 * 60 * 1000 //will expire in 30 days 
 }
 
-const generateToken = (id : number) => {
+export const generateToken = (id : number) => {
     return jwt.sign({id}, process.env.JWT_SECRET as string, {
         expiresIn: '30d'
     });
@@ -255,13 +255,22 @@ router.post('/logout', (req, res) => {
 
 // auth with google
 router.get('/google', passport.authenticate("google", {
-    scope: ['profile']
+    scope: ['profile', 'email']
 }))
 
 //callback for google auth
-router.get('/google/redirect', passport.authenticate('google'), (req, res) => {
-    res.send("you reached a callback uri")
-
+router.get('/google/redirect', passport.authenticate('google', { session: false }), (req, res) => {
+    // req.user is set by Passport after successful authentication
+    const user = req.user as { id: number };
+    
+    // Generate JWT token
+    const token = generateToken(user.id);
+    
+    // Set cookie
+    res.cookie('token', token, cookieOptions);
+    
+    // Redirect to frontend
+    res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 })
 
 export default router;
