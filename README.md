@@ -11,9 +11,9 @@
 **Install Server Dependencies:**
    - Inside the `server` directory, run:
    npm install
-   
+
    - Create a `.env` file in the `server` and fill with values (see `.env.example`)
-   
+
 <br>
 
 **Install Client Dependencies:**
@@ -78,3 +78,7 @@ The client will start on `https://localhost:5173`
 **Access API Documentation:**
 -   Visit `http://localhost:3001/api-docs` to view the Swagger API documentation.
 
+~~~
+** Game
+Actually the 'Pong' game sources are in 'game' dir.
+* See "Backlog" for more information
