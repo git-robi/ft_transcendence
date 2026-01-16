@@ -1,5 +1,4 @@
 import express, { CookieOptions, Request, Response } from "express";
-import db from "../db";
 import { prisma } from "../../prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -20,6 +19,14 @@ const generateToken = (id : number) => {
     });
 } //it signes tokens with userid
 
+router.get("/health", async (req, res) => {
+    res.send("Everything is really ok :D");
+})
+
+router.get("/users", async (req, res) => {
+    const users = await prisma.users.findMany({});
+    res.send(users);
+})
 //Register endpoint
 /**
  * @swagger
@@ -178,6 +185,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const { email, password } = req.body;
 
+
     if (typeof email !== "string" || typeof password !== "string") {
         return res.status(400).json({ message: "Invalid input" });
     }
@@ -188,17 +196,17 @@ router.post('/login', async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Please provide all required fields" });
     }
     
-    const user = await prisma.users.findMany({
+    const user = await prisma.users.findFirst({
         where: {
             email: normalizedEmail
         }
     })
  
-    if (user.length === 0) {
+    if (!user) {
         return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const userData = user[0];
+    const userData = user;
 
     const isMatch = await bcrypt.compare(password, userData.password);
 

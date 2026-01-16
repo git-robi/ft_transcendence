@@ -5,7 +5,7 @@ import Auth from "../../APIs/auth";
 
 function login({ setUser }: { setUser: (user: any) => void }) {
 
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -14,14 +14,14 @@ function login({ setUser }: { setUser: (user: any) => void }) {
 
     //check input correctness
     // this is a very basic check, we can add more validation later
-    if (!name.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       console.error("Name and password are required");
       return;
     }
 
     try {
       
-      const res = await Auth.post("/login", {name, password});
+      const res = await Auth.post("/login", {email, password});
       setUser(res.data.user);
       navigate("/");
 
@@ -35,7 +35,7 @@ function login({ setUser }: { setUser: (user: any) => void }) {
 
       <form onSubmit={(e) => handleSubmit(e)} className="bg-white p-6 rounded shadow-md" > 
         <h2 className="text-xl font-bold mb-4 flex justify-center">Login</h2>
-        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="border p-2 mb-2 w-full" />
+        <input type="text" placeholder="Name" value={email} onChange={(e) => setEmail(e.target.value)} className="border p-2 mb-2 w-full" />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-2 mb-2 w-full" />
         <div className="flex justify-end">
         <Button text="Login" type="submit" />
