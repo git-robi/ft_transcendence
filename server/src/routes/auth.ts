@@ -291,17 +291,38 @@ router.get('/google', passport.authenticate("google", {
 
 //callback for google auth
 router.get('/google/redirect', passport.authenticate('google', { session: false }), (req, res) => {
-    // req.user is set by Passport after successful authentication
+    
     const user = req.user as { id: number };
     
-    // Generate JWT token
+   
     const token = generateToken(user.id);
     
-    // Set cookie
+   
     res.cookie('token', token, cookieOptions);
     
-    // Redirect to frontend
+
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 })
+
+// auth with github
+router.get('/github', passport.authenticate("github", {
+    scope: ['profile', 'email']
+}))
+
+//callback for github auth
+router.get('/github/redirect', passport.authenticate('github', { session: false }), (req, res) => {
+    
+    const user = req.user as { id: number };
+    
+    
+    const token = generateToken(user.id);
+    
+    
+    res.cookie('token', token, cookieOptions);
+    
+    // Redirect
+    res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
+})
+
 
 export default router;
