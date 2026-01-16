@@ -40,6 +40,7 @@ function login({ setUser }: { setUser: (user: any) => void }) {
         <div className="flex justify-end">
         <Button text="Login" type="submit" />
         <Button text="Login with Google" type="button" onClick={() => window.location.href = 'http://localhost:3001/api/v1/auth/google'}/>
+        <Button text="Login with GitHub" type="button" onClick={() => window.location.href = 'http://localhost:3001/api/v1/auth/github'}/>
         </div>
       </form>
 
