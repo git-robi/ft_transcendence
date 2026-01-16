@@ -21,14 +21,6 @@ export const generateToken = (id : number) => {
     });
 } //it signes tokens with userid
 
-router.get("/health", async (req, res) => {
-    res.send("Everything is really ok :D");
-})
-
-router.get("/users", async (req, res) => {
-    const users = await prisma.users.findMany({});
-    res.send(users);
-})
 //Register endpoint
 /**
  * @swagger
@@ -284,12 +276,37 @@ router.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully' });
 })
 
-// auth with google
+/**
+ * @swagger
+ * /api/v1/auth/google:
+ *   get:
+ *     summary: Google OAuth login
+ *     description: Redirects to Google for authentication.
+ *     responses:
+ *       302:
+ *         description: Redirects to Google OAuth consent screen
+ */
 router.get('/google', passport.authenticate("google", {
     scope: ['profile', 'email']
 }))
 
-//callback for google auth
+/**
+ * @swagger
+ * /api/v1/auth/google/redirect:
+ *   get:
+ *     summary: Google OAuth callback
+ *     description: Handles the callback from Google OAuth, sets JWT cookie, and redirects to frontend.
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend after successful authentication
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Authentication failed
+ */
 router.get('/google/redirect', passport.authenticate('google', { session: false }), (req, res) => {
     
     const user = req.user as { id: number };
@@ -304,12 +321,37 @@ router.get('/google/redirect', passport.authenticate('google', { session: false 
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 })
 
-// auth with github
+/**
+ * @swagger
+ * /api/v1/auth/github:
+ *   get:
+ *     summary: GitHub OAuth login
+ *     description: Redirects to GitHub for authentication.
+ *     responses:
+ *       302:
+ *         description: Redirects to GitHub OAuth consent screen
+ */
 router.get('/github', passport.authenticate("github", {
     scope: ['profile', 'email']
 }))
 
-//callback for github auth
+/**
+ * @swagger
+ * /api/v1/auth/github/redirect:
+ *   get:
+ *     summary: GitHub OAuth callback
+ *     description: Handles the callback from GitHub OAuth, sets JWT cookie, and redirects to frontend.
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend after successful authentication
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Authentication failed
+ */
 router.get('/github/redirect', passport.authenticate('github', { session: false }), (req, res) => {
     
     const user = req.user as { id: number };
