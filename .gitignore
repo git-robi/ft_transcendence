@@ -11,4 +11,4 @@ client/.env.docker
 *.vscode
 # Data
 postgres_data/
-
+.DS_Store
