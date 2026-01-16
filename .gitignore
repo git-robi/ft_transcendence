@@ -1,5 +1,14 @@
+# Environment
 .env
+*.env.docker
+server/.env
+server/.env.docker
+client/.env
+client/.env.docker
+# Editor
 *.swp
 *.swo
 *.vscode
-
+# Data
+postgres_data/
+.DS_Store

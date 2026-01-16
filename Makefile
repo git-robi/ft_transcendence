@@ -1,29 +1,18 @@
-# Project configuration
-DOCKER := docker/docker-compose.yaml
-PROJECT_NAME := t42bcn
-
-# Default target
 all: up
-
-# Start containers in detached mode
+#build and start containers 
 up:
-	@echo "Starting containers in detached mode..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) up -d --build
-
-# Stop and remove containers, networks, and volumes
+	docker compose up --build -d
+#stop them
 down:
-	@echo "Stopping and removing containers, networks, and volumes..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) down
-
-# Rebuild and restart containers
+	docker compose down
 re:
-	@echo "Rebuilding and restarting containers..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) up -d --build --force-recreate
-
-# Clean up: stop containers and remove all resources
+	docker compose up --build -d --force-recreate
+#stop containers and delete volumes and delete folder postgres_data
 clean:
-	@echo "Cleaning up: stopping containers and removing all resources..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) down -v --rmi all && \
-	docker system prune -a --volumes -f
+	docker compose down -v
+	rm -rf ./postgres_data
+#to show the logs (if we need them)
+logs:
+	docker compose logs -f
 
-.PHONY: all up down re clean
+.PHONY: all up down re clean logs
