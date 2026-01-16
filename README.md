@@ -2,6 +2,8 @@
 
 ## Hey guys, here are the instructions so that you can start develope the app using docker instead of doing it locally :D
 
+N.B: This is just a temporary setup, Marc is working on the final and more complex setup.
+
 <b>
 ### Need to Install
 
@@ -28,7 +30,6 @@ In the Makefile you will find description of every command.
 
 ### And that's it!
 That's it basically, you can start working accessing the website through the browser while everything will run on containers in detatched mode so you will be able to use the terminal :D
-We still have to add a proxy to the docker for https connection, domain and all the other production requirement. Right now in development this is not a problem, it will not impact in any way the work that we'll do in the app. 
 
 </b>
 
