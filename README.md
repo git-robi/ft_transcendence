@@ -1,80 +1,37 @@
+# new approach - dockerized development 
 
+## Hey guys, here are the instructions so that you can start develope the app using docker instead of doing it locally :D
+
+<b>
 ### Need to Install
 
-- [Node.js](https://nodejs.org/)
-- npm (comes with Node.js)
+- [Docker](https://www.docker.com/) and Docker Compose
 
-<br>
+</b>
+<b>
 
-### Installation of server and client dependencies
+### Create and populate the environment variables files
 
-**Install Server Dependencies:**
-   - Inside the `server` directory, run:
-   npm install
-   
-   - Create a `.env` file in the `server` and fill with values (see `.env.example`)
-   
-<br>
+The values of the variables must be shared privately so you'll have to ask me for them. We can use the service share.doppler.com to share env values securely.
+The files that you have to create are:
 
-**Install Client Dependencies:**
-   - Inside the `client` directory, run:
-   npm install
+   1. In the root folder, create a .env file and put in it all the variables that you find in ./.env.example. 
 
-<br>
+   2. In the '/server' folder you will have to create 2 files: .env and .env.docker. They are quite identical, the only exception is the DATABASE_URL. You can find instructions in the /server/.env.example file.
 
-<br>
+</b>
+<b>
 
-### Server Environment (.env)
+### Run the containers with Makefile
 
-Create a `.env` file inside the `server/` folder (see `server/.env.example`)
+In the Makefile you will find description of every command.
 
-Required variables:
+### And that's it!
+That's it basically, you can start working accessing the website through the browser while everything will run on containers in detatched mode so you will be able to use the terminal :D
+We still have to add a proxy to the docker for https connection, domain and all the other production requirement. Right now in development this is not a problem, it will not impact in any way the work that we'll do in the app. 
 
-- `PORT` (example: `3001`)
-- `CLIENT_URL` (example: `http://localhost:5173`)
-- `JWT_SECRET` (any long random string will do, you can run `openssl rand -hex 32` to generate one)
-
-PostgreSQL connection variables (used in `server/src/db/index.ts`):
-
-- `PGUSER`
-- `PGHOST`
-- `PGDATABASE`
-- `PGPORT`
-
-
-## Set up postgres database with Prisma ORM
-
-We use postgres together with Prisma. That means that you need to have postgres installed and running on your computer.
-Then you need to fill the DATABASE_URL in .env with DATABASE_URL="postgresql://postgres@localhost:5432/pong_test".
-
-To set up Prisma you need to run 3 commands:
-
-1. `npx prisma migrate dev` - it inits a database with the schema in prisma schema
-2. `npx prisma generate` - it creates the prisma client, which we need for interacting with the database using ts instead of sql
-3. `npx prisma db seed` - it populates the tables with the data in the seed.ts file
-
-
-
-### Running the App
-
-You need to run the server and client in separate terminals.
-
-**Start the API Server:**
-- Inside the `server` directory, run:
-npm run dev
-
-The server will start on `http://localhost:3001`
-
-<br>
-
-**Start the Client:**
-- Inside the `client` directory, run:
-npm run dev
-
-The client will start on `https://localhost:5173`
-
-<br>
+</b>
 
 **Access API Documentation:**
--   Visit `http://localhost:3001/api-docs` to view the Swagger API documentation.
+-  Go to `http://localhost:3001/api-docs` to view the Swagger API documentation.
 

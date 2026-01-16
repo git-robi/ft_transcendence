@@ -1,5 +1,5 @@
 import express, { CookieOptions, Request, Response } from "express";
-import db from "../db";
+import { prisma } from "../../prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {protect } from "../middleware/auth";
@@ -21,6 +21,14 @@ export const generateToken = (id : number) => {
     });
 } //it signes tokens with userid
 
+router.get("/health", async (req, res) => {
+    res.send("Everything is really ok :D");
+})
+
+router.get("/users", async (req, res) => {
+    const users = await prisma.users.findMany({});
+    res.send(users);
+})
 //Register endpoint
 /**
  * @swagger
@@ -85,9 +93,15 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Please provide all required fields' });
     }
 
-    const userExists = await db.query ('SELECT * FROM users WHERE email = $1', [email]);
+    //const userExists = await db.query ('SELECT * FROM users WHERE email = $1', [email]);
 
-    if (userExists.rows.length > 0) {
+    const userExists = await prisma.users.findMany({
+        where: {
+            email: email
+        }
+    });
+
+    if (userExists.length > 0) {
         return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -98,13 +112,24 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await db.query ('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email', [name, email, hashedPassword]);
+        const newUser = await prisma.users.create({
+        data: {
+            name,
+            email,
+            password: hashedPassword,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+        },
+    });
 
-    const token = generateToken(newUser.rows[0].id);
+    const token = generateToken(newUser.id); 
 
     res.cookie('token', token, cookieOptions);
 
-    return res.status(201).json({ user: newUser.rows[0] });
+    return res.status(201).json({ user: newUser }); 
 
 });
 
@@ -162,6 +187,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const { email, password } = req.body;
 
+
     if (typeof email !== "string" || typeof password !== "string") {
         return res.status(400).json({ message: "Invalid input" });
     }
@@ -171,13 +197,18 @@ router.post('/login', async (req: Request, res: Response) => {
     if (!normalizedEmail || !password) {
         return res.status(400).json({ message: "Please provide all required fields" });
     }
-    //check username 
-     const user = await db.query ('SELECT * FROM users WHERE name = $1', [normalizedEmail]);
-    if (user.rows.length === 0) {
+    
+    const user = await prisma.users.findFirst({
+        where: {
+            email: normalizedEmail
+        }
+    })
+ 
+    if (!user) {
         return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const userData = user.rows[0];
+    const userData = user;
 
     const isMatch = await bcrypt.compare(password, userData.password);
 
