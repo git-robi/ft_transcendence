@@ -7,8 +7,8 @@ dotenv.config();
 
 passport.use(
     new GoogleStrategy({
-        clientID: process.env.ID_CLIENT!,
-        clientSecret: process.env.CLIENT_SECRET!,
+        clientID: process.env.GOOGLE_ID_CLIENT!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         callbackURL: 'http://localhost:3001/api/v1/auth/google/redirect'
     }, async (accessToken, refreshToken, profile, done) => {
         try {
