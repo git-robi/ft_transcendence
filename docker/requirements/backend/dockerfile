@@ -5,6 +5,7 @@
 ARG NODE_VERSION=lts-alpine
 FROM node:${NODE_VERSION} AS base
 
+RUN apk update && apk add nano curl postgresql-client
 # Set working directory
 WORKDIR /app
 
@@ -54,12 +55,30 @@ FROM build-deps AS build
 # Copy only necessary files for building (respects .dockerignore)
 COPY --chown=nodejs:nodejs ./server /app
 
-# Build the application
-#RUN npm run build
+# Generate the application
+RUN npx prisma generate
 
 # Set proper ownership
 RUN chown -R nodejs:nodejs /app
-ENTRYPOINT ["tail", "-f"]
+
+# ========================================
+# Prisma Migration Stage
+# ========================================
+FROM build-deps AS migration
+
+ARG DATABASE_URL
+# Set environment
+ENV NODE_ENV=development \
+    NPM_CONFIG_LOGLEVEL=warn \
+	DATABASE_URL=${DATABASE_URL}
+
+# Copy source files
+COPY ./server /app
+RUN echo ${DATABASE_URL}
+RUN echo ${GIT_BRANCH}
+ENTRYPOINT ["npx", "prisma", "migrate", "dev", "--name='$GIT_BRANCH'"]
+#RUN npx prisma generate
+#ENTRYPOINT ["tail", "-f"]
 
 # ========================================
 # Development Stage
@@ -70,22 +89,22 @@ FROM build-deps AS development
 ENV NODE_ENV=development \
     NPM_CONFIG_LOGLEVEL=warn
 
-# Copy source files
-COPY ./server/src /app/src
-
+COPY ./server /app
+COPY ./docker/requirements/backend/entrypoint.sh /app/entrypoint.sh
 # Ensure all directories have proper permissions
-RUN mkdir -p /app/node_modules/.vite && \
-    chown -R nodejs:nodejs /app && \
+RUN chown -R nodejs:nodejs /app && \
     chmod -R 755 /app
+RUN chmod +x /app/entrypoint.sh
 
 # Switch to non-root user
-USER nodejs
+#USER nodejs
 
 # Expose ports
-#EXPOSE 3000 5173 9229
+EXPOSE 3001
 
 # Start development server
-CMD ["npm", "run", "dev"]
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+#CMD ["npm", "run", "dev"]
 
 # ========================================
 # Production Stage
@@ -110,7 +129,7 @@ ENV NODE_ENV=production \
 COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=deps --chown=nodejs:nodejs /app/package*.json ./
 # Copy built application from build stage
-COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
+#COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
 
 # Switch to non-root user for security
 USER nodejs
@@ -119,7 +138,7 @@ USER nodejs
 EXPOSE 3001
 
 # Start production server
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/index.js"]
 
 # ========================================
 # Test Stage

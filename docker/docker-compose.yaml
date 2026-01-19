@@ -8,7 +8,7 @@ networks:
 volumes:
   db_data:
   frontend_data:
-  backend_data:
+  prisma_migrations:
 
 services:
   #NGINX PROXY
@@ -41,6 +41,11 @@ services:
     networks:
       - t42bcnet
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   
   #FRONTEND
   frontend:
@@ -69,15 +74,23 @@ services:
     build: 
       context: ../
       dockerfile: docker/requirements/backend/dockerfile
-      target: build
+      target: development
       args:
         - NODE_VERSION=lts-alpine
+        - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:${DB_PORT}/${DB_NAME}?schema=prisma&connection_limit=5
     working_dir: /app
-    #environment:
+    volumes:
+      - prisma_migrations:/app/prisma/migrations
+      - ../server/prisma/migrations:/migrations
+    environment:
     #  - NODE_ENV=production
-    #- VITE_API_URL=http://backend:${BACKEND_PORT}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:${DB_PORT}/${DB_NAME}?schema=prisma&connection_limit=5
+      - GIT_BRANCH=${GIT_BRANCH}
     ports:
       - "3001:3001"
     networks:
       - t42bcnet
     restart: unless-stopped
+    depends_on:
+      postgresql:
+        condition: service_healthy

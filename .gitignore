@@ -1,3 +1,6 @@
+.env.development
+certs/
+node_modules
 .env
 *.swp
 *.swo

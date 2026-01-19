@@ -1,6 +1,6 @@
 import express, { CookieOptions, Request, Response } from "express";
 import db from "../db";
-import { prisma } from "../../prisma/client";
+import { prisma } from "../prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {protect } from "../middleware/auth";
