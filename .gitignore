@@ -1,11 +1,5 @@
-.env.development
-certs/
-node_modules
 .env
 *.swp
 *.swo
 *.vscode
-/server/src/generated/prisma
-/server/dist
-/client/dist
 
