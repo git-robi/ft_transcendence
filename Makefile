@@ -1,6 +1,8 @@
 # Project configuration
 DOCKER := docker/docker-compose.yaml
 PROJECT_NAME := t42bcn
+GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD || echo "unkown")
+export GIT_BRANCH
 
 # Default target
 all: up
