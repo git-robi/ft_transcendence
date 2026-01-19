@@ -48,36 +48,54 @@ services:
     build: 
       context: ../
       dockerfile: docker/requirements/frontend/dockerfile
-      target: development
-      args:
-        - NODE_VERSION=lts-alpine
+      ARG:
+        - VITE_API_URL=http://backend:${BACKEND_PORT}
     working_dir: /app
-    #environment:
-    #  - NODE_ENV=production
-      #- VITE_API_URL=http://backend:${BACKEND_PORT}
+    image: frontend:react
     volumes:
-      - frontend_data:/app/dist
-    ports:
-      - "5173:5173"
+      - ../client:/src:ro
+      #- frontend_data:/app/dist 
+    environment:
+      - VITE_API_URL=http://backend:${BACKEND_PORT}
     networks:
       - t42bcnet
     restart: unless-stopped
   
   #BACKEND
   backend:
+    image: node:lts-alpine
     container_name: backend
     build: 
       context: ../
-      dockerfile: docker/requirements/backend/dockerfile
-      target: build
-      args:
-        - NODE_VERSION=lts-alpine
+      dockerfile: docker/requirements/backend/dockerfile 
     working_dir: /app
-    #environment:
-    #  - NODE_ENV=production
-    #- VITE_API_URL=http://backend:${BACKEND_PORT}
-    ports:
-      - "3001:3001"
+    image: backend:express
+    environment:
+      - PORT=${BACKEND_PORT}
+      - PGHOST=${DB_HOST}
+      - PGUSER=${DB_USER}
+      - PGDATABASE=${DB_NAME}
+      - PGPASSWORD=${DB_PASSWORD}
+      - PGPORT=${DB_PORT}
+      - CLIENT_URL=${CLIENT_URL}
+      - JWT_SECRET=${BACKEND_JWT_SECRET}
+    volumes:
+      - ../server/src:/src:ro
+      #- backend_data:/app/dist 
+    networks:
+      - t42bcnet
+    restart: unless-stopped
+  
+  #BACKEND2
+  backend2:
+    container_name: backend2
+    image: node:lts-alpine
+    working_dir: /app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ../server:/app
+    command: ["npm", "start"]
     networks:
       - t42bcnet
     restart: unless-stopped

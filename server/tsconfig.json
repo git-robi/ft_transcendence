@@ -2,15 +2,19 @@
 
   "compilerOptions": {
     // File Layout
-     //"rootDir": "./src",
+     "baseUrl": "./",
+     "rootDir": "./src",
      "outDir": "./dist",
      "module": "commonjs",
      "target": "es2016",
      "strict": true,
      "esModuleInterop": true,
-     "skipLibCheck": true
+     "skipLibCheck": true,
+	 "paths": {
+	 	"prisma/client": ["node_modules/.prisma/client"]
+	 }
   },
 
   "include": ["src/**/*.ts"],
-  "exclude":  ["node_modules"]
+  "exclude":  ["node_modules", "prisma"]
 }

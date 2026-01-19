@@ -1,0 +1,14 @@
+FROM alpine:3.21
+
+RUN apk update && apk add --no-interactive --no-cache npm nodejs 
+
+RUN mkdir /app
+WORKDIR /app
+COPY ./server/ /app/
+
+ENTRYPOINT ["tail", "-f"]
+#RUN npm install
+#RUN npx prisma generate
+#RUN npm run build
+
+#CMD ["node", "dist/main.js"]
