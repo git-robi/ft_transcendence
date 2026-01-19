@@ -2,4 +2,7 @@
 *.swp
 *.swo
 *.vscode
+/server/src/generated/prisma
+/server/dist
+/client/dist
 
