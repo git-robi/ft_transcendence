@@ -18,7 +18,6 @@ services:
     build: 
       target: development
       args:
-        NODE_VERSION: lts-alpine
         NODE_ENV: development
         NPM_CONFIG_LOGLEVEL: warn
         PORT: ${FRONTEND_PORT}
@@ -36,7 +35,6 @@ services:
     build: 
       target: development
       args:
-        NODE_VERSION: lts-alpine
         DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
         NODE_ENV: development
         NPM_CONFIG_LOGLEVEL: warn
