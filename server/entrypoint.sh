@@ -2,8 +2,6 @@
 set -e
 if [ "$NODE_ENV" = "production" ]; then
 	npx prisma migrate deploy
-	npx prisma generate
-	npm run build
 	node dist/index.js
 elif [ "$NODE_ENV" = "migration" ]; then
 	npx prisma migrate dev --name="$MIGRATION_NAME"
