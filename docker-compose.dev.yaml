@@ -17,18 +17,30 @@ services:
   frontend:
     build: 
       target: development
+      args:
+        NODE_VERSION: lts-alpine
+        NODE_ENV: development
+        NPM_CONFIG_LOGLEVEL: warn
+        PORT: ${FRONTEND_PORT}
     environment:
       - VITE_API_URL=http://backend:${BACKEND_PORT}
       - VITE_APP_ENV=development
+      - NODE_ENV=development
+      - NPM_CONFIG_LOGLEVEL=warn
     ports:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    restart: unless-stopped
   
   #BACKEND
   backend:
     build: 
       target: development
       args:
-        - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+        NODE_VERSION: lts-alpine
+        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+        NODE_ENV: development
+        NPM_CONFIG_LOGLEVEL: warn
+        PORT: ${BACKEND_PORT}
     working_dir: /app
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
