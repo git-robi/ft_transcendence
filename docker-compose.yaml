@@ -53,14 +53,11 @@ services:
     build: 
       context: ./
       dockerfile: client/dockerfile
-      target: build
-      #target: ${BUILD_TARGET:-development}
-      args:
-        NODE_VERSION: lts-alpine
+      target: ${NODE_ENV:-development}
     working_dir: /app
     environment:
       - VITE_API_URL=http://backend:${BACKEND_PORT}
-      - VITE_APP_ENV=${BUILD_TARGET:-development}
+      - VITE_APP_ENV=${NODE_ENV:-development}
     volumes:
       - frontend_data:/app/dist
     networks:
@@ -73,9 +70,9 @@ services:
     build: 
       context: ./
       dockerfile: server/dockerfile
-      target: ${BUILD_TARGET:-development}
+      #target: build
+      target: ${NODE_ENV:-development}
       args:
-        NODE_VERSION: lts-alpine
         DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
     working_dir: /app
     volumes:
@@ -87,7 +84,7 @@ services:
       - PORT=${BACKEND_PORT}
       - JWT_SECRET=${BACKEND_JWT_SECRET}
       - BASE_URL=${CLIENT_URL}
-      - NODE_ENV=${BUILD_TARGET:-development}
+      - NODE_ENV=${NODE_ENV:-development}
     networks:
       - t42bcnet
     restart: unless-stopped
