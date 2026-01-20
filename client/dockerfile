@@ -2,7 +2,7 @@
 # Optimized Multi-Stage Dockerfile
 # Node.js TypeScript Application
 # ========================================
-ARG NODE_VERSION
+ARG NODE_VERSION=lts-alpine
 FROM node:${NODE_VERSION} AS base
 
 # Set working directory
@@ -59,7 +59,6 @@ RUN npm run build
 
 # Set proper ownership
 RUN chown -R nodejs:nodejs /app
-#ENTRYPOINT ["tail", "-f"]
 
 # ========================================
 # Development Stage
@@ -94,7 +93,7 @@ CMD ["npm", "run", "dev", "--", "--host"]
 # ========================================
 # Production Stage
 # ========================================
-ARG NODE_VERSION
+ARG NODE_VERSION=lts-alpine
 FROM node:${NODE_VERSION} AS production
 
 # Set working directory
