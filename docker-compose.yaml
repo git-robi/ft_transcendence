@@ -18,7 +18,7 @@ services:
     networks:
       - t42bcnet
     volumes:
-      - ./requirements/nginx/templates/:/etc/nginx/templates
+      - ./nginx:/etc/nginx/templates
       - frontend_data:/var/www/:ro 
     environment:
       - NGINX_HOST=${NGINX_HOST}
@@ -37,7 +37,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./requirements/postgresql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./postgresql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - t42bcnet
     restart: unless-stopped
@@ -48,11 +48,11 @@ services:
       retries: 5
   
   #FRONTEND
-  frontend:
+  frontend_dev:
     container_name: frontend
     build: 
-      context: ../
-      dockerfile: docker/requirements/frontend/dockerfile
+      context: ./
+      dockerfile: client/dockerfile
       target: development
       args:
         - NODE_VERSION=lts-alpine
@@ -69,22 +69,22 @@ services:
     restart: unless-stopped
   
   #BACKEND
-  backend:
+  backend_dev:
     container_name: backend
     build: 
-      context: ../
-      dockerfile: docker/requirements/backend/dockerfile
+      context: ./
+      dockerfile: server/dockerfile
       target: development
       args:
         - NODE_VERSION=lts-alpine
-        - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:${DB_PORT}/${DB_NAME}?schema=prisma&connection_limit=5
+        - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:${DB_PORT}/${DB_NAME}?schema=dev&connection_limit=5
     working_dir: /app
     volumes:
       - prisma_migrations:/app/prisma/migrations
-      - ../server/prisma/migrations:/migrations
+      - ./server/prisma/migrations:/migrations
     environment:
     #  - NODE_ENV=production
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:${DB_PORT}/${DB_NAME}?schema=prisma&connection_limit=5
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:${DB_PORT}/${DB_NAME}?schema=dev&connection_limit=5
       - GIT_BRANCH=${GIT_BRANCH}
     ports:
       - "3001:3001"

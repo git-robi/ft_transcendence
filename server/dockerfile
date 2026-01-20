@@ -90,7 +90,7 @@ ENV NODE_ENV=development \
     NPM_CONFIG_LOGLEVEL=warn
 
 COPY ./server /app
-COPY ./docker/requirements/backend/entrypoint.sh /app/entrypoint.sh
+COPY ./server/entrypoint.sh /app/entrypoint.sh
 # Ensure all directories have proper permissions
 RUN chown -R nodejs:nodejs /app && \
     chmod -R 755 /app
