@@ -2,7 +2,7 @@
 # Optimized Multi-Stage Dockerfile
 # Node.js TypeScript Application
 # ========================================
-ARG NODE_VERSION=lts-alpine
+ARG NODE_VERSION
 FROM node:${NODE_VERSION} AS base
 
 # Set working directory
@@ -12,7 +12,6 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 -G nodejs && \
     chown -R nodejs:nodejs /app
-
 
 # ========================================
 # Dependencies Stage
@@ -60,15 +59,20 @@ RUN npm run build
 
 # Set proper ownership
 RUN chown -R nodejs:nodejs /app
+#ENTRYPOINT ["tail", "-f"]
 
 # ========================================
 # Development Stage
 # ========================================
 FROM build-deps AS development
 
+ARG NODE_ENV \
+	NPM_CONFIG_LOGLEVEL \
+	PORT
+
 # Set environment
-ENV NODE_ENV=development \
-    NPM_CONFIG_LOGLEVEL=warn
+ENV NODE_ENV=${NODE_ENV} \
+    NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
 
 # Copy source files
 COPY ./client /app
@@ -82,7 +86,7 @@ RUN mkdir -p /app/node_modules/.vite && \
 USER nodejs
 
 # Expose ports
-#EXPOSE 3000 5173 9229
+EXPOSE ${PORT}
 
 # Start development server
 CMD ["npm", "run", "dev", "--", "--host"]
@@ -90,7 +94,7 @@ CMD ["npm", "run", "dev", "--", "--host"]
 # ========================================
 # Production Stage
 # ========================================
-ARG NODE_VERSION=lts-alpine
+ARG NODE_VERSION
 FROM node:${NODE_VERSION} AS production
 
 # Set working directory
@@ -112,31 +116,6 @@ COPY --from=deps --chown=nodejs:nodejs /app/package*.json ./
 # Copy built application from build stage
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
 
+CMD ["/bin/sh", "-c", "echo 'Build complete' && exit 0"]
 # Switch to non-root user for security
-USER nodejs
-
-# Expose port
-EXPOSE 3000
-
-# Start production server
-CMD ["node", "dist/server.js"]
-
-# ========================================
-# Test Stage
-# ========================================
-FROM build-deps AS test
-
-# Set environment
-ENV NODE_ENV=test \
-    CI=true
-
-# Copy source files
-COPY --chown=nodejs:nodejs . .
-
-# Switch to non-root user
-USER nodejs
-
-# Run tests with coverage
-CMD ["npm", "run", "test:coverage"]
-
-
+#USER nodejs
