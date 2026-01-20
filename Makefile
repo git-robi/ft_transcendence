@@ -1,31 +1,39 @@
 # Project configuration
 DOCKER := docker-compose.yaml
+DOCKER_DEV := docker-compose.dev.yaml
 PROJECT_NAME := t42bcn
-GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD || echo "unkown")
+GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD || echo "unknown")
 export GIT_BRANCH
 
-# Default target
-all: up
+.PHONY: dev prod re clean fclean help
+all: dev
+help:
+	@echo "Available targets:"
+	@echo "  dev      - Run docker compose with dev config (.dev.yml and .env.development)"
+	@echo "  prod     - Run docker compose with prod config (.yml and .env)"
+	@echo "  re       - Rebuild containers in dev environment"
+	@echo "  clean    - Take down containers but leave volumes intact"
+	@echo "  fclean   - Take down containers and purge volumes and networks"
+	@echo "  help     - Display available targets"
 
-# Start containers in detached mode
-up:
-	@echo "Starting containers in detached mode..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) up -d --build
+dev:
+	@echo "Starting dev environment..." && \
+	docker compose -p $(PROJECT_NAME) -f $(DOCKER) -f $(DOCKER_DEV) --env-file .env.development up -d --build
 
-# Stop and remove containers, networks, and volumes
-down:
-	@echo "Stopping and removing containers, networks, and volumes..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) down
+prod:
+	@echo "Starting prod environment..." && \
+	docker compose -p $(PROJECT_NAME) -f $(DOCKER) --env-file .env up -d --build
 
-# Rebuild and restart containers
 re:
-	@echo "Rebuilding and restarting containers..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) up -d --build --force-recreate
+	@echo "Rebuilding containers in dev environment..." && \
+	docker compose -p $(PROJECT_NAME) -f $(DOCKER) -f $(DOCKER_DEV) --env-file .env.development up -d --build --force-recreate
 
-# Clean up: stop containers and remove all resources
 clean:
-	@echo "Cleaning up: stopping containers and removing all resources..." && \
-	docker compose -p $(PROJECT_NAME) -f $(DOCKER) down -v --rmi all && \
+	@echo "Taking down containers but leaving volumes intact..." && \
+	docker compose -p $(PROJECT_NAME) -f $(DOCKER) -f $(DOCKER_DEV) --env-file .env.development down
+
+fclean:
+	@echo "Taking down containers and purging volumes and networks..." && \
+	docker compose -p $(PROJECT_NAME) -f $(DOCKER) -f $(DOCKER_DEV) --env-file .env.development down -v --rmi all && \
 	docker system prune -a --volumes -f
 
-.PHONY: all up down re clean

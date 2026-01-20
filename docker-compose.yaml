@@ -1,4 +1,4 @@
-#YAML file for Transcendance
+#Default YAML file for Transcendance
 
 networks:
   t42bcnet:
@@ -47,47 +47,31 @@ services:
       timeout: 5s
       retries: 5
 
-  #ADMINER
-  adminer:
-    container_name: adminer
-    image: adminer:latest
-    ports:
-      - 8080:8080
-    networks:
-      - t42bcnet
-    depends_on:
-      - postgresql
-  
   #FRONTEND
-  frontend_dev:
+  frontend:
     container_name: frontend
     build: 
       context: ./
       dockerfile: client/dockerfile
-      target: development
-      args:
-        - NODE_VERSION=lts-alpine
+      target: ${BUILD_TARGET:-development}
     working_dir: /app
     environment:
       - VITE_API_URL=http://backend:${BACKEND_PORT}
-      - VITE_APP_ENV=development
+      - VITE_APP_ENV=${BUILD_TARGET:-development}
     volumes:
       - frontend_data:/app/dist
-    ports:
-      - ${FRONTEND_PORT}:${FRONTEND_PORT}
     networks:
       - t42bcnet
     restart: unless-stopped
   
   #BACKEND
-  backend_dev:
+  backend:
     container_name: backend
     build: 
       context: ./
       dockerfile: server/dockerfile
-      target: development
+      target: ${BUILD_TARGET:-development}
       args:
-        - NODE_VERSION=lts-alpine
         - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
     working_dir: /app
     volumes:
@@ -99,12 +83,7 @@ services:
       - PORT=${BACKEND_PORT}
       - JWT_SECRET=${BACKEND_JWT_SECRET}
       - BASE_URL=${CLIENT_URL}
-      - LOG_LEVEL=debug
-      - NODE_ENV=development
-      - PRISMA_QUERY_LOGGING=true
-      - PRISMA_METRICS=true
-    ports:
-      - ${BACKEND_PORT}:${BACKEND_PORT}
+      - NODE_ENV=${BUILD_TARGET:-development}
     networks:
       - t42bcnet
     restart: unless-stopped
