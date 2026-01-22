@@ -1,14 +1,18 @@
 #!/bin/sh
-# Wait for database to be ready
-echo "Waiting for database..."
-sleep 3
-# Run migrations
-echo "Running Prisma migrations..."
-npx prisma migrate deploy
-
-npx prisma generate
-
-npx prisma db seed 
-
-echo "Starting server..."
-npm run dev
+set -e
+if [ "$NODE_ENV" = "production" ]; then
+	npx prisma migrate deploy
+	node dist/index.js
+elif [ "$NODE_ENV" = "migration" ]; then
+	npx prisma migrate dev --name="$MIGRATION_NAME"
+	cd /migrations
+	cp -r /app/prisma/migrations/* .
+else
+	npx prisma migrate dev --name="$GIT_BRANCH"
+	mkdir -p /migrations
+	cd /migrations
+	cp -r /app/prisma/migrations/* .
+	cd /app
+	npx prisma generate
+	npm run dev
+fi
