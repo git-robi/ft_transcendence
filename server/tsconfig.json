@@ -5,11 +5,21 @@
     "outDir": "./dist",
      "module": "commonjs",
      "target": "es2016",
+     "baseUrl": "./",
+     "rootDir": "./src",
+     "outDir": "./dist",
+     //"module": "ESNext",
+	 //"moduleResolution": "node",
+	 "module": "commonjs",
+     //"target": "ES2023",
      "strict": true,
      "esModuleInterop": true,
-     "skipLibCheck": true
+     "skipLibCheck": true,
+	 "paths": {
+	 	"prisma/client": ["node_modules/.prisma/client"]
+	 }
   },
 
   "include": ["src/**/*.ts"],
-  "exclude":  ["node_modules"]
+  "exclude":  ["node_modules", "prisma"]
 }

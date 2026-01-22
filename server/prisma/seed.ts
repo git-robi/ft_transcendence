@@ -1,5 +1,6 @@
-import { prisma } from "./client";
+//import { prisma } from "./client";
 import bcrypt from "bcrypt"
+import { PrismaClient } from '../src/prisma/generated/prisma/client';
 
 async function seed() {
     const hashedPassword = await bcrypt.hash("pong123", 10);

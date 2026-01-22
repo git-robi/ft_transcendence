@@ -1,0 +1,25 @@
+#Production YAML file for Transcendance
+
+services:
+  #FRONTEND
+  frontend:
+    build: 
+      target: production
+    environment:
+      - VITE_API_URL=http://backend:${BACKEND_PORT}
+      - VITE_APP_ENV=production
+  
+  #BACKEND
+  backend:
+    build: 
+      target: production
+      args:
+        - DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+    working_dir: /app
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+      - GIT_BRANCH=${GIT_BRANCH}
+      - PORT=${BACKEND_PORT}
+      - JWT_SECRET=${BACKEND_JWT_SECRET}
+      - BASE_URL=${CLIENT_URL}
+      - NODE_ENV=production
