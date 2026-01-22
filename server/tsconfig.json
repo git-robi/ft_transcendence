@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
-    "outDir": "./dist",
+     "rootDir": "./src",
+     "outDir": "./dist",
      "module": "commonjs",
      "target": "es2016",
      "baseUrl": "./",
-     "rootDir": "./src",
-     "outDir": "./dist",
      //"module": "ESNext",
 	 //"moduleResolution": "node",
 	 "module": "commonjs",
@@ -15,11 +13,8 @@
      "strict": true,
      "esModuleInterop": true,
      "skipLibCheck": true,
-	 "paths": {
-	 	"prisma/client": ["node_modules/.prisma/client"]
-	 }
   },
 
-  "include": ["src/**/*.ts"],
-  "exclude":  ["node_modules", "prisma"]
+  "include": ["src/**/*.ts", "prisma/client.ts"],
+  "exclude":  ["node_modules"]
 }
