@@ -1,8 +1,8 @@
 # Environment
-.env.development
 certs/
 node_modules
-.env
+.env.*
+!.env.example
 # Editor
 *.swp
 *.swo
