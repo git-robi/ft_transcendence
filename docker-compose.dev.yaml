@@ -35,13 +35,13 @@ services:
     build: 
       target: development
       args:
-        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
         NODE_ENV: development
         NPM_CONFIG_LOGLEVEL: warn
         PORT: ${BACKEND_PORT}
     working_dir: /app
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
       - GIT_BRANCH=${GIT_BRANCH}
       - PORT=${BACKEND_PORT}
       - JWT_SECRET=${BACKEND_JWT_SECRET}

@@ -54,10 +54,10 @@ services:
       context: ./
       dockerfile: client/dockerfile
       target: ${NODE_ENV:-development}
+      args:
+        VITE_API_URL: /api/v1
+        #VITE_API_URL: http://backend:${BACKEND_PORT}
     working_dir: /app
-    environment:
-      - VITE_API_URL=http://backend:${BACKEND_PORT}
-      - VITE_APP_ENV=${NODE_ENV:-development}
     volumes:
       - frontend_data:/app/dist
     networks:
@@ -73,18 +73,22 @@ services:
       #target: build
       target: ${NODE_ENV:-development}
       args:
-        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
     working_dir: /app
     volumes:
       - prisma_migrations:/app/prisma/migrations
       - ./server/prisma/migrations:/migrations
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=prisma
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
       - GIT_BRANCH=${GIT_BRANCH}
       - PORT=${BACKEND_PORT}
       - JWT_SECRET=${BACKEND_JWT_SECRET}
       - BASE_URL=${CLIENT_URL}
       - NODE_ENV=${NODE_ENV:-development}
+      - GOOGLE_ID_CLIENT=${GOOGLE_ID_CLIENT}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GITHUB_ID_CLIENT=${GITHUB_ID_CLIENT}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
     networks:
       - t42bcnet
     restart: unless-stopped
