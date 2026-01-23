@@ -15,6 +15,6 @@
      "skipLibCheck": true,
   },
 
-  "include": ["src/**/*.ts", "prisma/client.ts"],
+  "include": ["src/**/*.ts"],
   "exclude":  ["node_modules"]
 }

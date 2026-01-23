@@ -50,6 +50,10 @@ RUN mkdir -p /app/node_modules/.vite && \
 # Build Stage
 # ========================================
 FROM build-deps AS build
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
+RUN echo $VITE_API_URL
 
 # Copy only necessary files for building (respects .dockerignore)
 COPY --chown=nodejs:nodejs ./client /app
@@ -88,6 +92,7 @@ USER nodejs
 EXPOSE ${PORT}
 
 # Start development server
+#ENTRYPOINT ["tail", "-f"]
 CMD ["npm", "run", "dev", "--", "--host"]
 
 # ========================================

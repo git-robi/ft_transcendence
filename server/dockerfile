@@ -104,6 +104,7 @@ RUN chmod +x /app/entrypoint.sh
 EXPOSE ${PORT}
 
 # Start development server
+#ENTRYPOINT ["tail", "-f"]
 ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 
 # ========================================
