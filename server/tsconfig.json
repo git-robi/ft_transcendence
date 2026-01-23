@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
-    "outDir": "./dist",
+     "rootDir": "./src",
+     "outDir": "./dist",
      "module": "commonjs",
      "target": "es2016",
+     "baseUrl": "./",
+     //"module": "ESNext",
+	 //"moduleResolution": "node",
+	 "module": "commonjs",
+     //"target": "ES2023",
      "strict": true,
      "esModuleInterop": true,
-     "skipLibCheck": true
+     "skipLibCheck": true,
   },
 
   "include": ["src/**/*.ts"],

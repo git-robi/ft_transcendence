@@ -39,8 +39,8 @@ function login({ setUser }: { setUser: (user: any) => void }) {
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-2 mb-2 w-full" />
         <div className="flex justify-end">
         <Button text="Login" type="submit" />
-        <Button text="Login with Google" type="button" onClick={() => window.location.href = 'http://localhost:3001/api/v1/auth/google'}/>
-        <Button text="Login with GitHub" type="button" onClick={() => window.location.href = 'http://localhost:3001/api/v1/auth/github'}/>
+        <Button text="Login with Google" type="button" onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}/>
+        <Button text="Login with GitHub" type="button" onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`}/>
         </div>
       </form>
 
