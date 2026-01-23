@@ -74,7 +74,7 @@ RUN chown -R nodejs:nodejs /app && \
 RUN chmod +x /app/entrypoint.sh
 
 # Execute the migration
-ENTRYPOINT ["bin/sh", "/app/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 
 # ========================================
 # Development Stage
