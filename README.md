@@ -1,9 +1,3 @@
-# new approach - dockerized development 
-
-## Hey guys, here are the instructions so that you can start develope the app using docker instead of doing it locally :D
-
-N.B: This is just a temporary setup, Marc is working on the final and more complex setup.
-
 <b>
    
 ### Need to Install
@@ -13,24 +7,30 @@ N.B: This is just a temporary setup, Marc is working on the final and more compl
 </b>
 <b>
 
+### Detailed explanations on the architecture
+
+Read this before, perhaps the answer to your question is already here! More details about the structure are explained here.
+https://www.notion.so/Docker-services-2cbaa892ab4b8030b2dbce06ca8cfc09
+
 ### Create and populate the environment variables files
 
 The values of the variables must be shared privately so you'll have to ask me for them. We can use the service share.doppler.com to share env values securely.
-The files that you have to create are:
 
-   1. In the root folder, create a .env file and put in it all the variables that you find in ./.env.example. 
-
-   2. In the '/server' folder you will have to create 2 files: .env and .env.docker. They are quite identical, the only exception is the DATABASE_URL. You can find instructions in the /server/.env.example file.
+In the root folder, create a .env and a .env.development ile and put in it all the variables that you find in ./.env.example. 
 
 </b>
 <b>
 
 ### Run the containers with Makefile
 
-In the Makefile you will find description of every command.
+Simply type make to launch a dev environment. 
+
+make help provide a brief description of available make commands.
+
+this links provides more details explanations: https://www.notion.so/Docker-services-2cbaa892ab4b8030b2dbce06ca8cfc09?source=copy_link#2eeaa892ab4b801fb45bf01738d7b7ce
 
 ### And that's it!
-That's it basically, you can start working accessing the website through the browser while everything will run on containers in detatched mode so you will be able to use the terminal :D
+That's it basically, you can start working accessing the website through the browser while everything will run on containers in detached mode so you will be able to use the terminal :D
 
 </b>
 
