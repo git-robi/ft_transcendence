@@ -22,7 +22,7 @@ services:
         NPM_CONFIG_LOGLEVEL: warn
         PORT: ${FRONTEND_PORT}
     environment:
-      - VITE_API_URL=http://backend:${BACKEND_PORT}
+      - VITE_API_URL=http://localhost:${BACKEND_PORT}/api/v1
       - VITE_APP_ENV=development
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=warn
