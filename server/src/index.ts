@@ -1,9 +1,10 @@
-import express, {Request, Response} from "express";
-import dotenv from "dotenv"
+import express, {Request, Response, NextFunction} from "express";
+import dotenv from "dotenv";
 
-import auth  from "./routes/auth"
-import cors from "cors"
-
+import auth from "./routes/auth";
+import cors from "cors";
+import vaultClient from "./config/vault";
+import { configureSecurityHeaders, errorHandler } from "./config/security";
 
 // swagger
 import swaggerUi from "swagger-ui-express";
@@ -12,32 +13,71 @@ import swaggerOptions from "./swaggerOptions";
 
 import cookieParser from "cookie-parser";
 
-
+// Cargar variables de entorno (fallback para desarrollo)
 dotenv.config();
 
 const app = express();
 
-app.use(cookieParser());
+// Inicializar Vault antes de configurar la aplicación
+async function initializeApp() {
+    try {
+        await vaultClient.initialize();
+        console.log("Vault inicializado correctamente");
+        
+        // Actualizar DATABASE_URL para Prisma si está disponible
+        if (process.env.NODE_ENV !== 'production' || vaultClient.getDatabaseUrl()) {
+            process.env.DATABASE_URL = vaultClient.getDatabaseUrl();
+        }
+    } catch (error) {
+        console.error("Error al inicializar Vault:", error);
+        if (process.env.NODE_ENV === 'production') {
+            process.exit(1);
+        }
+    }
 
-app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true,
-}));
+    // Configurar headers de seguridad
+    configureSecurityHeaders(app);
 
-const specs = swaggerJsdoc(swaggerOptions);
+    app.use(cookieParser());
 
+    // CORS configurado para producción
+    app.use(cors({
+        origin: process.env.CLIENT_URL || "https://localhost",
+        credentials: true,
+        optionsSuccessStatus: 200,
+    }));
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+    // Limitar tamaño del body
+    app.use(express.json({ limit: '10mb' }));
+    app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+    const specs = swaggerJsdoc(swaggerOptions);
 
-app.use(express.json()); 
-app.use("/api/v1/auth", auth);
+    // Swagger solo en desarrollo
+    if (process.env.NODE_ENV !== 'production') {
+        app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+    }
 
+    app.use("/api/v1/auth", auth);
 
+    // Health check endpoint
+    app.get("/health", (req: Request, res: Response) => {
+        res.status(200).json({ status: "ok" });
+    });
 
-const PORT = process.env.PORT || 3001
-app.listen(PORT, () => {
-    console.log(`server is up listening to port ${PORT}`)
-} )
+    // Manejo de errores (debe ser el último middleware)
+    app.use(errorHandler);
 
-export {app};
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => {
+        console.log(`Server is up listening to port ${PORT}`);
+    });
+}
+
+// Inicializar aplicación
+initializeApp().catch((error) => {
+    console.error("Error fatal al inicializar la aplicación:", error);
+    process.exit(1);
+});
+
+export { app };
