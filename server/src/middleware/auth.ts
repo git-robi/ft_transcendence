@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import vaultClient from "../config/vault";
 import { prisma } from "../prisma/client";
 
 export const protect = async (req: any, res: Response, next: NextFunction) => {
@@ -10,31 +11,38 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
             return res.status(401).json({ message: "Not authorized, no token" });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        // Get JWT secret from Vault
+        const jwtSecret = vaultClient.getJwtSecret();
+
+        // Verify token
+        const decoded = jwt.verify(token, jwtSecret) as { id: number };
 
         const user = await prisma.user.findFirst({
-            where: { id: (decoded as any).id },
+            where: { id: decoded.id },
             select: {
                 id: true,
-                name: true,
                 email: true,
-                googleId: true,
-                githubId: true,
-                createdAt: true,
-                apiKeys: true,
                 profile: { select: { name: true } },
-            }
+            },
         });
 
         if (!user) {
             return res.status(401).json({ message: "Not authorized, user not found" });
         }
 
-        req.user = user
+        req.user = {
+            id: user.id,
+            email: user.email,
+            name: user.profile?.name ?? null,
+        };
         next();
     } catch (err) {
-        console.error(err);
-        res.status(401).json({ message: "Not authorized, token failed" });
+        // Do not expose error details in production
+        if (err instanceof jwt.JsonWebTokenError || err instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({ message: "Not authorized, invalid token" });
+        }
+
+        console.error('Error in protect middleware:', process.env.NODE_ENV === 'development' ? err : 'Auth error');
+        res.status(401).json({ message: "Not authorized" });
     }
 };
-
