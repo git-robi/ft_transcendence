@@ -27,7 +27,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm cache clean --force
 
 # Set proper ownership
-RUN chown -R nodejs:nodejs /app
+#RUN chown -R nodejs:nodejs /app
 
 # ========================================
 # Build Dependencies Stage
@@ -43,8 +43,8 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm cache clean --force
 
 # Create necessary directories and set permissions
-RUN mkdir -p /app/node_modules/.vite && \
-    chown -R nodejs:nodejs /app
+#RUN mkdir -p /app/node_modules/.vite && \
+#    chown -R nodejs:nodejs /app
 
 # ========================================
 # Build Stage
@@ -81,19 +81,19 @@ ENV NODE_ENV=${NODE_ENV} \
 COPY ./client /app
 
 # Ensure all directories have proper permissions
-RUN mkdir -p /app/node_modules/.vite && \
-    chown -R nodejs:nodejs /app && \
-    chmod -R 755 /app
+#RUN mkdir -p /app/node_modules/.vite && \
+#    chown -R nodejs:nodejs /app && \
+#    chmod -R 755 /app
 
 # Switch to non-root user
-USER nodejs
+#USER nodejs
 
 # Expose ports
 EXPOSE ${PORT}
 
 # Start development server
 #ENTRYPOINT ["tail", "-f"]
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npm", "run", "dev"]
 
 # ========================================
 # Production Stage
