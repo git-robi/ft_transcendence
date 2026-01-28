@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import db from "../db";
 import { Request, Response, NextFunction } from "express";
 import vaultClient from "../config/vault";
+import { prisma } from "../prisma/client";
 
 export const protect = async (req: any, res: Response, next: NextFunction) => {
     try {
@@ -17,17 +17,16 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
         // Verificar token
         const decoded = jwt.verify(token, jwtSecret) as { id: number };
 
-        // Buscar usuario usando prepared statement
-        const user = await db.query(
-            "SELECT id, name FROM users WHERE id = $1",
-            [decoded.id]
-        );
+        const user = await prisma.users.findFirst({
+            where: { id: decoded.id },
+            select: { id: true, name: true },
+        });
 
-        if (user.rows.length === 0) {
+        if (!user) {
             return res.status(401).json({ message: "Not authorized, user not found" });
         }
 
-        req.user = user.rows[0];
+        req.user = user
         next();
     } catch (err) {
         // No exponer detalles del error en producción

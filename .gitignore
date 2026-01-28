@@ -1,0 +1,14 @@
+# Environment
+certs/
+node_modules
+.env.*
+.env
+!.env.example
+# Editor
+*.swp
+*.swo
+*.vscode
+# Data
+/server/src/generated/prisma
+/server/dist
+/client/dist

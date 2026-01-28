@@ -1,16 +1,20 @@
-import { prisma } from "./client";
 import bcrypt from "bcrypt";
+import { prisma } from "../src/prisma/client";
 
 async function seed() {
     // Hash de contraseña con bcrypt (cost factor 12)
     const hashedPassword = await bcrypt.hash("pong123", 12);
-    
+
     await prisma.users.create({
-        data: { name: "Ping", password: hashedPassword },
+        data: {
+            name: "Ping",
+            email: "ping@example.com",
+            password: hashedPassword,
+        },
     });
-    
-    console.log("Usuario de prueba creado: Ping / pong123");
-};
+
+    console.log("Usuario de prueba creado: Ping / ping@example.com / pong123");
+}
 
 seed()
     .then(() => prisma.$disconnect())

@@ -1,36 +1,17 @@
 import express, { CookieOptions, Request, Response } from "express";
-import db from "../db";
+//check libraries
+//import db from "../db";
+import { prisma } from "../prisma/client";
+
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { protect } from "../middleware/auth";
 import { authRateLimiter } from "../middleware/rateLimiter";
 import vaultClient from "../config/vault";
+import passport from "passport";
 
 const router = express.Router();
 
-/**
- * @swagger
- * /api/v1/auth/:
- *   get:
- *     summary: Health check endpoint
- *     description: Returns a message indicating that the system is working
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Test endpoint is working
- */
-
-//healthcheck endpoint
-router.get("/", (req: Request, res: Response) => {
-    res.status(200).json({message: "Test endpoint is working"});
-});
 
 const cookieOptions: CookieOptions = {
     httpOnly: true, // cookies cannot be accessed by js on the client
@@ -48,18 +29,12 @@ const generateToken = (id: number): string => {
 };
 
 /**
- * Valida y sanitiza el nombre de usuario
+ * Valida email de forma básica.
  */
-function validateUsername(name: string): string | null {
-    const trimmed = name.trim();
-    // Validar longitud (3-20 caracteres)
-    if (trimmed.length < 3 || trimmed.length > 20) {
-        return null;
-    }
-    // Solo permitir caracteres alfanuméricos, guiones y guiones bajos
-    if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
-        return null;
-    }
+function validateEmail(email: string): string | null {
+    const trimmed = email.trim().toLowerCase();
+    // Validación simple (no pretende ser RFC completa)
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return null;
     return trimmed;
 }
 
@@ -67,13 +42,127 @@ function validateUsername(name: string): string | null {
  * Valida la contraseña
  */
 function validatePassword(password: string): boolean {
-    // Mínimo 8 caracteres, al menos una letra y un número
-    if (password.length < 8) {
+    // Mínimo 12 caracteres, al menos una letra y un número
+    if (password.length < 12) {
         return false;
     }
     // Validación básica de complejidad
     return /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
 }
+
+/**
+ * @swagger
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: Register
+ *     description: Creates a new user and sets a JWT in an HTTP-only cookie.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: nemo
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: nemo@example.com
+ *               password:
+ *                 type: string
+ *                 minLength: 12
+ *                 example: my_password_123
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: nemo
+ *                     email:
+ *                       type: string
+ *                       example: nemo@example.com
+ *       400:
+ *         description: Invalid input or user already exists
+ */
+router.post("/register", authRateLimiter, async (req: Request, res: Response) => {
+    try {
+        const { name, email, password } = req.body as {
+            name?: unknown;
+            email?: unknown;
+            password?: unknown;
+        };
+
+        if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string") {
+            return res.status(400).json({ message: "Invalid input" });
+        }
+
+        const trimmedName = name.trim();
+        const normalizedEmail = validateEmail(email);
+        if (!trimmedName || !normalizedEmail) {
+            return res.status(400).json({ message: "Invalid name or email" });
+        }
+
+        if (!validatePassword(password)) {
+            return res.status(400).json({
+                message: "Invalid password. Password must be at least 12 characters long and contain at least one letter and one number.",
+            });
+        }
+
+        const existingUser = await prisma.users.findFirst({
+            where: { email: normalizedEmail },
+            select: { id: true },
+        });
+
+        if (existingUser) {
+            return res.status(400).json({ message: "User already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        const newUser = await prisma.users.create({
+            data: {
+                name: trimmedName,
+                email: normalizedEmail,
+                password: hashedPassword,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+            },
+        });
+
+        const token = generateToken(newUser.id);
+        res.cookie("token", token, cookieOptions);
+
+        return res.status(201).json({ user: newUser });
+    } catch (error) {
+        console.error("Error en registro:", process.env.NODE_ENV === "development" ? error : "Registration error");
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
+});
 
 //login checkpoint
 /**
@@ -125,56 +214,37 @@ function validatePassword(password: string): boolean {
  */
 router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
     try {
-        const { name, password } = req.body;
+        const { email, password } = req.body as { email?: unknown; password?: unknown };
 
-        // Validación de tipos
-        if (typeof name !== "string" || typeof password !== "string") {
+        if (typeof email !== "string" || typeof password !== "string") {
             return res.status(400).json({ message: "Invalid input" });
         }
 
-        // Validar y sanitizar nombre de usuario
-        const normalizedName = validateUsername(name);
-        if (!normalizedName) {
-            return res.status(400).json({ message: "Invalid username format" });
+        const normalizedEmail = validateEmail(email);
+        if (!normalizedEmail || !password) {
+            return res.status(400).json({ message: "Please provide all required fields" });
         }
 
-        // Validar contraseña
-        if (!password || password.length === 0) {
-            return res.status(400).json({ message: "Password is required" });
-        }
-
-        // Buscar usuario usando prepared statement (ya está usando $1, correcto)
-        const user = await db.query('SELECT id, name, password FROM users WHERE name = $1', [normalizedName]);
-        
-        if (user.rows.length === 0) {
-            // Usar el mismo mensaje genérico para no revelar si el usuario existe
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        const userData = user.rows[0];
-
-        // Verificar contraseña usando bcrypt con comparación segura (constant-time)
-        const isMatch = await bcrypt.compare(password, userData.password);
-        
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Generar token JWT
-        const token = generateToken(userData.id);
-
-        // Establecer cookie segura
-        res.cookie('token', token, cookieOptions);
-
-        res.status(200).json({ 
-            user: { 
-                id: userData.id, 
-                name: userData.name 
-            } 
+        const user = await prisma.users.findFirst({
+            where: { email: normalizedEmail },
         });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        const token = generateToken(user.id);
+        res.cookie("token", token, cookieOptions);
+
+        return res.status(200).json({ user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
-        console.error('Error en login:', process.env.NODE_ENV === 'development' ? error : 'Login error');
-        res.status(500).json({ message: 'Error interno del servidor' });
+        console.error("Error en login:", process.env.NODE_ENV === "development" ? error : "Login error");
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
 });
 
@@ -241,103 +311,93 @@ router.post('/logout', (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/v1/auth/register:
- *   post:
- *     summary: Register a new user
- *     description: Creates a new user account with hashed password
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - password
- *             properties:
- *               name:
- *                 type: string
- *                 example: newuser
- *               password:
- *                 type: string
- *                 example: SecurePass123
+ * /api/v1/auth/google:
+ *   get:
+ *     summary: Google OAuth login
+ *     description: Redirects to Google for authentication.
  *     responses:
- *       201:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     name:
- *                       type: string
- *                       example: newuser
- *       400:
- *         description: Invalid input or user already exists
+ *       302:
+ *         description: Redirects to Google OAuth consent screen
  */
-router.post('/register', authRateLimiter, async (req: Request, res: Response) => {
-    try {
-        const { name, password } = req.body;
+router.get('/google', passport.authenticate("google", {
+    scope: ['profile', 'email']
+}))
 
-        // Validación de tipos
-        if (typeof name !== "string" || typeof password !== "string") {
-            return res.status(400).json({ message: "Invalid input" });
-        }
+/**
+ * @swagger
+ * /api/v1/auth/google/redirect:
+ *   get:
+ *     summary: Google OAuth callback
+ *     description: Handles the callback from Google OAuth, sets JWT cookie, and redirects to frontend.
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend after successful authentication
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Authentication failed
+ */
+router.get('/google/redirect', passport.authenticate('google', { session: false }), (req, res) => {
+    
+    const user = req.user as { id: number };
+    
+   
+    const token = generateToken(user.id);
+    
+   
+    res.cookie('token', token, cookieOptions);
+    
 
-        // Validar y sanitizar nombre de usuario
-        const normalizedName = validateUsername(name);
-        if (!normalizedName) {
-            return res.status(400).json({ 
-                message: "Invalid username format. Username must be 3-20 characters and contain only letters, numbers, hyphens, and underscores." 
-            });
-        }
+    res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
+})
 
-        // Validar contraseña
-        if (!validatePassword(password)) {
-            return res.status(400).json({ 
-                message: "Invalid password. Password must be at least 8 characters long and contain at least one letter and one number." 
-            });
-        }
+/**
+ * @swagger
+ * /api/v1/auth/github:
+ *   get:
+ *     summary: GitHub OAuth login
+ *     description: Redirects to GitHub for authentication.
+ *     responses:
+ *       302:
+ *         description: Redirects to GitHub OAuth consent screen
+ */
+router.get('/github', passport.authenticate("github", {
+    scope: ['profile', 'email']
+}))
 
-        // Verificar si el usuario ya existe
-        const existingUser = await db.query('SELECT id FROM users WHERE name = $1', [normalizedName]);
-        if (existingUser.rows.length > 0) {
-            return res.status(400).json({ message: "Username already exists" });
-        }
+/**
+ * @swagger
+ * /api/v1/auth/github/redirect:
+ *   get:
+ *     summary: GitHub OAuth callback
+ *     description: Handles the callback from GitHub OAuth, sets JWT cookie, and redirects to frontend.
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend after successful authentication
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Authentication failed
+ */
+router.get('/github/redirect', passport.authenticate('github', { session: false }), (req, res) => {
+    
+    const user = req.user as { id: number };
+    
+    
+    const token = generateToken(user.id);
+    
+    
+    res.cookie('token', token, cookieOptions);
+    
+    // Redirect
+    res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
+})
 
-        // Hash de contraseña con bcrypt (cost factor 12)
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        // Crear usuario usando prepared statement
-        const result = await db.query(
-            'INSERT INTO users (name, password) VALUES ($1, $2) RETURNING id, name',
-            [normalizedName, hashedPassword]
-        );
-
-        const newUser = result.rows[0];
-
-        // Generar token JWT
-        const token = generateToken(newUser.id);
-
-        // Establecer cookie segura
-        res.cookie('token', token, cookieOptions);
-
-        res.status(201).json({
-            user: {
-                id: newUser.id,
-                name: newUser.name,
-            },
-        });
-    } catch (error) {
-        console.error('Error en registro:', process.env.NODE_ENV === 'development' ? error : 'Registration error');
-        res.status(500).json({ message: 'Error interno del servidor' });
-    }
-});
 
 export default router;
