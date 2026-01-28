@@ -1,10 +1,19 @@
 /* **********************************************/
 /*                    PONG                      */
 /* **********************************************/
-import { GetJSONdata } from "./fetch.js";
+import "./fetch.js";
 import { resizeCanvas } from "./render.js";
 import { pong } from "./OBPong.js";
 import { checkPaddleCollision, checkWallCollision } from "./phisics.js";
+import { ai } from "./AI.js"
+
+/********** EVENT && KEYINPUT LISTENERS *********/
+// Event listeners - Only when window is resized
+window.addEventListener("resize", () => {
+	resizeCanvas();
+	pong.reDraw();
+});
+/**----------------- */
 
 /** KEYBOARD INPUT */
 window.addEventListener("keydown", (e) => {
@@ -20,8 +29,7 @@ window.addEventListener("keydown", (e) => {
 		pong.padL.dirY = 1;
 	}
 
-	pong.updatePaddlePosition(pong.padL);
-	pong.updatePaddlePosition(pong.padR);
+	console.log("Key pressed: " + e.key);
 });
 
 window.addEventListener("keyup", (e) => {
@@ -30,23 +38,27 @@ window.addEventListener("keyup", (e) => {
 	} else if (e.key === "w" || e.key === "s") {
 		pong.padL.dirY = 0;
 	}
-
-	pong.updatePaddlePosition(pong.padL);
-	pong.updatePaddlePosition(pong.padR);
 });
 
 /** MOUSE INPUT */
+// Change to scroll? (look for - wheel -)
+/*
 window.addEventListener("mousemove", (e) => {
 	const rect = pong.canvas.getBoundingClientRect();
 	const mouseY = e.clientY - rect.top;
 	pong.padL.y = mouseY - pong.padL.height / 2;
 });
+*/
 /*----------------- */
 
 /** MOBILE */
+// -- Tal vez utilizar la inclinacion? o incluir un slider
+// Deberia hacer el disenyo en vertical para movil??
 window.addEventListener("touchmove", (e) => {
 	const rect = pong.canvas.getBoundingClientRect();
 	const touchY = e.touches[0].clientY - rect.top;
+
+	// Realmente tendria que mover la pala asignada, pero eso ya lo configurare mas tarde
 	pong.padL.y = touchY - pong.padL.height / 2;
 });
 /*----------------- */
@@ -55,16 +67,34 @@ window.addEventListener("touchmove", (e) => {
 /** GAME LOOP */
 function gameLoop()
 {
-	/** Detectar colisiones */
-	checkPaddleCollision(pong.ball, pong.padL);
-	checkPaddleCollision(pong.ball, pong.padR);
-	checkWallCollision(pong.ball, pong.borT);
-	checkWallCollision(pong.ball, pong.borB);
+	pong.countDownServe();
 
-	// Actualizar lógica
-	pong.updateBallPosition();
-	pong.updatePaddlePosition(pong.padL);
-	pong.updatePaddlePosition(pong.padR);
+	if (pong.serveNow)
+	{
+		/** Call to collision detection (phisics) */
+		checkPaddleCollision(pong.ball, pong.padL);
+		checkPaddleCollision(pong.ball, pong.padR);
+		checkWallCollision(pong.ball, pong.borT);
+		checkWallCollision(pong.ball, pong.borB);
+
+		// Update positions
+		pong.updateBallPosition(pong.ball);
+
+		pong.updatePaddlePosition(pong.padL);
+		//pong.updatePaddlePosition(pong.padR);
+
+		ai.ai(pong.ball, pong.padR);
+		//ai.ai(pong.ball, pong.padL); // yes, you can set the other paddle as ai too.
+
+		pong.checkIfBallStuck(pong.ball);
+	}
+
+	if (pong.log_app != 1)
+	{
+		pong.log_app = 1;
+		console.log(pong.padL);
+		console.log(pong.padR);
+	}
 
 	// Redibujar
 	pong.reDraw();
@@ -76,8 +106,9 @@ function gameLoop()
 /** ON-START */
 resizeCanvas();
 pong.initializeGame();
+ai.setLevel(pong.ball, pong.padR, "hard"); // "easy", "mid", "hard"
+//ai.setLevel(pong.ball, pong.padL, "hard"); // Funny
 requestAnimationFrame(gameLoop);
-pong.decideServe();
 /**----------------- */
 
 /* **********************************************/

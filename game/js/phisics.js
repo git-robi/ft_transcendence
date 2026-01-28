@@ -2,9 +2,7 @@
 /*                 PHYSICS                      */
 /* **********************************************/
 
-import { pong } from "./OBPong.js";
-
-/** Collision detection */
+/** Collision detection - FOR BALL - */
 export function checkPaddleCollision(ball, paddle)
 {
 	// AABB - Circle collision detection
@@ -22,7 +20,6 @@ export function checkPaddleCollision(ball, paddle)
 		&& ballBottom > paddleTop && ballTop < paddleBottom ){
 
 		// Collision detected
-		console.log("Collision detected!");
 		ball.dirX *= -1;
 
 		// Ajustar dirección Y según el punto de impacto
@@ -48,12 +45,29 @@ export function checkWallCollision(ball, border)
 		&& ballBottom > borderTop && ballTop < borderBottom ){
 
 		// Collision detected
-		console.log("Collision detected!");
 		ball.dirY *= -1;
-
-		// Ajustar dirección X según el punto de impacto
-		//const hitPoint = (ball.x - border.x) / border.width; // 0 izquierda, 1 derecha
-		//ball.dirX = (hitPoint - 0.5) * 2;
 	}
 }
+/*----------------- */
 
+export function checkCornerCollision(ball, corner)
+{
+	// AABB - Circle collision detection
+	const ballLeft = ball.x - ball.rad;
+	const ballRight = ball.x + ball.rad;
+	const ballTop = ball.y - ball.rad;
+	const ballBottom = ball.y + ball.rad;
+
+	const cornerL = corner.x;
+	const cornerR = corner.x + corner.width;
+	const cornerT = corner.y;
+	const cornerB = corner.y + corner.height;
+
+	if ( ballRight > cornerL && ballLeft < cornerR
+		&& ballBottom > cornerT && ballTop < cornerB ){
+		return true;
+	}
+	else
+		return false;
+}
+/* **********************************************/

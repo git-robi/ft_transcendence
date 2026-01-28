@@ -2,6 +2,8 @@
 /*                 Objects PONG                 */
 /* **********************************************/
 
+import { checkCornerCollision } from "./phisics.js";
+
 /** The canvas of the game */
 export const canvas = document.getElementById("gm-canvas");	// The game canvas
 export const ctx = canvas.getContext("2d");
@@ -18,65 +20,97 @@ export const ball_tex = ctx.createPattern(_tx, "no-repeat");
 /****/
 
 /** OBJECTS -- */
-const WAIT_TIME = 2000; // Time to wait before serve (ms)
+const WAIT_SERVE = 180; // Time to wait before serve (fps so 180 is 3s)
 
 // 	** BALL */
-const BALL_VEL = 12;	// Ball velocity
+const START_BALL_VEL = 0;
+const BALL_ACCELERATION = 0.15;
+const BALL_VEL	=	12;
+const BALL_RAD	=	20;
 const BALL = {
-	color:	"white",
-	rad:	20,
+	color:	"black",
+	rad:	BALL_RAD,
 	vel:	BALL_VEL,
+	maxVel:	BALL_VEL,
 	x:		0,
 	y:		0,
 	dirX:	0,
-	dirY:	0
+	dirY:	0,
+	is_stuck:	false,
+	frameStuck:	0
 };
 
-// 	** PADDLES */
-// -- width, height, velocity
-const PADW = 16, PADH = 100, PADVEL = 18;
-const PAD = {
-	color:	"white",
-	width:	PADW,
-	height:	PADH,
-	vel:	PADVEL,
-	x:		0,
-	y:		0,
-	dirY:	0
-};
-
-export const BODMH = 4;	// Margin Height (top - bottom)
-const BODH = 10;		// Border Height (will need this for collisions)
+export const BODMH = 20;	// Border for MidLine grafic
 const BORDER = {
 	color:	"white",
 	width:	GAME_WIDTH,
-	height:	BODH,
+	height:	0,
 	x:		0,
 	y:		0
 };
 
-//** GOAL CORNER */
-const GOAL_CORNER = {
+const CWIDTH = 70, CHEIGHT = 70;
+const CORNER = {
+	color:	"red",
+	width:	CWIDTH + BALL_RAD,
+	height:	CHEIGHT + BALL_RAD,
+	x:		0,
+	y:		0
+};
+
+//** GOAL */
+const GOAL = {
 	color:	"yellow",
 	height:	GAME_HEIGHT,
-	width:	PADW - 8,
+	width:	6,
 	x:		0,
 	y:		0,
 };
 
-//** PLAYER  */
-export const PLAYER = {
+//** SCORE */
+const SCORE_SIZE = 120;
+const FONT_SIZE = SCORE_SIZE + "px";
+export const FONT_SCORE = FONT_SIZE + " Arial";
+const SCORE_MARGIN = 85;
+const SCORE = {
 	score: 0,
+	size: SCORE_SIZE,
+	font: "Arial",
+	color:	'yellow',
+	x: 0,
+	y: SCORE_SIZE + SCORE_MARGIN
+};
+
+// 	** PADDLE */
+// -- width, height, velocity
+const PADW = 16, PADH = 100;
+export const PADVEL = 18;
+export const PAD = {
+	color:	"burlywood",
+	width:	PADW,
+	height:	PADH,
+	vel:	PADVEL,
+	smoothVel:	0,		// Velocidad actual suavizada
+	maxAcc:		1,		// Aceleración máxima
+	damping:	0.9,	// Amortiguación
+	reactionDelay:	0,	// Retardo de reacción
+	x:		0,
+	y:		0,
+	maxY:	GAME_HEIGHT,
+	dirY:	0
+};
+
+//** PLAYER  */
+export const MAX_SCORE = 5;
+export const PLAYER = {
 	name: "Player",
-	has_last_goal: false,
 	serve:  false,
-	my_paddle: null,
-	corner: null,
-	is_ai: false
+	score: null,
+	my_pad: null,
+	goal: null,
 };
 /** */
 /**----------------- */
-
 export class Pong
 {
 	constructor()
@@ -87,138 +121,136 @@ export class Pong
 		this.height = GAME_HEIGHT;
 		this.margin = gm_margin;
 
-		this.bodmh = BODMH;						// Border Margin Height
 		this.borT = Object.create(BORDER);		// border top
 		this.borB = Object.create(BORDER);		// border bottom
 
-		this.corL = Object.create(GOAL_CORNER);	// Left Goal Corner
-		this.corR = Object.create(GOAL_CORNER);	// Right Goal Corner
+		this.corTL = Object.create(CORNER);
+		this.corTR = Object.create(CORNER);
+		this.corBL = Object.create(CORNER);
+		this.corBR = Object.create(CORNER);
+
+		this.gL = Object.create(GOAL);		// Left Goal Corner
+		this.gR = Object.create(GOAL);		// Right Goal Corner
 
 		this.ball = Object.create(BALL);		// Da ball
+
 		this.padL = Object.create(PAD);			// Left paddle
 		this.padR = Object.create(PAD);			// Right paddle
 
 		this.playerL = Object.create(PLAYER);	// Left player
 		this.playerR = Object.create(PLAYER);	// Right player
+
+		this.serveNow = false;
+		this.waitServe = WAIT_SERVE;
+		this.screenText = Object.create(SCORE);
+		this.log_app = 0;	// Limit the console logs at only 1
 	}
 	//*********** */
 
-	/** GAME GRAFICS */
-	/** Mid line (only grafic, has no collider) */
-	drawMidLine()
-	{
-		ctx.strokeStyle = 'white';
-		ctx.lineWidth = 8;
-		// -- Dash line - long, spacing
-		ctx.setLineDash([30, 38]);
-		ctx.beginPath();
-		ctx.moveTo(GAME_WIDTH / 2, BODMH);
-		ctx.lineTo(GAME_WIDTH / 2, GAME_HEIGHT - BODMH);
-		ctx.stroke();
-	}
-
-	/** Boders of Pong Game -- Will add col-. later */
-	drawBorders()
-	{
-		ctx.fillStyle = this.borT.color;
-
-		// -------- Xpos, Ypos, width, height
-		ctx.fillRect(0, BODMH, GAME_WIDTH, BODH);
-		ctx.fillRect(0, GAME_HEIGHT - (BODMH + BODH), GAME_WIDTH, BODH);
-	}
-
-	//For visual testing of goal corners
-	drawCorners()
-	{
-		ctx.fillStyle = this.corL.color;
-		ctx.fillRect(this.corL.x, this.corL.y, this.corL.width, this.corL.height);
-		ctx.fillStyle = this.corR.color;
-		ctx.fillRect(this.corR.x - this.corR.width, this.corR.y, this.corR.width, this.corR.height);
-	}
-	/**----------------- */
-
 	/** ON-START */
-	startBall()
-	{
-		// Usar coordenadas relativas al juego
-		const centerX = this.width / 2;
-		const centerY = this.height / 2;
-		const radius = this.ball.rad;
-
-		ctx.beginPath();
-		// ---- Xpos, Ypos, width, height
-		ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-		ctx.fillStyle = this.ball.color;
-		ctx.fill();
-
-		// Start ball coordinates
-		this.ball.x = centerX;
-		this.ball.y = centerY;
-
-		this.ball.vel = BALL_VEL;
-
-		// Random initial direction
-		this.ball.dirX = Math.random() < 0.5 ? -1 : 1;
-		this.ball.dirY = (Math.random() * 2 - 1); // between -1 and 1
-	}
-	startPaddles()
-	{
-		// -- * LEFT PADDLE
-		ctx.fillStyle = this.padL.color;
-		const centerY = this.height / 2;
-		// -------- Xpos, Ypos, width, height
-		this.padL.x = 0;
-		this.padL.y = centerY - this.padL.height / 2;
-		ctx.fillRect(0, this.padL.y, this.padL.width, this.padL.height);
-
-		// -- * RIGHT PADDLE
-		ctx.fillStyle = this.padR.color;
-		// -------- Xpos, Ypos, width, height
-		this.padR.x = this.width - this.padR.width;
-		this.padR.y = centerY - this.padR.height / 2;
-		ctx.fillRect(this.padR.x, this.padR.y, this.padR.width, this.padR.height);
-	}
-	/**----------------- */
-	startGamePosition()
-	{
-		this.drawBorders();
-		this.drawMidLine();
-		this.startBall();
-		this.startPaddles();
-	}
 	initializeGame()
 	{
-		// Set the corners
-		this.corL.x = 0;
-		this.corL.y = 0;
-		this.corR.x = this.width;
-		this.corR.y = 0;
+		this.serveNow = false;
+		this.waitServe = WAIT_SERVE;
+		this.screenText.score = WAIT_SERVE / 60;
+		this.screenText.x = this.width / 2 - SCORE_SIZE / 2 + 25;
+		this.screenText.y = this.height / 2 + SCORE_SIZE / 2 - 25;
+		this.log_app = 0;
+
+		// Set the goals
+		this.gL.x = 0;
+		this.gL.y = 0;
+		this.gR.x = this.width;
+		this.gR.y = 0;
 
 		// Set the borders
 		this.borT.x = 0;
 		this.borT.y = 0;
 		this.borB.x = 0;
-		this.borB.y = this.height - this.borB.height;
+		this.borB.y = GAME_HEIGHT;
 
-		// Set initial positions
-		this.startGamePosition();
+		// Set the corners
+		this.corTL.x = 0;
+		this.corTL.y = 0;
+		this.corTR.x = this.width - CWIDTH;
+		this.corTR.y = 0;
+		this.corBL.x = 0;
+		this.corBL.y = this.height - CHEIGHT;
+		this.corBR.x = this.width - CWIDTH;
+		this.corBR.y = this.height - CHEIGHT;
 
 		//* Start players
 		// Player Left
-		this.playerL.my_paddle = this.padL;
-		this.playerL.corner = this.corL;
+		//this.playerL.name = "" // set this with database info
+		this.playerL.my_pad = this.padL;
+		this.playerL.goal = this.gL;
+		// -- score
+		this.playerL.score = Object.create(SCORE);
+		this.playerL.score.score = 0;
+		this.playerL.score.x = this.width / 2 - SCORE_MARGIN * 2;
 
 		// Player Right
-		this.playerR.my_paddle = this.padR;
-		this.playerR.corner = this.corR;
+		//this.playerR.name = "" // set this with database info
+		this.playerR.my_pad = this.padR;
+		this.playerR.goal = this.gR;
+		// -- score
+		this.playerR.score = Object.create(SCORE);
+		this.playerR.score.score = 0;
+		this.playerR.score.x = this.width / 2 + SCORE_MARGIN;
 
-		let initialServe = Math.random() < 0.5 ? true : false;
-		this.playerL.serve = initialServe;
-		this.playerR.serve = !initialServe;
+		// Draw Scenario
+		this.drawMidLine();
+		this.drawBorders();
+
+		// Set initial positions
+		this.startGamePosition();
+		this.decideServe();
+	}
+	startBall()
+	{
+		// Start ball coordinates
+		this.ball.is_stuck = false;
+		this.ball.frameStuck = 0;
+		this.ball.vel = START_BALL_VEL;
+		this.ball.x = this.width / 2;
+		this.ball.y = this.height / 2;
+
+		this.drawBall(this.ball);
+	}
+	startPaddles()
+	{
+		const centerY = this.height / 2;
+		// -- * LEFT PADDLE
+		this.padL.x = 0;
+		this.padL.y = centerY - this.padL.height / 2;
+		this.padL.smoothVel = 0;
+		this.drawPaddle(this.padL);
+
+		// -- * RIGHT PADDLE
+		this.padR.x = this.width - this.padR.width;
+		this.padR.y = centerY - this.padR.height / 2;
+		this.padR.smoothVel = 0;
+		this.drawPaddle(this.padR);
+	}
+	/**----------------- */
+	startGamePosition()
+	{
+		this.serveNow = false;
+		this.waitServe = WAIT_SERVE;
+		this.screenText.score = WAIT_SERVE / 60;
+		this.startBall();
+		this.startPaddles();
 	}
 	/**----------------- */
 
 	/** DRAWING */
+	drawScore(score)
+	{
+		ctx.font = FONT_SCORE;
+		ctx.strokeStyle = score.color;
+		//ctx.fillText(score.score + "", score.x, score.y); // Texto con relleno
+		ctx.strokeText(score.score + "", score.x, score.y); // Texto con contorno (sin relleno)
+	}
 	drawPaddle(paddle)
 	{
 		ctx.fillStyle = paddle.color;
@@ -226,12 +258,48 @@ export class Pong
 	}
 	drawBall(ball)
 	{
+		ctx.strokeStyle = 'red';
 		ctx.beginPath();
 		ctx.arc(ball.x, ball.y, ball.rad, 0, 2 * Math.PI, false);
 		ctx.fillStyle = ball.color;
 		ctx.fill();
+		ctx.stroke();
 	}
-	/**--- */
+
+	/** Mid line (only grafic, has no collider) */
+	drawMidLine()
+	{
+		ctx.strokeStyle = 'darkviolet';
+		ctx.lineWidth = 8;
+		// -- Dash line - long, spacing
+		ctx.setLineDash([30, 38]);
+		//ctx.beginPath();
+		ctx.moveTo(GAME_WIDTH / 2, BODMH);
+		ctx.lineTo(GAME_WIDTH / 2, GAME_HEIGHT - BODMH);
+		ctx.stroke();
+		//reset style
+		ctx.setLineDash([0, 0]);
+	}
+
+	/** Boders of Pong Game */
+	drawBorders()
+	{
+		ctx.fillStyle = this.borT.color;
+
+		// -------- Xpos, Ypos, width, height
+		ctx.fillRect(this.borT.x, this.borT.y, GAME_WIDTH, this.borT.height);
+		ctx.fillRect(this.borB.x, this.borB.y, GAME_WIDTH, this.borB.height);
+	}
+
+	//For visual testing of goal goals
+	drawGoals()
+	{
+		ctx.fillStyle = this.gL.color;
+		ctx.fillRect(this.gL.x, this.gL.y, this.gL.width, this.gL.height);
+		ctx.fillStyle = this.gR.color;
+		ctx.fillRect(this.gR.x - this.gR.width, this.gR.y, this.gR.width, this.gR.height);
+	}
+
 	/** Redraw the entire game screen */
 	reDraw()
 	{
@@ -242,53 +310,138 @@ export class Pong
 		this.drawBorders();
 		this.drawMidLine();
 
+		this.drawScore(this.playerL.score);
+		this.drawScore(this.playerR.score);
+
 		// Draw paddles and ball
 		this.drawBall(this.ball);
 		this.drawPaddle(this.padL);
 		this.drawPaddle(this.padR);
 
-		//this.drawCorners();
+		if (!this.serveNow)
+			this.drawScore(this.screenText);
+
+		//this.drawGoals();
 	}
 	//*********** */
+	/**----------------- */
 
-	/** MOVEMENT */
-	updatePaddlePosition(paddle)
-	{
-		paddle.y += paddle.dirY * paddle.vel;
-		// Ensure paddle stays within game bounds
-		if (paddle.y < this.bodmh) {
-			paddle.y = this.bodmh;
-		} else if (paddle.y + paddle.height > this.height - this.bodmh) {
-			paddle.y = this.height - this.bodmh - paddle.height;
-		}
-	}
-
+	/** UTILITIES */
 	decideServe()
 	{
+		this.startBall();
+
 		let nextS = Math.random() < 0.5 ? true : false;
 		this.playerL.serve = nextS;
 		this.playerR.serve = !nextS;
 
-		//wait 2 seconds before serving
-
+		// Random initial direction
+		this.ball.dirY = (Math.random() * 2 - 1); // between -1 and 1
 		if (pong.playerL.serve)
 			pong.ball.dirX = 1;
 		else
 			pong.ball.dirX = -1;
 	}
 
-	updateBallPosition()
+	countDownServe()
 	{
-		this.ball.x += this.ball.dirX * this.ball.vel;
-		this.ball.y += this.ball.dirY * this.ball.vel;
-		this.reDraw();
+		if (this.waitServe > 0)
+		{
+			this.serveNow = false;
+			this.drawScore(this.screenText);
+			if (this.waitServe % 60 == 0)
+				this.screenText.score = this.waitServe / 60;
+			this.waitServe--;
+		}
+		else
+			this.serveNow = true;
+	}
 
-		if (this.ball.x + this.ball.rad > this.width || this.ball.x - this.ball.rad < 0) {
-			// Ball has gone past left or right edge
-			console.log("Goal!");
-			// Reset ball position to center
-			this.startBall();
-			this.decideServe();
+	checkIfBallStuck(ball)
+	{
+		ball.is_stuck = false;
+
+		if (checkCornerCollision(ball, this.corTL) ||
+			checkCornerCollision(ball, this.corTR) ||
+			checkCornerCollision(ball, this.corBL) ||
+			checkCornerCollision(ball, this.corBR)) {
+				ball.is_stuck = true;
+		}
+
+		if (ball.is_stuck)
+		{
+			ball.frameStuck++;
+			if (ball.frameStuck > 180)
+			{
+				ball.frameStuck = 0;
+				this.startBall();
+			}
+		}
+		else
+			ball.frameStuck = 0;
+	}
+	/**----------------- */
+
+	/** MOVEMENT */
+	movePaddle(paddle, nextY)
+	{
+		paddle.y += paddle.vel * nextY;
+		// Ensure paddle stays within game bounds
+		if (paddle.y < 0) {
+			paddle.y = 0;
+		} else if (paddle.y + paddle.height > this.height) {
+			paddle.y = this.height - paddle.height;
+		}
+	}
+
+	updatePaddlePosition(paddle)
+	{
+		paddle.y += paddle.dirY * paddle.vel;
+		// Ensure paddle stays within game bounds
+		if (paddle.y < 0) {
+			paddle.y = 0;
+		} else if (paddle.y + paddle.height > this.height) {
+			paddle.y = this.height - paddle.height;
+		}
+	}
+
+	updateBallPosition(ball)
+	{
+		ball.x += ball.dirX * ball.vel;
+		ball.y += ball.dirY * ball.vel;
+
+		if (ball.vel <= ball.maxVel)
+			ball.vel += BALL_ACCELERATION;
+
+		if (ball.x <= this.playerL.goal.x)
+		{
+			this.playerL.score.score++;
+			if (this.playerL.score.score >= MAX_SCORE)
+			{
+				// end game
+				console.log("Player L wins!");
+				// Saltar a la pantalla de estadisticas y resultados --
+				//--- here
+				//** Esto es solo para test y reinicia el juego -> */
+				this.initializeGame();
+			}
+			else
+				this.decideServe();
+		}
+		if (ball.x >= this.playerR.goal.x)
+		{
+			this.playerR.score.score++;
+			if (this.playerR.score.score >= MAX_SCORE)
+			{
+				// end game
+				console.log("Player R wins!");
+				// Saltar a la pantalla de estadisticas y resultados --
+				//--- here
+				//** Esto es solo para test y reinicia el juego -> */
+				this.initializeGame();
+			}
+			else
+				this.decideServe();
 		}
 	}
 	/**----------------- */
