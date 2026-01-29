@@ -21,4 +21,22 @@ model users {
   githubId  String? @unique
   password  String
   createdAt DateTime @default(now())
+
+  apiKeys   apiKeys[]
+}
+
+model apiKeys {
+  id Int @id @default(autoincrement())
+  userId Int
+  name String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime? 
+  hashedKey String @unique
+
+  //add rate limit
+
+  //learn prisma index
+
+   user users @relation(fields: [userId], references: [id])
+
 }
