@@ -29,6 +29,6 @@ model profile {
   user      user    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   name      String
-  avatarUrl String   @default("/avatars/default.png") @db.VarChar(2048)
+  avatarUrl String   @default("/avatars/avatar-default.svg") @db.VarChar(2048)
   bio       String   @db.VarChar(255)
 }

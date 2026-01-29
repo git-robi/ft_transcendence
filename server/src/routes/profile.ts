@@ -24,10 +24,9 @@ router.get("/me", protect, async (req: any, res: Response) => {
 //put endpoint to update profile info
 router.patch("/me", protect, async (req: any, res: Response) => {
     try {
-        const { name, bio, avatarUrl } = req.body as {
+        const { name, bio } = req.body as {
       name?: string;
       bio?: string;
-      avatarUrl?: string;
     };
 
     // ---- validation ----
@@ -37,24 +36,17 @@ router.patch("/me", protect, async (req: any, res: Response) => {
     if (bio !== undefined && typeof bio !== "string") {
       return res.status(400).json({ message: "bio must be a string" });
     }
-    if (avatarUrl !== undefined && typeof avatarUrl !== "string") {
-      return res.status(400).json({ message: "avatarUrl must be a string" });
-    }
 
     if (name !== undefined && name.trim().length === 0) {
       return res.status(400).json({ message: "name cannot be empty" });
     }
 
-    if (avatarUrl !== undefined && avatarUrl.length > 2048) {
-        return res.status(400).json({ message: "avatarUrl must be 2048 characters or less"});
-    }
-
-    // bio is @db.VarChar(255)
+   
     if (bio !== undefined && bio.length > 255) {
       return res.status(400).json({ message: "bio must be 255 characters or less" });
     }
 
-    // ---- ensure profile exists ----
+    
     const existing = await prisma.profile.findUnique({
       where: { userId: req.user.id },
     });
@@ -63,13 +55,12 @@ router.patch("/me", protect, async (req: any, res: Response) => {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    // ---- patch update (only fields sent) ----
+    
     const updated = await prisma.profile.update({
       where: { userId: req.user.id },
       data: {
         ...(name !== undefined ? { name: name.trim() } : {}),
         ...(bio !== undefined ? { bio } : {}),
-        ...(avatarUrl !== undefined ? { avatarUrl } : {}),
       },
     });
 
