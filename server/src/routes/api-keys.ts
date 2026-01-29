@@ -1,7 +1,7 @@
 import express, {Request, Response} from "express"
 import {randomBytes, createHash} from "node:crypto"
 import {protect} from "../middleware/auth"
-import {prisma} from "../../prisma/client"
+import {prisma} from "../prisma/client"
 
 const router = express.Router();
 
