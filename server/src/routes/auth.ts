@@ -90,7 +90,7 @@ router.post('/register', async (req, res) => {
 
     //const userExists = await db.query ('SELECT * FROM users WHERE email = $1', [email]);
 
-    const userExists = await prisma.users.findMany({
+    const userExists = await prisma.user.findMany({
         where: {
             email: email
         }
@@ -107,16 +107,25 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await prisma.users.create({
+        const newUser = await prisma.user.create({
         data: {
-            name,
             email,
             password: hashedPassword,
+            profile: {
+                create: {
+                    name,
+                    bio: ''
+                }
+            }
         },
         select: {
             id: true,
-            name: true,
             email: true,
+            profile: {
+                select: {
+                    name: true,
+                }
+            }
         },
     });
 
@@ -193,10 +202,11 @@ router.post('/login', async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Please provide all required fields" });
     }
     
-    const user = await prisma.users.findFirst({
+    const user = await prisma.user.findFirst({
         where: {
             email: normalizedEmail
-        }
+        },
+        include: { profile: true }
     })
  
     if (!user) {
@@ -215,7 +225,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     res.cookie('token', token, cookieOptions);
 
-    res.status(200).json({ user: { id: userData.id, name: userData.name, email: userData.email }});
+    res.status(200).json({ user: { id: userData.id, name: userData.profile?.name, email: userData.email }});
 })
 
 

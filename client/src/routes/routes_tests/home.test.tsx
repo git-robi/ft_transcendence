@@ -26,7 +26,7 @@ function home({ user, setUser }: { user: any, setUser: (user: any) => void }) {
     <div className="h-screen flex items-center justify-center flex-col">
       <div>
       <h1 className="text-6xl font-bold text-black">
-        Welcome {user ? user.name : " "}!
+        Welcome {user ? user.profile?.name : " "}!
       </h1>
       </div>
       <div className="mt-4">

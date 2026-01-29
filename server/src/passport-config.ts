@@ -14,21 +14,28 @@ passport.use(
         callbackURL: 'http://localhost:3001/api/v1/auth/google/redirect'
     }, async (accessToken, refreshToken, profile, done) => {
         try {
-            let user = await prisma.users.findFirst({
-                where: { googleId: profile.id }
+            let user = await prisma.user.findFirst({
+                where: { googleId: profile.id },
+                include: { profile: true }
             });
 
             if (user) {
                 return done(null, user);
             }
 
-            user = await prisma.users.create({
+            user = await prisma.user.create({
                 data: {
-                    name: profile.displayName,
                     email: profile.emails?.[0]?.value || '',
                     googleId: profile.id,
-                    password: ''
-                }
+                    password: '',
+                    profile: {
+                        create: {
+                            name: profile.displayName,
+                            bio: ''
+                        }
+                    }
+                },
+                include: { profile: true }
             });
 
             done(null, user);
@@ -46,21 +53,28 @@ passport.use(
         callbackURL: 'http://localhost:3001/api/v1/auth/github/redirect'
     }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
         try {
-            let user = await prisma.users.findFirst({
-                where: { githubId: profile.id }
+            let user = await prisma.user.findFirst({
+                where: { githubId: profile.id },
+                include: { profile: true }
             });
 
             if (user) {
                 return done(null, user);
             }
 
-            user = await prisma.users.create({
+            user = await prisma.user.create({
                 data: {
-                    name: profile.displayName || profile.username,
                     email: profile.emails?.[0]?.value || '',
                     githubId: profile.id,
-                    password: ''
-                }
+                    password: '',
+                    profile: {
+                        create: {
+                            name: profile.displayName || profile.username,
+                            bio: ''
+                        }
+                    }
+                },
+                include: { profile: true }
             });
 
             done(null, user);

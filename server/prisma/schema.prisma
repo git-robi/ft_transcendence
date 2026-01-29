@@ -13,12 +13,22 @@ datasource db {
   provider = "postgresql"
 }
 
-model users {
+model user {
   id        Int      @id @default(autoincrement())
   email     String  @unique
-  name      String
   googleId  String? @unique
   githubId  String? @unique
   password  String
   createdAt DateTime @default(now())
+
+  profile   profile?
+}
+
+model profile {
+  userId    Int    @id
+  user      user    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name      String
+  avatarUrl String   @default("/avatars/default.png") @db.VarChar(2048)
+  bio       String   @db.VarChar(255)
 }
