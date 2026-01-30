@@ -1,53 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import Home from './routes/routes_tests/home.test';
-import Login from './routes/routes_tests/login.test';
-import Auth from "./APIs/auth";
-import PrivacyPolicy from './routes/routes_tests/PrivacyPolicy';
-import TermsOfService from './routes/routes_tests/TermsOfService';
-
-Auth.defaults.withCredentials = true;
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './routes/Login';
+import Home from './routes/Home';
+import { LanguageProvider } from './i18n/LanguageProvider';
 
 const App = () => {
-
-  const [user, setUser] = useState(null);
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await Auth.get("/me");
-                setUser(res.data);
-            } catch (err) {
-                setUser(null);
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchUser();
-    }, []);
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-
-  
-
   return (
-    <>
-      <Router>
+    <LanguageProvider>
+      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home user={user} setUser={setUser}/>} />
-          <Route path="/login" element={<Login setUser={setUser}/>} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/home" element={<Home />} />
         </Routes>
-      </Router>
-    </>
-  )
-}
+      </BrowserRouter>
+    </LanguageProvider>
+  );
+};
 
 export default App;
