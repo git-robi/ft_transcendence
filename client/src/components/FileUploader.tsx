@@ -5,7 +5,7 @@ import Profile from "../APIs/profile"
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
-export default function FileUploader(){
+export default function FileUploader({ onUploadSuccess }: { onUploadSuccess?: () => void } = {}){
     
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
@@ -42,6 +42,7 @@ export default function FileUploader(){
                 },
             });
             setStatus('success');
+            onUploadSuccess?.();
         } catch (error) {
             setStatus('error');
         }

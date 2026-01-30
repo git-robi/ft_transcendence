@@ -1,7 +1,11 @@
 import FileUploader from "../../components/FileUploader";
+import UserAvatar from "../../components/UserAvatar";
 
-export default function Upload() {
+export default function Upload () {
     return (
-        <FileUploader />
+        <div>
+            <UserAvatar />
+            <FileUploader />
+        </div>
     );
 }
