@@ -10,9 +10,19 @@ export default function FileUploader(){
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<UploadStatus>('idle');
     
+    const allowedTypes = ["image/png", "image/jpeg"];
+    const [fileError, setFileError] = useState<string | null>(null);
+
     function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.files) {
-            setFile(e.target.files[0]);
+            const selected = e.target.files[0];
+            if (!allowedTypes.includes(selected.type)) {
+                setFileError("Only PNG and JPEG files are allowed");
+                setFile(null);
+                return;
+            }
+            setFileError(null);
+            setFile(selected);
         }
     }
 
@@ -41,7 +51,7 @@ export default function FileUploader(){
     return (
         <>
         <div>
-            <input type="file" onChange={handleFileChange}/>
+            <input type="file" accept="image/png, image/jpeg" onChange={handleFileChange}/>
             {file && status != "uploading" &&  <Button onClick={handleFileUpload} text="Upload"/>}
 
             {status === 'success' && (
@@ -50,6 +60,10 @@ export default function FileUploader(){
 
             {status === 'error' && (
                 <p>Upload failed</p>
+            )}
+
+            {fileError && (
+                <p>{fileError}</p>
             )}
 
         </div>
