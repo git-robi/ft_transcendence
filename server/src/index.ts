@@ -34,6 +34,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 
 app.use(express.json()); 
+app.use("/avatars", express.static("uploads/avatars"))
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/profile", profile);
 

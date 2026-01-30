@@ -56,7 +56,7 @@ router.patch("/upload", protect, upload.single("avatar"), async (req: any, res) 
         const updated = await prisma.profile.update({
             where: {userId: req.user.id},
             data: {
-                avatarUrl: `/uploads/avatars/${req.file.filename}`
+                avatarUrl: `/avatars/${req.file.filename}`
             }
         })
 
