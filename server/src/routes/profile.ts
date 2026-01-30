@@ -1,8 +1,22 @@
 import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
+import multer from "multer";
+import path from "path";
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, "../../uploads/avatars"))
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname))
+    }
+
+})
+
+const upload = multer({storage: storage});
 
 //get endpoint that returns the user's profile
 router.get("/me", protect, async (req: any, res: Response) => {
@@ -20,6 +34,11 @@ router.get("/me", protect, async (req: any, res: Response) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+
+//endpoint that updates avatar pic
+router.patch("/upload", upload.single("avatar"), (req, res) => {
+    res.send("image uploaded");
+})
 
 //put endpoint to update profile info
 router.patch("/me", protect, async (req: any, res: Response) => {
