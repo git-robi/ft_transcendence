@@ -16,7 +16,17 @@ const storage = multer.diskStorage({
 
 })
 
-const upload = multer({storage: storage});
+
+
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    if (file.mimetype === "image/png" || file.mimetype === "image/jpeg") {
+        cb(null, true);
+    } else {
+        cb(new Error("Only PNG and JPEG files are allowed"));
+    }
+};
+
+const upload = multer({storage, fileFilter});
 
 //get endpoint that returns the user's profile
 router.get("/me", protect, async (req: any, res: Response) => {
