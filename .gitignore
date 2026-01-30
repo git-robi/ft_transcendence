@@ -9,6 +9,6 @@ node_modules
 *.swo
 *.vscode
 # Data
-/server/src/generated/prisma
+server/src/prisma/generated/**
 /server/dist
 /client/dist
