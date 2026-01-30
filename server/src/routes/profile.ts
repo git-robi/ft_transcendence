@@ -46,8 +46,24 @@ router.get("/me", protect, async (req: any, res: Response) => {
 });
 
 //endpoint that updates avatar pic
-router.patch("/upload", upload.single("avatar"), (req, res) => {
-    res.send("image uploaded");
+router.patch("/upload", protect, upload.single("avatar"), async (req: any, res) => {
+    
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        const updated = await prisma.profile.update({
+            where: {userId: req.user.id},
+            data: {
+                avatarUrl: `/uploads/avatars/${req.file.filename}`
+            }
+        })
+
+        return res.status(200).json(updated);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
 })
 
 //put endpoint to update profile info
