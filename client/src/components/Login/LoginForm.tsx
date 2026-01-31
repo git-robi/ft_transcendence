@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from './Button';
-import GoogleButton from './GoogleButton';
-import Input from './Input';
-import { useLanguage } from '../i18n/useLanguage';
+import Button from '../Button';
+import GoogleButton from '../GoogleButton';
+import Input from '../Input';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const LoginForm = () => {
   const { t } = useLanguage();
@@ -12,9 +12,7 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
-  const handleSignIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Sign in:', { email, password, keepLoggedIn });
+  const handleSignIn = () => {
     navigate('/home');
   };
 

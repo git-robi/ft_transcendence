@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import Button from './Button';
-import { useLanguage } from '../i18n/useLanguage';
-import type Home from '../routes/Home';
+import Button from '../Button';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const HomeButtons = () => {
   const { t } = useLanguage();
@@ -9,10 +8,15 @@ const HomeButtons = () => {
   
   const handleCurrentUserSettings = () => {
     navigate('/currentUserSettings');
-  }
+  };
 
-  const handleProfilePage = () =>
-    navigate('/profile')
+  const handleProfilePage = () => {
+    navigate('/profile');
+  };
+
+  const handlePlayLast = () => {
+    navigate('/game');
+  };
 
   return (
     <div className="flex justify-center items-center w-full">
@@ -32,7 +36,7 @@ const HomeButtons = () => {
           <Button>
             {t.home.gameStatistics}
           </Button>
-          <Button>
+          <Button onClick={handlePlayLast}>
             {t.home.playLastSettings}
           </Button>
           <Button>

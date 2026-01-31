@@ -1,8 +1,12 @@
+import termsOfService from "../routes/TermsOfService";
+
 export const translations = {
   en: {
     header: {
       loginSignup: 'Log in/Sign up',
       home: 'Home',
+      game: 'Game',
+      termsOfService: 'Terms of Service',
     },
     login: {
       emailPlaceholder: 'Login/e-mail',
@@ -22,6 +26,7 @@ export const translations = {
       playCustomSettings: 'Play with Custom Settings',
     },
     footer: {
+      home: 'Home',
       logout: 'Logout',
       termsOfService: 'Terms of Service',
       privacyPolicy: 'Privacy Policy',
@@ -31,6 +36,8 @@ export const translations = {
     header: {
       loginSignup: 'Iniciar sesión/Registrarse',
       home: 'Inicio',
+      game: 'Juego',
+      termsOfService: 'Términos de servicio',
     },
     login: {
       emailPlaceholder: 'Usuario/e-mail',
@@ -50,6 +57,7 @@ export const translations = {
       playCustomSettings: 'Jugar con Configuración Personalizada',
     },
     footer: {
+      home: 'Inicio',
       logout: 'Cerrar sesión',
       termsOfService: 'Términos de servicio',
       privacyPolicy: 'Política de privacidad',
@@ -59,6 +67,8 @@ export const translations = {
     header: {
       loginSignup: 'Iniciar sessió/Registrar-se',
       home: 'Inici',
+      game: 'Joc',
+      termsOfService: 'Termes de servei',
     },
     login: {
       emailPlaceholder: 'Usuari/e-mail',
@@ -78,6 +88,7 @@ export const translations = {
       playCustomSettings: 'Jugar amb Configuració Personalitzada',
     },
     footer: {
+      home: 'Inici',
       logout: 'Tancar sessió',
       termsOfService: 'Termes de servei',
       privacyPolicy: 'Política de privadesa',
@@ -87,6 +98,8 @@ export const translations = {
     header: {
       loginSignup: 'Se connecter/S\'inscrire',
       home: 'Accueil',
+      game: 'Jeu',
+      termsOfService: 'Conditions d\'utilisation',
     },
     login: {
       emailPlaceholder: 'Identifiant/e-mail',
@@ -106,6 +119,7 @@ export const translations = {
       playCustomSettings: 'Jouer avec des Paramètres Personnalisés',
     },
     footer: {
+      home: 'Accueil',
       logout: 'Se déconnecter',
       termsOfService: 'Conditions d\'utilisation',
       privacyPolicy: 'Politique de confidentialité',
@@ -115,6 +129,8 @@ export const translations = {
     header: {
       loginSignup: 'Accedi/Registrati',
       home: 'Home',
+      game: 'Gioco',
+      termsOfService: 'Termini di servizio',
     },
     login: {
       emailPlaceholder: 'Login/e-mail',
@@ -134,6 +150,7 @@ export const translations = {
       playCustomSettings: 'Gioca con Impostazioni Personalizzate',
     },
     footer: {
+      home: 'Home',
       logout: 'Esci',
       termsOfService: 'Termini di servizio',
       privacyPolicy: 'Informativa sulla privacy',
@@ -143,6 +160,8 @@ export const translations = {
     header: {
       loginSignup: 'Zaloguj się/Zarejestruj się',
       home: 'Strona główna',
+      game: 'Gra',
+      termsOfService: 'Warunki korzystania z usługi',
     },
     login: {
       emailPlaceholder: 'Login/e-mail',
@@ -163,6 +182,7 @@ export const translations = {
     },
     
     footer: {
+      home: 'Strona główna',
       logout: 'Wyloguj się',
       termsOfService: 'Warunki korzystania z usługi',
       privacyPolicy: 'Polityka prywatności',
