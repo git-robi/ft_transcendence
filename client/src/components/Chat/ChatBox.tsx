@@ -6,7 +6,7 @@ interface Message {
   sender: 'user' | 'opponent';
 }
 
-const Chat = () => {
+const ChatBox = () => {
   const [messages] = useState<Message[]>([
     { id: 1, text: 'Hi!', sender: 'user' },
     { id: 2, text: 'Hello!', sender: 'opponent' },
@@ -60,4 +60,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default ChatBox;

@@ -11,7 +11,7 @@ const GoogleButton = () => {
     >
       <GoogleIcon />
       <span className="text-sm font-medium text-white">
-        {t.login.googleLogin}
+        {t.logIn.googleLogIn}
       </span>
     </button>
   );

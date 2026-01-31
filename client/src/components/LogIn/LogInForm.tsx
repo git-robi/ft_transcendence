@@ -5,7 +5,7 @@ import GoogleButton from '../GoogleButton';
 import Input from '../Input';
 import { useLanguage } from '../../i18n/useLanguage';
 
-const LoginForm = () => {
+const LogInForm = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -16,12 +16,16 @@ const LoginForm = () => {
     navigate('/home');
   };
 
+  const handleSignUp = () => {
+    navigate('/signUp')
+  };
+
   return (
     <div className="w-80">
-      <form onSubmit={handleSignIn} className="space-y-4">
+      <form  className="space-y-4">
         <Input
           type="text"
-          placeholder={t.login.emailPlaceholder}
+          placeholder={t.logIn.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -29,20 +33,20 @@ const LoginForm = () => {
         <div className="space-y">
           <Input
             type="password"
-            placeholder={t.login.passwordPlaceholder}
+            placeholder={t.logIn.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
           <div className="text-left">
             <a href="#" className="text-sm text-neutral-300 hover:text-white underline">
-              {t.login.forgotPassword}
+              {t.logIn.forgotPassword}
             </a>
           </div>
         </div>
 
-        <Button type="submit">
-          {t.login.signIn}
+        <Button type="submit" onClick={handleSignIn}>
+          {t.logIn.signIn}
         </Button>
 
         <label className="flex items-center justify-center gap-2 text-sm">
@@ -52,17 +56,17 @@ const LoginForm = () => {
             onChange={(e) => setKeepLoggedIn(e.target.checked)}
             className="w-4 h-4"
           />
-          {t.login.keepLoggedIn}
+          {t.logIn.keepLoggedIn}
         </label>
 
         <div className="space-y-2 pt-4">
-          <Button variant="github">{t.login.githubLogin}</Button>
+          <Button variant="github">{t.logIn.githubLogIn}</Button>
           <GoogleButton />
         </div>
 
-        <div className="pt-4">
-          <Button variant="secondary">
-            {t.login.signUp}
+        <div className="pt-4" onClick={handleSignUp}>
+          <Button variant="secondary" >
+            {t.logIn.signUp}
           </Button>
         </div>
       </form>
@@ -70,4 +74,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default LogInForm;

@@ -4,10 +4,13 @@ import FooterButton from './Footer/FooterButton';
 
 interface FooterProps {
   showLogout?: boolean,
-  showHome?: boolean;
+  showHome?: boolean,
+  showChat?: boolean,
+  showTOS?:boolean,
+  showPrivacy?:boolean;
 }
 
-const Footer = ({ showLogout = true, showHome = true }: FooterProps) => {
+const Footer = ({ showLogout = true, showHome = true, showChat = true, showTOS = true, showPrivacy = true }: FooterProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   
@@ -15,8 +18,19 @@ const Footer = ({ showLogout = true, showHome = true }: FooterProps) => {
     navigate('/home');
   };
 
+  const handleLogoutClick = () => {
+    navigate('/');
+  }
+
   const handleTOSClick = () => {
     navigate('/tos')
+  }
+  
+  const handlePrivacyClick = () => {
+    navigate('/privacy')
+  }
+  const handleChat = () => {
+    navigate('/chat')
   }
 
   return (
@@ -28,16 +42,26 @@ const Footer = ({ showLogout = true, showHome = true }: FooterProps) => {
           </FooterButton>
         )}
         {showLogout && (
-          <FooterButton>
+          <FooterButton onClick={handleLogoutClick}>
             {t.footer.logout}
           </FooterButton>
         )}
-        <FooterButton onClick={handleTOSClick}>
-            {t.footer.termsOfService}
-        </FooterButton>
-        <FooterButton>
-            {t.footer.privacyPolicy}
-        </FooterButton>
+        {showChat && (
+          <FooterButton onClick={handleChat}>
+            {t.footer.chat}
+          </FooterButton>
+
+        )}
+        {showTOS && (
+          <FooterButton onClick={handleTOSClick}>
+              {t.footer.termsOfService}
+          </FooterButton>
+        )}
+        {showPrivacy && (
+          <FooterButton onClick={handlePrivacyClick}>
+              {t.footer.privacyPolicy}
+          </FooterButton>
+        )}
       </div>
     </footer>
   );
