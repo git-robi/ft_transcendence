@@ -1,12 +1,12 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PongGame from '../components/PongGame';
-import LoginForm from '../components/Login/LoginForm';
+import LogInForm from '../components/LogIn/LogInForm';
 
-const Login = () => {
+const LogIn = () => {
   return (
     <div className="min-h-screen bg-neutral-700 text-white flex flex-col">
-      <Header titleKey="loginSignup"/>
+      <Header titleKey="logInSignUp"/>
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
@@ -16,16 +16,16 @@ const Login = () => {
             <PongGame />
           </div>
 
-          {/* Login Form */}
+          {/* LogIn Form */}
           <div className="shrink-0">
-            <LoginForm />
+            <LogInForm />
           </div>
         </div>
       </main>
 
-      <Footer showHome={false} showLogout={false} />
+      <Footer showHome={false} showLogout={false} showChat={false} />
     </div>
   );
 };
 
-export default Login;
+export default LogIn;

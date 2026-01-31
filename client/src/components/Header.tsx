@@ -5,7 +5,7 @@ interface HeaderProps {
   titleKey?: keyof typeof import('../i18n/translations').translations.en.header;
 }
 
-const Header = ({ titleKey = 'loginSignup' }: HeaderProps) => {
+const Header = ({ titleKey = 'logInSignUp' }: HeaderProps) => {
   const { t } = useLanguage();
   
   return (
