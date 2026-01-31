@@ -1,26 +1,43 @@
 import { useLanguage } from '../i18n/useLanguage';
+import { useNavigate } from 'react-router-dom';
+import FooterButton from './Footer/FooterButton';
 
 interface FooterProps {
-  showLogout?: boolean;
+  showLogout?: boolean,
+  showHome?: boolean;
 }
 
-const Footer = ({ showLogout = true }: FooterProps) => {
+const Footer = ({ showLogout = true, showHome = true }: FooterProps) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   
+  const handleHomeClick = () => {
+    navigate('/home');
+  };
+
+  const handleTOSClick = () => {
+    navigate('/tos')
+  }
+
   return (
-    <footer className="absolute bottom-0 w-full py-4 px-6 bg-neutral-800 flex justify-end shadow-[0_0_10px_5px_rgba(255,255,255,0.3)]">
+    <footer className="w-full py-4 px-6 bg-neutral-800 flex justify-end shadow-[0_0_10px_5px_rgba(255,255,255,0.3)] mt-auto">
       <div className="flex gap-6">
-        {showLogout && (
-          <a href="#" className="text-sm text-neutral-300 hover:text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
-            {t.footer.logout}
-          </a>
+        {showHome && (
+          <FooterButton onClick={handleHomeClick}>
+            {t.footer.home}
+          </FooterButton>
         )}
-        <a href="#" className="text-sm text-neutral-300 hover:text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
-          {t.footer.termsOfService}
-        </a>
-        <a href="#" className="text-sm text-neutral-300 hover:text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
-          {t.footer.privacyPolicy}
-        </a>
+        {showLogout && (
+          <FooterButton>
+            {t.footer.logout}
+          </FooterButton>
+        )}
+        <FooterButton onClick={handleTOSClick}>
+            {t.footer.termsOfService}
+        </FooterButton>
+        <FooterButton>
+            {t.footer.privacyPolicy}
+        </FooterButton>
       </div>
     </footer>
   );

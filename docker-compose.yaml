@@ -55,7 +55,7 @@ services:
       dockerfile: client/dockerfile
       target: ${NODE_ENV:-development}
       args:
-        VITE_API_URL: /api/v1
+        - VITE_API_URL=/api/v1
         #VITE_API_URL: http://backend:${BACKEND_PORT}
     working_dir: /app
     volumes:
@@ -73,7 +73,7 @@ services:
       #target: build
       target: ${NODE_ENV:-development}
       args:
-        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
+        - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
     working_dir: /app
     volumes:
       - prisma_migrations:/app/prisma/migrations
