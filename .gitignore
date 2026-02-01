@@ -16,3 +16,5 @@ server/prisma/generated/**
 # Nginx generated
 nginx/logs/
 nginx/ssl/
+# Local learning/docs (not for repo)
+learning/
