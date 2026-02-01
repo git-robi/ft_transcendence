@@ -14,47 +14,47 @@ import swaggerOptions from "./swaggerOptions";
 
 import cookieParser from "cookie-parser";
 
-// Cargar variables de entorno (fallback para desarrollo)
+// Load environment variables (development fallback)
 dotenv.config();
 
 const app = express();
 
-// Inicializar Vault antes de configurar la aplicación
+// Initialize Vault before configuring the app
 async function initializeApp() {
     try {
         await vaultClient.initialize();
-        console.log("Vault inicializado correctamente");
+        console.log("Vault initialized successfully");
         
-        // Actualizar DATABASE_URL para Prisma si está disponible
+        // Update Prisma DATABASE_URL when available
         if (process.env.NODE_ENV !== 'production' || vaultClient.getDatabaseUrl()) {
             process.env.DATABASE_URL = vaultClient.getDatabaseUrl();
         }
     } catch (error) {
-        console.error("Error al inicializar Vault:", error);
+        console.error("Error initializing Vault:", error);
         if (process.env.NODE_ENV === 'production') {
             process.exit(1);
         }
     }
 
-    // Configurar headers de seguridad
+    // Configure security headers
     configureSecurityHeaders(app);
 
     app.use(cookieParser());
 
-    // CORS configurado para producción
+    // Production-ready CORS
     app.use(cors({
         origin: process.env.CLIENT_URL || "https://localhost",
         credentials: true,
         optionsSuccessStatus: 200,
     }));
 
-    // Limitar tamaño del body
+    // Limit request body size
     app.use(express.json({ limit: '10mb' }));
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
     const specs = swaggerJsdoc(swaggerOptions);
 
-    // Swagger solo en desarrollo
+    // Swagger only in non-production
     if (process.env.NODE_ENV !== 'production') {
         app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
     }
@@ -66,7 +66,7 @@ async function initializeApp() {
         res.status(200).json({ status: "ok" });
     });
 
-    // Manejo de errores (debe ser el último middleware)
+    // Error handling (must be the last middleware)
     app.use(errorHandler);
 
     const PORT = process.env.PORT || 3001;
@@ -75,9 +75,9 @@ async function initializeApp() {
     });
 }
 
-// Inicializar aplicación
+// Initialize the application
 initializeApp().catch((error) => {
-    console.error("Error fatal al inicializar la aplicación:", error);
+    console.error("Fatal error initializing the application:", error);
     process.exit(1);
 });
 

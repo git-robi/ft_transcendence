@@ -14,10 +14,10 @@ const router = express.Router();
 
 
 const cookieOptions: CookieOptions = {
-    httpOnly: true, // cookies cannot be accessed by js on the client
-    secure: true, // siempre usar HTTPS (Nginx maneja la terminación TLS)
-    sameSite: 'strict', // previene ataques CSRF
-    maxAge: 30 * 24 * 60 * 60 * 1000, // expira en 30 días
+    httpOnly: true, // cookies cannot be accessed by JS on the client
+    secure: true, // always use HTTPS (Nginx terminates TLS)
+    sameSite: 'strict', // helps prevent CSRF
+    maxAge: 30 * 24 * 60 * 60 * 1000, // expires in 30 days
     path: '/',
 };
 
@@ -29,24 +29,24 @@ const generateToken = (id: number): string => {
 };
 
 /**
- * Valida email de forma básica.
+ * Basic email validation (not a full RFC implementation).
  */
 function validateEmail(email: string): string | null {
     const trimmed = email.trim().toLowerCase();
-    // Validación simple (no pretende ser RFC completa)
+    // Simple validation (not meant to be RFC-complete)
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return null;
     return trimmed;
 }
 
 /**
- * Valida la contraseña
+ * Validate password strength.
  */
 function validatePassword(password: string): boolean {
-    // Mínimo 12 caracteres, al menos una letra y un número
+    // Minimum 12 characters, at least one letter and one number
     if (password.length < 12) {
         return false;
     }
-    // Validación básica de complejidad
+    // Basic complexity check
     return /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
 }
 
@@ -159,8 +159,8 @@ router.post("/register", authRateLimiter, async (req: Request, res: Response) =>
 
         return res.status(201).json({ user: newUser });
     } catch (error) {
-        console.error("Error en registro:", process.env.NODE_ENV === "development" ? error : "Registration error");
-        return res.status(500).json({ message: "Error interno del servidor" });
+        console.error("Error in register:", process.env.NODE_ENV === "development" ? error : "Registration error");
+        return res.status(500).json({ message: "Internal server error" });
     }
 });
 
@@ -243,8 +243,8 @@ router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
 
         return res.status(200).json({ user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
-        console.error("Error en login:", process.env.NODE_ENV === "development" ? error : "Login error");
-        return res.status(500).json({ message: "Error interno del servidor" });
+        console.error("Error in login:", process.env.NODE_ENV === "development" ? error : "Login error");
+        return res.status(500).json({ message: "Internal server error" });
     }
 });
 

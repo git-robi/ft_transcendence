@@ -12,3 +12,6 @@ node_modules
 /server/src/generated/prisma
 /server/dist
 /client/dist
+# Nginx generated
+nginx/logs/
+nginx/ssl/

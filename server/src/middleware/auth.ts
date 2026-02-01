@@ -11,10 +11,10 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
             return res.status(401).json({ message: "Not authorized, no token" });
         }
 
-        // Obtener JWT secret desde Vault
+        // Get JWT secret from Vault
         const jwtSecret = vaultClient.getJwtSecret();
         
-        // Verificar token
+        // Verify token
         const decoded = jwt.verify(token, jwtSecret) as { id: number };
 
         const user = await prisma.users.findFirst({
@@ -29,12 +29,12 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
         req.user = user
         next();
     } catch (err) {
-        // No exponer detalles del error en producción
+        // Do not expose error details in production
         if (err instanceof jwt.JsonWebTokenError || err instanceof jwt.TokenExpiredError) {
             return res.status(401).json({ message: "Not authorized, invalid token" });
         }
         
-        console.error('Error en middleware protect:', process.env.NODE_ENV === 'development' ? err : 'Auth error');
+        console.error('Error in protect middleware:', process.env.NODE_ENV === 'development' ? err : 'Auth error');
         res.status(401).json({ message: "Not authorized" });
     }
 };

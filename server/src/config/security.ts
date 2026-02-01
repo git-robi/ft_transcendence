@@ -2,8 +2,8 @@ import helmet from 'helmet';
 import { Express } from 'express';
 
 /**
- * Configuración de seguridad para Express usando Helmet
- * Equivalente a Helmet con configuración personalizada
+ * Express security headers configuration using Helmet.
+ * Equivalent to Helmet with custom configuration.
  */
 export function configureSecurityHeaders(app: Express): void {
     app.use(
@@ -34,18 +34,18 @@ export function configureSecurityHeaders(app: Express): void {
             referrerPolicy: {
                 policy: 'strict-origin-when-cross-origin',
             },
-            // Ocultar información del servidor
+            // Hide server information
             hidePoweredBy: true,
         })
     );
 }
 
 /**
- * Middleware para manejo seguro de errores
- * Evita exponer stack traces e información sensible
+ * Secure error-handling middleware.
+ * Avoids leaking stack traces and sensitive information.
  */
 export function errorHandler(err: any, req: any, res: any, next: any): void {
-    // Log del error completo en el servidor (no exponer al cliente)
+    // Log full error server-side (do not expose to client)
     console.error('Error:', {
         message: err.message,
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
@@ -53,10 +53,10 @@ export function errorHandler(err: any, req: any, res: any, next: any): void {
         method: req.method,
     });
 
-    // Respuesta genérica al cliente
+    // Generic response to client
     const statusCode = err.statusCode || 500;
     const message = process.env.NODE_ENV === 'production' 
-        ? 'Error interno del servidor' 
+        ? 'Internal server error'
         : err.message;
 
     res.status(statusCode).json({

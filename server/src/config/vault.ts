@@ -36,8 +36,8 @@ class VaultClient {
     }
 
     /**
-     * Inicializa el cliente de Vault y carga todos los secretos
-     * Debe llamarse antes de usar cualquier secreto
+     * Initializes the Vault client and loads all secrets.
+     * Must be called before accessing any secret.
      */
     async initialize(): Promise<void> {
         if (this.initialized) {
@@ -45,10 +45,10 @@ class VaultClient {
         }
 
         try {
-            // Verificar que Vault esté disponible
+            // Check Vault health
             await this.client.health();
 
-            // Cargar secretos desde Vault
+            // Load secrets from Vault
             const [jwtSecret, dbSecret, oauthSecret] = await Promise.all([
                 this.client.read('transcendence/data/jwt').catch(() => null),
                 this.client.read('transcendence/data/database').catch(() => null),
@@ -78,71 +78,71 @@ class VaultClient {
                 };
             }
 
-            // Validar que los secretos críticos estén presentes
+            // Validate that critical secrets are present
             if (!this.secrets.jwt.secret) {
-                throw new Error('JWT_SECRET no encontrado en Vault ni en variables de entorno');
+                throw new Error('JWT_SECRET not found in Vault nor in environment variables');
             }
 
             if (!this.secrets.database.password) {
-                throw new Error('Database password no encontrado en Vault ni en variables de entorno');
+                throw new Error('Database password not found in Vault nor in environment variables');
             }
 
             this.initialized = true;
-            console.log('Vault inicializado correctamente. Secretos cargados.');
+            console.log('Vault initialized successfully. Secrets loaded.');
         } catch (error) {
-            console.error('Error al inicializar Vault:', error);
-            // En desarrollo, permitir fallback a variables de entorno
+            console.error('Error initializing Vault:', error);
+            // In development, allow fallback to environment variables
             if (process.env.NODE_ENV === 'production') {
                 throw error;
             }
-            console.warn('Usando variables de entorno como fallback');
+            console.warn('Falling back to environment variables');
             this.initialized = true;
         }
     }
 
     /**
-     * Obtiene el secreto JWT
+     * Returns the JWT secret.
      */
     getJwtSecret(): string {
         if (!this.initialized) {
-            throw new Error('Vault no ha sido inicializado. Llama a initialize() primero.');
+            throw new Error('Vault is not initialized. Call initialize() first.');
         }
         return this.secrets!.jwt.secret;
     }
 
     /**
-     * Obtiene las credenciales de la base de datos
+     * Returns the database credentials.
      */
     getDatabaseConfig() {
         if (!this.initialized) {
-            throw new Error('Vault no ha sido inicializado. Llama a initialize() primero.');
+            throw new Error('Vault is not initialized. Call initialize() first.');
         }
         return this.secrets!.database;
     }
 
     /**
-     * Obtiene la URL completa de conexión a la base de datos (para Prisma)
+     * Returns the full database connection URL (for Prisma).
      */
     getDatabaseUrl(): string {
         if (!this.initialized) {
-            throw new Error('Vault no ha sido inicializado. Llama a initialize() primero.');
+            throw new Error('Vault is not initialized. Call initialize() first.');
         }
         const db = this.secrets!.database;
         return `postgresql://${db.user}:${db.password}@${db.host}:${db.port}/${db.database}`;
     }
 
     /**
-     * Obtiene la configuración de OAuth para el proveedor especificado
+     * Returns OAuth config for the specified provider.
      */
     getOAuthConfig(provider: '42') {
         if (!this.initialized) {
-            throw new Error('Vault no ha sido inicializado. Llama a initialize() primero.');
+            throw new Error('Vault is not initialized. Call initialize() first.');
         }
         return this.secrets!.oauth?.[provider];
     }
 
     /**
-     * Recarga los secretos desde Vault (útil para rotación de secretos)
+     * Reloads secrets from Vault (useful for secret rotation).
      */
     async refresh(): Promise<void> {
         this.initialized = false;
