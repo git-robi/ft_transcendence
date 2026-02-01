@@ -1,5 +1,5 @@
 services:
-  # Base de datos PostgreSQL
+  # PostgreSQL database
   postgres:
     image: postgres:16-alpine
     container_name: transcendence_postgres
@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # HashiCorp Vault para gestión de secretos
+  # HashiCorp Vault for secrets management
   vault:
     image: hashicorp/vault:1.16
     container_name: transcendence_vault
@@ -60,7 +60,7 @@ services:
       PGPORT: 5432
       PGUSER: ${POSTGRES_USER:-postgres}
       PGPASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      # DATABASE_URL para Prisma (fallback, se usará la de Vault en runtime)
+      # DATABASE_URL for Prisma (fallback, Vault URL will be used at runtime)
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-transcendence}
     depends_on:
       postgres:
@@ -69,8 +69,8 @@ services:
         condition: service_healthy
     networks:
       - transcendence_network
-    # Volúmenes comentados para producción (el código ya está compilado en la imagen)
-    # Descomentar para desarrollo con hot-reload:
+    # Volumes commented for production (code is already compiled in the image)
+    # Uncomment for development with hot-reload:
     # volumes:
     #   - ./server:/app
     #   - /app/node_modules
@@ -91,7 +91,7 @@ services:
       - /app/node_modules
     restart: unless-stopped
 
-  # Nginx con ModSecurity v3 y WAF
+  # Nginx with ModSecurity v3 and WAF
   nginx:
     build:
       context: ./nginx

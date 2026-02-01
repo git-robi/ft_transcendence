@@ -1,5 +1,5 @@
-# Configuracion de Vault para desarrollo
-# En produccion, usar configuracion mas robusta con almacenamiento persistente
+# Vault configuration for development
+# In production, use more robust configuration with persistent storage
 
 storage "file" {
   path = "/vault/data"

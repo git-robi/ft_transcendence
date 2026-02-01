@@ -11,10 +11,10 @@ import passport from 'passport';
 const router = express.Router();
 
 const cookieOptions: CookieOptions = {
-    httpOnly: true, // cookies cannot be accessed by JS on the client
-    secure: true, // always use HTTPS (Nginx terminates TLS)
-    sameSite: 'strict', // helps prevent CSRF
-    maxAge: 30 * 24 * 60 * 60 * 1000, // expires in 30 days
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
     path: '/',
 };
 
@@ -25,20 +25,13 @@ const generateToken = (id: number): string => {
     });
 };
 
-/**
- * Basic email validation (not a full RFC implementation).
- */
 function validateEmail(email: string): string | null {
     const trimmed = email.trim().toLowerCase();
     if (!/^\S+@\S+\.\S+$/.test(trimmed)) return null;
     return trimmed;
 }
 
-/**
- * Validate password strength.
- */
 function validatePassword(password: string): boolean {
-    // Minimum 12 characters, at least one letter and one number
     if (password.length < 12) {
         return false;
     }
@@ -49,7 +42,6 @@ router.get("/health", protectApiKey, (req, res) => {
     res.json({ message: "API key is valid", user: req.user });
 });
 
-// Register endpoint
 router.post("/register", authRateLimiter, async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body as {
@@ -119,7 +111,6 @@ router.post("/register", authRateLimiter, async (req: Request, res: Response) =>
     }
 });
 
-// Login endpoint
 router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body as { email?: unknown; password?: unknown };
@@ -168,12 +159,10 @@ router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
     }
 });
 
-// Get data of logged in user
 router.get('/me', protect, async (req: any, res: Response) => {
     res.json(req.user);
 });
 
-// Logout endpoint
 router.post('/logout', (req: Request, res: Response) => {
     res.cookie('token', '', { ...cookieOptions, maxAge: 1 });
     res.json({ message: 'Logged out successfully' });
