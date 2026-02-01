@@ -37,7 +37,6 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
         };
         next();
     } catch (err) {
-        // Do not expose error details in production
         if (err instanceof jwt.JsonWebTokenError || err instanceof jwt.TokenExpiredError) {
             return res.status(401).json({ message: "Not authorized, invalid token" });
         }
