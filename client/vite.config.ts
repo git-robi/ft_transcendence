@@ -5,6 +5,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server: {
     host: true,
+    watch: {
+      usePolling: true, // Enable polling for Docker
+    },
+    hmr: {
+      host: 'localhost', // Ensure HMR connects to the right host
+    },
   },
   plugins: [
     react({

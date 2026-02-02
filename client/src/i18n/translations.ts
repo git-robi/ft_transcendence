@@ -30,6 +30,7 @@ export const translations = {
       submit: 'Submit',
     },
     home: {
+      welcome: 'Welcome',
       currentUserSettings: 'Current User Settings',
       yourProfilePage: 'Your Profile Page (how others see you)',
       gameStatistics: 'Game Statistics and Match History',
@@ -75,6 +76,7 @@ export const translations = {
       submit: 'Enviar',
     },
     home: {
+      welcome: 'Bienvenido',
       currentUserSettings: 'Configuración del Usuario Actual',
       yourProfilePage: 'Tu Página de Perfil (cómo te ven los demás)',
       gameStatistics: 'Estadísticas del Juego e Historial de Partidas',
@@ -120,6 +122,7 @@ export const translations = {
       submit: 'Enviar',
     },
     home: {
+      welcome: 'Benvingut',
       currentUserSettings: 'Configuració de l\'Usuari Actual',
       yourProfilePage: 'La Teva Pàgina de Perfil (com et veuen els altres)',
       gameStatistics: 'Estadístiques del Joc i Historial de Partides',
@@ -164,6 +167,7 @@ export const translations = {
       submit: 'Soumettre',
     },
     home: {
+      welcome: 'Bienvenue',
       currentUserSettings: 'Paramètres de l\'Utilisateur Actuel',
       yourProfilePage: 'Votre Page de Profil (comment les autres vous voient)',
       gameStatistics: 'Statistiques de Jeu et Historique des Matchs',
@@ -209,6 +213,7 @@ export const translations = {
       submit: 'Invia',
     },
     home: {
+      welcome: 'Benvenuto',
       currentUserSettings: 'Impostazioni Utente Corrente',
       yourProfilePage: 'La Tua Pagina Profilo (come ti vedono gli altri)',
       gameStatistics: 'Statistiche di Gioco e Cronologia Partite',
@@ -254,6 +259,7 @@ export const translations = {
       submit: 'Wyślij',
     },
     home: {
+      welcome: 'Witaj',
       currentUserSettings: 'Bieżące Ustawienia Użytkownika',
       yourProfilePage: 'Twoja Strona Profilu (jak widzą cię inni)',
       gameStatistics: 'Statystyki Gry i Historia Meczów',

@@ -2,8 +2,14 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PongGame from '../components/PongGame';
 import HomeButtons from '../components/Home/HomeButtons';
+import type { PublicUser } from '../types';
 
-const Home = () => {
+interface HomeProps {
+  user: PublicUser | null;
+  setUser: (user: PublicUser | null) => void;
+}
+
+const Home = ({ user, setUser }: HomeProps) => {
   return (
     <div className="min-h-screen bg-neutral-700 text-white flex flex-col">
       <Header titleKey='home'/>
@@ -18,11 +24,11 @@ const Home = () => {
 
           {/* Home Buttons */}
           <div className="shrink-0">
-            <HomeButtons />
+            <HomeButtons user={user} />
           </div>
         </div>
       </main>
-      <Footer showHome={false} />
+      <Footer showHome={false} setUser={setUser} />
     </div>
   );
 };

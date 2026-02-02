@@ -35,15 +35,14 @@ RUN chown -R nodejs:nodejs /app
 FROM base AS build-deps
 
 # Copy package files
-COPY ./server/package*.json /app
+COPY --chown=nodejs:nodejs ./server/package*.json /app
 
 # Install all dependencies with build optimizations
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --no-audit --no-fund && \
     npm cache clean --force
 
-# Create necessary directories and set permissions
-RUN chown -R nodejs:nodejs /app
+# No need for chown here - already owned by nodejs from COPY
 
 # ========================================
 # Build Stage
@@ -67,10 +66,8 @@ RUN chown -R nodejs:nodejs /app
 FROM build-deps AS migration
 
 # Copy only necessary files for building (respects .dockerignore)
-COPY ./server /app
-COPY ./server/entrypoint.sh /app/entrypoint.sh
-RUN chown -R nodejs:nodejs /app && \
-    chmod -R 755 /app
+COPY --chown=nodejs:nodejs ./server /app
+COPY --chown=nodejs:nodejs ./server/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Execute the migration
@@ -82,19 +79,17 @@ ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 FROM build-deps AS development
 
 ARG NODE_ENV \
-	NPM_CONFIG_LOGLEVEL \
-	PORT
+    NPM_CONFIG_LOGLEVEL \
+    PORT
 
 # Set environment
 ENV NODE_ENV=${NODE_ENV} \
     NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
 
-COPY ./server /app
-COPY ./server/entrypoint.sh /app/entrypoint.sh
+COPY --chown=nodejs:nodejs ./server /app
+COPY --chown=nodejs:nodejs ./server/entrypoint.sh /app/entrypoint.sh
 
-# Ensure all directories have proper permissions
-RUN chown -R nodejs:nodejs /app && \
-    chmod -R 755 /app
+# Make entrypoint executable
 RUN chmod +x /app/entrypoint.sh
 
 # Switch to non-root user

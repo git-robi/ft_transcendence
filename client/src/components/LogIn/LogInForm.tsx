@@ -5,8 +5,13 @@ import GoogleButton from '../GoogleButton';
 import Input from '../Input';
 import { useLanguage } from '../../i18n/useLanguage';
 import Auth from '../../APIs/auth';
+import type { PublicUser } from '../../types';
 
-const LogInForm = () => {
+interface LogInFormProps {
+  setUser: (user: PublicUser | null) => void;
+}
+
+const LogInForm = ({ setUser }: LogInFormProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -17,20 +22,15 @@ const LogInForm = () => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       console.error("Name and password are required");
-    
       return;
     }
     try {
-       
-
       const res = await Auth.post('/login', {email, password} )
-      //need to set user state 
-      
+      setUser(res.data.user);
+      navigate('/home');
     } catch (error) {
-      console.log(error)
-    }
-    
-    navigate('/home');
+      console.log(error);
+    }  
   };
 
   const handleSignUp = () => {
@@ -39,7 +39,7 @@ const LogInForm = () => {
 
   return (
     <div className="w-80">
-      <form  className="space-y-4">
+      <form onSubmit={handleSignIn} className="space-y-4">
         <Input
           type="text"
           placeholder={t.logIn.emailPlaceholder}
@@ -62,7 +62,7 @@ const LogInForm = () => {
           </div>
         </div>
 
-        <Button type="submit" onClick={handleSignIn(e)}>
+        <Button type="submit">
           {t.logIn.signIn}
         </Button>
 

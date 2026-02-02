@@ -1,11 +1,15 @@
 
-import "dotenv/config";
 import express, {Request, Response} from "express";
 import dotenv from "dotenv"
+import cors from "cors"
+
+// Load environment variables FIRST before any other imports that need them
+dotenv.config();
+
+// Now import modules that depend on env variables
 import "./passport-config"
 import auth  from "./routes/auth"
 import apiKeys from "./routes/api-keys"
-import cors from "cors"
 
 
 // swagger
@@ -15,16 +19,31 @@ import swaggerOptions from "./swaggerOptions";
 
 import cookieParser from "cookie-parser";
 
-
-dotenv.config();
-
 const app = express();
 
 app.use(cookieParser());
 
+// Allow multiple origins for development
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    process.env.CLIENT_URL
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 const specs = swaggerJsdoc(swaggerOptions);

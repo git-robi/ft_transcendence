@@ -3,7 +3,11 @@ import Footer from '../components/Footer';
 import PongGame from '../components/PongGame';
 import LogInForm from '../components/LogIn/LogInForm';
 
-const LogIn = () => {
+interface LogInProps {
+  setUser: (user: any) => void;
+}
+
+const LogIn = ({ setUser }: LogInProps) => {
   return (
     <div className="min-h-screen bg-neutral-700 text-white flex flex-col">
       <Header titleKey="logInSignUp"/>
@@ -18,7 +22,7 @@ const LogIn = () => {
 
           {/* LogIn Form */}
           <div className="shrink-0">
-            <LogInForm />
+            <LogInForm setUser={setUser} />
           </div>
         </div>
       </main>
