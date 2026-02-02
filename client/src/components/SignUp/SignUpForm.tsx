@@ -3,21 +3,81 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../Button';
 import { useLanguage } from '../../i18n/useLanguage';
 import Input from '../Input';
+import Auth from '../../APIs/auth';
+import type { PublicUser } from '../../types';
 
-const SignUpForm = () => {
+interface SignUpFormProps {
+  setUser: (user: PublicUser | null) => void;
+}
+
+const SignUpForm = ({ setUser }: SignUpFormProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
-  const handleSubmit = () => {
-    navigate('/home');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    // Validation
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError('All fields are required');
+      return;
+    }
+
+    if (password.length < 12) {
+      setError('Password must be at least 12 characters');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await Auth.post('/register', { 
+        name: name.trim(), 
+        email: email.trim(), 
+        password 
+      });
+      
+      setUser(res.data.user);
+      navigate('/home');
+    } catch (err: unknown) {
+      console.error('Registration failed - Full error:', err);
+      console.error('Error type:', typeof err);
+      console.error('Error object:', JSON.stringify(err, null, 2));
+      
+      let errorMessage = 'Registration failed. Please try again.';
+      
+      if (err && typeof err === 'object' && 'response' in err) {
+        const response = (err as { response?: { data?: { message?: string } } }).response;
+        console.error('Response data:', response?.data);
+        errorMessage = response?.data?.message || errorMessage;
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogIn = () => {
+    navigate('/');
   };
 
   return (
     <div className="w-80">
-      <form className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="bg-red-500 text-white p-3 rounded text-sm">
+            {error}
+          </div>
+        )}
+        
         <div>
           <Input
             type="text"
@@ -55,7 +115,20 @@ const SignUpForm = () => {
           {t.signUp.keepLoggedIn}
         </label>
         <div>
-          <Button onClick={handleSubmit}>{t.signUp.submit}</Button>
+          <Button type="submit">
+            {loading ? 'Signing up...' : t.signUp.submit}
+          </Button>
+        </div>
+        
+        <div className="text-center text-sm">
+          <span className="text-gray-400">Already have an account? </span>
+          <button
+            type="button"
+            onClick={handleLogIn}
+            className="text-blue-400 hover:text-blue-300 underline"
+          >
+            Log In
+          </button>
         </div>
       </form>
     </div>

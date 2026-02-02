@@ -1,6 +1,8 @@
 import { useLanguage } from '../i18n/useLanguage';
 import { useNavigate } from 'react-router-dom';
 import FooterButton from './Footer/FooterButton';
+import Auth from '../APIs/auth';
+import type { PublicUser } from '../types';
 
 interface FooterProps {
   showLogout?: boolean,
@@ -8,9 +10,10 @@ interface FooterProps {
   showChat?: boolean,
   showTOS?:boolean,
   showPrivacy?:boolean;
+  setUser?: (user: PublicUser | null) => void;
 }
 
-const Footer = ({ showLogout = true, showHome = true, showChat = true, showTOS = true, showPrivacy = true }: FooterProps) => {
+const Footer = ({ showLogout = true, showHome = true, showChat = true, showTOS = true, showPrivacy = true, setUser }: FooterProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   
@@ -18,8 +21,21 @@ const Footer = ({ showLogout = true, showHome = true, showChat = true, showTOS =
     navigate('/home');
   };
 
-  const handleLogoutClick = () => {
-    navigate('/');
+  const handleLogoutClick = async () => {
+    try {
+      await Auth.post('/logout');
+      if (setUser) {
+        setUser(null);
+      }
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Still navigate and clear user even if API call fails
+      if (setUser) {
+        setUser(null);
+      }
+      navigate('/');
+    }
   }
 
   const handleTOSClick = () => {
