@@ -4,6 +4,7 @@ import Button from '../Button';
 import GoogleButton from '../GoogleButton';
 import Input from '../Input';
 import { useLanguage } from '../../i18n/useLanguage';
+import Auth from '../../APIs/auth';
 
 const LogInForm = () => {
   const { t } = useLanguage();
@@ -12,7 +13,23 @@ const LogInForm = () => {
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
-  const handleSignIn = () => {
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !password.trim()) {
+      console.error("Name and password are required");
+    
+      return;
+    }
+    try {
+       
+
+      const res = await Auth.post('/login', {email, password} )
+      //need to set user state 
+      
+    } catch (error) {
+      console.log(error)
+    }
+    
     navigate('/home');
   };
 
@@ -45,7 +62,7 @@ const LogInForm = () => {
           </div>
         </div>
 
-        <Button type="submit" onClick={handleSignIn}>
+        <Button type="submit" onClick={handleSignIn(e)}>
           {t.logIn.signIn}
         </Button>
 
