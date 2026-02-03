@@ -1,8 +1,9 @@
 #!/bin/sh
 # Script to initialize HashiCorp Vault with project secrets
 
-VAULT_ADDR=${VAULT_ADDR:-http://localhost:8200}
-VAULT_TOKEN=${VAULT_TOKEN:-dev-root-token-change-in-production}
+VAULT_ADDR=${VAULT_ADDR:-http://127.0.0.1:8200}
+VAULT_TOKEN=${VAULT_TOKEN:-${VAULT_DEV_ROOT_TOKEN_ID:-dev-root-token-change-in-production}}
+export VAULT_ADDR VAULT_TOKEN
 
 # Wait for Vault to be ready
 echo "Waiting for Vault to be ready..."
@@ -27,18 +28,19 @@ path "transcendence/metadata/*" {
 }
 EOF
 
-# Generate secrets (in production, these must be generated securely)
-JWT_SECRET=$(openssl rand -hex 32)
-DB_PASSWORD=$(openssl rand -hex 16)
+# Generate JWT secret (use /dev/urandom; openssl is not in the Vault image)
+JWT_SECRET=$(od -A n -t x1 -N 32 /dev/urandom 2>/dev/null | tr -d ' \n' | head -c 64)
+# Use same DB password as Postgres container (from .env) so backend can connect
+DB_PASSWORD="${POSTGRES_PASSWORD:-changeme}"
 
 # Store secrets in Vault
 vault kv put transcendence/jwt secret="$JWT_SECRET"
 vault kv put transcendence/database \
-    user="postgres" \
+    user="${POSTGRES_USER:-postgres}" \
     password="$DB_PASSWORD" \
     host="postgres" \
     port="5432" \
-    database="transcendence"
+    database="${POSTGRES_DB:-transcendence}"
 
 # Store OAuth client secrets (example for 42 API)
 # In production, these values must be configured manually
