@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client"
-  output = "../src/prisma/generated/prisma"
+  output   = "../src/prisma/generated/prisma"
 }
 
 datasource db {
@@ -15,20 +15,34 @@ datasource db {
 
 model user {
   id        Int      @id @default(autoincrement())
-  email     String  @unique
-  googleId  String? @unique
-  githubId  String? @unique
+  email     String   @unique
+  googleId  String?  @unique
+  githubId  String?  @unique
   password  String
   createdAt DateTime @default(now())
 
-  profile   profile?
+  profile profile?
+  matches match[]
 }
 
 model profile {
-  userId    Int    @id
-  user      user    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @id
+  user   user @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   name      String
-  avatarUrl String   @default("/avatars/avatar_default.png") @db.VarChar(2048)
-  bio       String   @db.VarChar(255)
+  avatarUrl String @default("/avatars/avatar_default.png") @db.VarChar(2048)
+  bio       String @db.VarChar(255)
+}
+
+model match {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  user     user   @relation(fields: [userId], references: [id])
+  opponent String //is it ai or guest
+  guestName String? 
+  userScore Int @default(0)
+  opponentScore Int @default(0)
+  status String @default("pending")
+  createdAt DateTime @default(now())
+  completedAt DateTime?
 }
