@@ -20,7 +20,7 @@ model user {
   githubId  String? @unique
   password  String?  //should be optional as with gitHub and Google there is no password
   createdAt DateTime @default(now())
-
+  apiKeys   apiKeys[]
   profile   profile?
 }
 
@@ -31,4 +31,20 @@ model profile {
   name      String
   avatarUrl String   @default("/avatars/avatar_default.png") @db.VarChar(2048)
   bio       String   @db.VarChar(255)
+}
+
+model apiKeys {
+  id Int @id @default(autoincrement())
+  userId Int
+  name String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime? 
+  hashedKey String @unique
+
+  //add rate limit
+
+  //learn prisma index
+
+   user users @relation(fields: [userId], references: [id])
+
 }

@@ -14,7 +14,16 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
 
         const user = await prisma.user.findFirst({
             where: { id: (decoded as any).id },
-            select: { id: true, profile: { select: { name: true } } }
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                googleId: true,
+                githubId: true,
+                createdAt: true,
+                apiKeys: true,
+                profile: { select: { name: true } },
+            }
         });
 
         if (!user) {
