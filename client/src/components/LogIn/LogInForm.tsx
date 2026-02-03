@@ -17,19 +17,32 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(''); // Clear previous errors
+    
     if (!email.trim() || !password.trim()) {
-      console.error("Name and password are required");
+      setError("Email and password are required");
       return;
     }
     try {
       const res = await Auth.post('/login', {email, password} )
       setUser(res.data.user);
       navigate('/home');
-    } catch (error) {
-      console.log(error);
+    } catch (err: unknown) {
+      console.error('Login failed:', err);
+      
+      let errorMessage = 'Login failed. Please try again.';
+      
+      if (err && typeof err === 'object' && 'response' in err) {
+        const response = (err as { response?: { data?: { message?: string } } }).response;
+        errorMessage = response?.data?.message || errorMessage;
+      }
+      
+      setError(errorMessage);
     }  
   };
 
@@ -40,6 +53,12 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
   return (
     <div className="w-80">
       <form onSubmit={handleSignIn} className="space-y-4">
+        {error && (
+          <div className="bg-red-500 text-white p-3 rounded text-sm">
+            {error}
+          </div>
+        )}
+        
         <Input
           type="text"
           placeholder={t.logIn.emailPlaceholder}
@@ -49,14 +68,23 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
         
         <div className="space-y">
           <Input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder={t.logIn.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <div className="text-left">
-            <a href="#" className="text-sm text-neutral-300 hover:text-white underline">
+          <div className="flex items-center justify-between text-sm">
+            <label className="flex items-center gap-2 text-neutral-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={(e) => setShowPassword(e.target.checked)}
+                className="w-4 h-4"
+              />
+              {t.logIn.showPassword}
+            </label>
+            <a href="#" className="text-neutral-300 hover:text-white underline">
               {t.logIn.forgotPassword}
             </a>
           </div>
