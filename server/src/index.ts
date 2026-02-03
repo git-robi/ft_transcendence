@@ -5,6 +5,7 @@ import dotenv from "dotenv"
 import "./passport-config"
 import auth  from "./routes/auth"
 import profile from "./routes/profile"
+import apiKeys from "./routes/api-keys"
 import cors from "cors"
 
 
@@ -37,6 +38,7 @@ app.use(express.json());
 app.use("/avatars", express.static("uploads/avatars"))
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/profile", profile);
+app.use("/api/v1/api-keys", apiKeys);
 
 
 
