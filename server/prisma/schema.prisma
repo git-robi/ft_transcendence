@@ -18,7 +18,7 @@ model user {
   email     String  @unique
   googleId  String? @unique
   githubId  String? @unique
-  password  String?  //should be optional as with gitHub and Google there is no password
+  password  String   //should be optional as with gitHub and Google there is no password
   createdAt DateTime @default(now())
   apiKeys   apiKeys[]
   profile   profile?
