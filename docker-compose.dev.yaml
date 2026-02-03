@@ -21,11 +21,15 @@ services:
         NODE_ENV: development
         NPM_CONFIG_LOGLEVEL: warn
         PORT: ${FRONTEND_PORT}
+    user: "0:0"
     environment:
       - VITE_API_URL=http://localhost:${BACKEND_PORT}/api/v1
       - VITE_APP_ENV=development
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=warn
+    volumes:
+      - ./client:/app
+      - /app/node_modules
     ports:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
     restart: unless-stopped
