@@ -53,7 +53,7 @@ export default function FileUploader({ onUploadSuccess }: { onUploadSuccess?: ()
         <>
         <div>
             <input type="file" accept="image/png, image/jpeg" onChange={handleFileChange}/>
-            {file && status != "uploading" &&  <Button onClick={handleFileUpload} text="Upload"/>}
+            {file && status !== "uploading" &&  <Button onClick={handleFileUpload} text="Upload"/>}
 
             {status === 'success' && (
                 <p>Upload successful</p>
