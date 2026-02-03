@@ -28,7 +28,37 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCa
 
 const upload = multer({storage, fileFilter});
 
-//get endpoint that returns the user's profile
+/**
+ * @swagger
+ * /api/v1/profile/me:
+ *   get:
+ *     summary: Get current user's profile
+ *     description: Returns the authenticated user's profile.
+ *     tags:
+ *       - Profile
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 bio:
+ *                   type: string
+ *                 avatarUrl:
+ *                   type: string
+ *       404:
+ *         description: Profile not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/me", protect, async (req: any, res: Response) => {
     try {
         const profile = await prisma.profile.findUnique({
@@ -45,7 +75,47 @@ router.get("/me", protect, async (req: any, res: Response) => {
     }
 });
 
-//endpoint that updates avatar pic
+/**
+ * @swagger
+ * /api/v1/profile/upload:
+ *   patch:
+ *     summary: Upload avatar
+ *     description: Uploads a new avatar image for the authenticated user. Only PNG and JPEG files are accepted.
+ *     tags:
+ *       - Profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Avatar updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 bio:
+ *                   type: string
+ *                 avatarUrl:
+ *                   type: string
+ *       400:
+ *         description: No file uploaded or invalid file type
+ *       500:
+ *         description: Internal server error
+ */
 router.patch("/upload", protect, upload.single("avatar"), async (req: any, res) => {
     
     try {
@@ -66,7 +136,52 @@ router.patch("/upload", protect, upload.single("avatar"), async (req: any, res) 
     }
 })
 
-//put endpoint to update profile info
+/**
+ * @swagger
+ * /api/v1/profile/me:
+ *   patch:
+ *     summary: Update profile
+ *     description: Updates the authenticated user's profile name and/or bio.
+ *     tags:
+ *       - Profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Display name (cannot be empty)
+ *               bio:
+ *                 type: string
+ *                 description: User bio (max 255 characters)
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 bio:
+ *                   type: string
+ *                 avatarUrl:
+ *                   type: string
+ *       400:
+ *         description: Validation error (invalid name or bio)
+ *       404:
+ *         description: Profile not found
+ *       500:
+ *         description: Internal server error
+ */
 router.patch("/me", protect, async (req: any, res: Response) => {
     try {
         const { name, bio } = req.body as {
