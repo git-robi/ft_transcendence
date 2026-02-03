@@ -35,16 +35,15 @@ RUN chown -R nodejs:nodejs /app
 FROM base AS build-deps
 
 # Copy package files
-COPY ./client/package*.json /app
+COPY --chown=nodejs:nodejs ./client/package*.json /app
 
 # Install all dependencies with build optimizations
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --no-audit --no-fund && \
     npm cache clean --force
 
-# Create necessary directories and set permissions
-RUN mkdir -p /app/node_modules/.vite && \
-    chown -R nodejs:nodejs /app
+# Create necessary directories (no chown needed - will inherit from COPY)
+RUN mkdir -p /app/node_modules/.vite
 
 # ========================================
 # Build Stage
@@ -70,20 +69,18 @@ RUN chown -R nodejs:nodejs /app
 FROM build-deps AS development
 
 ARG NODE_ENV \
-	NPM_CONFIG_LOGLEVEL \
-	PORT
+    NPM_CONFIG_LOGLEVEL \
+    PORT
 
 # Set environment
 ENV NODE_ENV=${NODE_ENV} \
     NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
 
-# Copy source files
-COPY ./client /app
+# Copy source files with proper ownership
+COPY --chown=nodejs:nodejs ./client /app
 
-# Ensure all directories have proper permissions
-RUN mkdir -p /app/node_modules/.vite && \
-    chown -R nodejs:nodejs /app && \
-    chmod -R 755 /app
+# Ensure vite directory exists
+RUN mkdir -p /app/node_modules/.vite
 
 # Switch to non-root user
 USER nodejs
