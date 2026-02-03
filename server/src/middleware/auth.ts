@@ -12,7 +12,7 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
 
-        const user = await prisma.users.findFirst({
+        const user = await prisma.user.findFirst({
             where: { id: (decoded as any).id },
             select: {
                 id: true,
@@ -21,7 +21,8 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
                 googleId: true,
                 githubId: true,
                 createdAt: true,
-                apiKeys: true 
+                apiKeys: true,
+                profile: { select: { name: true } },
             }
         });
 

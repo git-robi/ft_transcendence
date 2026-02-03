@@ -60,6 +60,7 @@ services:
     working_dir: /app
     volumes:
       - frontend_data:/app/dist
+      - ./client/src:/app/src
     networks:
       - t42bcnet
     restart: no
@@ -78,6 +79,8 @@ services:
     volumes:
       - prisma_migrations:/app/prisma/migrations
       - ./server/prisma/migrations:/migrations
+      - ./server/src:/app/src
+      - ./server/uploads:/app/uploads
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
       - GIT_BRANCH=${GIT_BRANCH}

@@ -1,0 +1,234 @@
+import express, { Response } from "express";
+import { prisma } from "../prisma/client";
+import { protect } from "../middleware/auth";
+import multer from "multer";
+import path from "path";
+
+const router = express.Router();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, "../../uploads/avatars"))
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname))
+    }
+
+})
+
+
+
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    if (file.mimetype === "image/png" || file.mimetype === "image/jpeg") {
+        cb(null, true);
+    } else {
+        cb(new Error("Only PNG and JPEG files are allowed"));
+    }
+};
+
+const upload = multer({storage, fileFilter});
+
+/**
+ * @swagger
+ * /api/v1/profile/me:
+ *   get:
+ *     summary: Get current user's profile
+ *     description: Returns the authenticated user's profile.
+ *     tags:
+ *       - Profile
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 bio:
+ *                   type: string
+ *                 avatarUrl:
+ *                   type: string
+ *       404:
+ *         description: Profile not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/me", protect, async (req: any, res: Response) => {
+    try {
+        const profile = await prisma.profile.findUnique({
+            where: { userId: req.user.id },
+        });
+
+        if (!profile) {
+            return res.status(404).json({ message: "Profile not found" });
+        }
+
+        return res.status(200).json(profile);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+/**
+ * @swagger
+ * /api/v1/profile/upload:
+ *   patch:
+ *     summary: Upload avatar
+ *     description: Uploads a new avatar image for the authenticated user. Only PNG and JPEG files are accepted.
+ *     tags:
+ *       - Profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Avatar updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 bio:
+ *                   type: string
+ *                 avatarUrl:
+ *                   type: string
+ *       400:
+ *         description: No file uploaded or invalid file type
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/upload", protect, upload.single("avatar"), async (req: any, res) => {
+    
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        const updated = await prisma.profile.update({
+            where: {userId: req.user.id},
+            data: {
+                avatarUrl: `/avatars/${req.file.filename}`
+            }
+        })
+
+        return res.status(200).json(updated);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
+
+/**
+ * @swagger
+ * /api/v1/profile/me:
+ *   patch:
+ *     summary: Update profile
+ *     description: Updates the authenticated user's profile name and/or bio.
+ *     tags:
+ *       - Profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Display name (cannot be empty)
+ *               bio:
+ *                 type: string
+ *                 description: User bio (max 255 characters)
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 bio:
+ *                   type: string
+ *                 avatarUrl:
+ *                   type: string
+ *       400:
+ *         description: Validation error (invalid name or bio)
+ *       404:
+ *         description: Profile not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/me", protect, async (req: any, res: Response) => {
+    try {
+        const { name, bio } = req.body as {
+      name?: string;
+      bio?: string;
+    };
+
+    // ---- validation ----
+    if (name !== undefined && typeof name !== "string") {
+      return res.status(400).json({ message: "name must be a string" });
+    }
+    if (bio !== undefined && typeof bio !== "string") {
+      return res.status(400).json({ message: "bio must be a string" });
+    }
+
+    if (name !== undefined && name.trim().length === 0) {
+      return res.status(400).json({ message: "name cannot be empty" });
+    }
+
+   
+    if (bio !== undefined && bio.length > 255) {
+      return res.status(400).json({ message: "bio must be 255 characters or less" });
+    }
+
+    
+    const existing = await prisma.profile.findUnique({
+      where: { userId: req.user.id },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    
+    const updated = await prisma.profile.update({
+      where: { userId: req.user.id },
+      data: {
+        ...(name !== undefined ? { name: name.trim() } : {}),
+        ...(bio !== undefined ? { bio } : {}),
+      },
+    });
+
+    return res.status(200).json(updated);
+        
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
+
+export default router;
