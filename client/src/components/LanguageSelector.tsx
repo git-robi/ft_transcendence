@@ -7,9 +7,9 @@ const LanguageSelector = () => {
   const [showLanguages, setShowLanguages] = useState(false);
 
   const languages: { code: Language; name: string }[] = [
-    { code: 'en', name: 'English' },
     { code: 'es', name: 'Castellano' },
     { code: 'ca', name: 'Català' },
+    { code: 'en', name: 'English' },
     { code: 'fr', name: 'Français' },
     { code: 'it', name: 'Italiano' },
     { code: 'pl', name: 'Polski' },
