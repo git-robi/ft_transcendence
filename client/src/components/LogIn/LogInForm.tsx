@@ -16,7 +16,7 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  //const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -66,7 +66,7 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
           onChange={(e) => setEmail(e.target.value)}
         />
         
-        <div className="space-y">
+        <div>
           <Input
             type={showPassword ? "text" : "password"}
             placeholder={t.logIn.passwordPlaceholder}
@@ -84,9 +84,9 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
               />
               {t.logIn.showPassword}
             </label>
-            <a href="#" className="text-neutral-300 hover:text-white underline">
+            {/*<a href="#" className="text-neutral-300 hover:text-white underline">
               {t.logIn.forgotPassword}
-            </a>
+            </a>*/}
           </div>
         </div>
 
@@ -94,7 +94,7 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
           {t.logIn.signIn}
         </Button>
 
-        <label className="flex items-center justify-center gap-2 text-sm">
+        {/*<label className="flex items-center justify-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={keepLoggedIn}
@@ -102,10 +102,15 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
             className="w-4 h-4"
           />
           {t.logIn.keepLoggedIn}
-        </label>
+        </label>*/}
 
         <div className="space-y-2 pt-4">
-          <Button variant="github">{t.logIn.githubLogIn}</Button>
+          <Button 
+            variant="github" 
+            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`}
+          >
+            {t.logIn.githubLogIn}
+          </Button>
           <GoogleButton />
         </div>
 

@@ -16,7 +16,8 @@ const SignUpForm = ({ setUser }: SignUpFormProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  //const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -98,14 +99,25 @@ const SignUpForm = ({ setUser }: SignUpFormProps) => {
         </div>
         <div>
           <Input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder={t.signUp.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <div className='flex items-center justify-between text-sm'>
+            <label className='flex items-center gap-2 text-gray-400 cursor-pointer'>
+              <input
+               type="checkbox"
+               checked={showPassword}
+               onChange={(e) => setShowPassword(e.target.checked)}
+               className="w-4 h-4"
+               />
+               {t.signUp.showPassword}
+            </label>
+          </div>
           <div className='text-sm text-gray-400 mt-1 px-4'>{t.signUp.passwordComment}</div>
         </div>
-        <label className='flex items-center justify-left gap-2 text-sm'>
+        {/**<label className='flex items-center justify-left gap-2 text-sm'>
           <input
             type="checkbox"
             checked={keepLoggedIn}
@@ -113,7 +125,7 @@ const SignUpForm = ({ setUser }: SignUpFormProps) => {
             className='w-4 h-4'
           />
           {t.signUp.keepLoggedIn}
-        </label>
+        </label>*/}
         <div>
           <Button type="submit">
             {loading ? 'Signing up...' : t.signUp.submit}
