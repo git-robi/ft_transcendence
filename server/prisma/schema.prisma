@@ -32,17 +32,20 @@ model profile {
   name      String
   avatarUrl String @default("/avatars/avatar_default.png") @db.VarChar(2048)
   bio       String @db.VarChar(255)
+
+  level Int @default(1)
+  xp    Int @default(0)
 }
 
 model match {
-  id       Int    @id @default(autoincrement())
-  userId   Int
-  user     user   @relation(fields: [userId], references: [id])
-  opponent String //is it ai or guest
-  guestName String? 
-  userScore Int @default(0)
-  opponentScore Int @default(0)
-  status String @default("pending")
-  createdAt DateTime @default(now())
-  completedAt DateTime?
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  user          user      @relation(fields: [userId], references: [id])
+  opponent      String //is it ai or guest
+  guestName     String?
+  userScore     Int       @default(0)
+  opponentScore Int       @default(0)
+  status        String    @default("pending")
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime?
 }
