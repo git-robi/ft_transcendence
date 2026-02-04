@@ -1,0 +1,25 @@
+import { useLanguage } from '../i18n/useLanguage';
+import GoogleIcon from './icons/GoogleIcon';
+
+const GoogleButton = () => {
+  const { t } = useLanguage();
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleGoogleLogin}
+      className="w-full flex items-center justify-center gap-3 bg-neutral-800 text-white border border-neutral-600 px-6 py-3 rounded font-medium transition hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] active:shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] hover:bg-neutral-700"
+    >
+      <GoogleIcon />
+      <span className="text-sm font-medium text-white">
+        {t.logIn.googleLogIn}
+      </span>
+    </button>
+  );
+};
+
+export default GoogleButton;

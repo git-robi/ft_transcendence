@@ -107,7 +107,7 @@ router.post('/register', async (req, res) => {
     }
 
     //password requirements
-    if (password.length() < 12) {
+    if (password.length < 12) {
         return res.status(400).json({ message: 'Password must be at least 12 characters'});
     }
 

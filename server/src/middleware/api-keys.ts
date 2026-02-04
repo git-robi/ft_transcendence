@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import {createHash} from "node:crypto"
-import {prisma} from "../../prisma/client";
+import {prisma} from "../prisma/client";
 
 export const protectApiKey = async (req: any, res: Response, next: NextFunction) => {
 
