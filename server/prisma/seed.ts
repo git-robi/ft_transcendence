@@ -11,8 +11,14 @@ async function seed() {
         create: { 
             name: "Ping", 
             email: "ping@example.com", 
-            password: hashedPassword 
-        },
+            password: hashedPassword,
+            profile: {
+                create: {
+                    name: "Ping",
+                    bio: ''
+                }
+            }
+        },  
     });
     
     console.log("✅ Database seeded successfully");
