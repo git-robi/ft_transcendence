@@ -1,59 +1,56 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Home from './routes/routes_tests/home.test';
-import Login from './routes/routes_tests/login.test';
-import Auth from "./APIs/auth";
-import PrivacyPolicy from './routes/routes_tests/PrivacyPolicy';
-import TermsOfService from './routes/routes_tests/TermsOfService';
-import Upload from "./routes/routes_tests/Upload";
-import Register from "./routes/routes_tests/register" 
+import SignUp from './routes/SignUp';
+import LogIn from './routes/LogIn';
+import Home from './routes/Home';
+import Game from './routes/Game';
+import Chat from './routes/Chat';
+import TermsOfService from './routes/TermsOfService';
+import PrivacyPolicy from './routes/PrivacyPolicy';
+import { LanguageProvider } from './i18n/LanguageProvider';
+import type { PublicUser } from './types';
+import Auth from './APIs/auth';
 import { Navigate  } from 'react-router-dom';
 
 Auth.defaults.withCredentials = true;
 
 const App = () => {
-
-  const [user, setUser] = useState(null);
-
+  const [user, setUser] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await Auth.get("/me");
-                setUser(res.data);
-            } catch (err) {
-                setUser(null);
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchUser();
-    }, []);
-
-    if (loading) {
-        return <div>Loading...</div>;
+    const fetchUser = async () => {
+      try {
+        const res = await Auth.get("/me");
+        setUser(res.data);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchUser();
+  }, []);
 
-
-  
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <>
-      <Router>
+    <LanguageProvider>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home user={user} setUser={setUser}/>} />
-          <Route path="/login" element={<Login setUser={setUser}/>} />
-          <Route path="/register" element={user ? <Navigate to="/" /> : <Register setUser={setUser}/>} />
-          <Route path="/upload" element={<Upload />}/>
-
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/signUp" element={user ? <Navigate to="/" /> : <SignUp setUser={setUser}/>} />
+          <Route path="/login" element={user ? <Navigate to="/" /> : <LogIn setUser={setUser}/>} />
+          <Route path="/game" element={<Game />} />
+          <Route path='/chat' element={<Chat />} />
+          <Route path="/tos" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
         </Routes>
-      </Router>
-    </>
-  )
-}
+      </BrowserRouter>
+    </LanguageProvider>
+  );
+};
 
 export default App;

@@ -1,12 +1,16 @@
 
-import "dotenv/config";
 import express, {Request, Response} from "express";
 import dotenv from "dotenv"
+import cors from "cors"
+
+// Load environment variables FIRST before any other imports that need them
+dotenv.config();
+
+// Now import modules that depend on env variables
 import "./passport-config"
 import auth  from "./routes/auth"
 import profile from "./routes/profile"
 import apiKeys from "./routes/api-keys"
-import cors from "cors"
 
 
 // swagger
@@ -16,12 +20,10 @@ import swaggerOptions from "./swaggerOptions";
 
 import cookieParser from "cookie-parser";
 
-
-dotenv.config();
-
 const app = express();
 
 app.use(cookieParser());
+
 
 app.use(cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",

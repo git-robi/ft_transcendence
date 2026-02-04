@@ -5,9 +5,12 @@ import { prisma } from '../src/prisma/client';
 async function seed() {
     const hashedPassword = await bcrypt.hash("pong123", 10);
     
-    await prisma.user.create({
-        data: {
-            email: "ping@example.com",
+    await prisma.users.upsert({
+        where: { email: "ping@example.com" },
+        update: {},
+        create: { 
+            name: "Ping", 
+            email: "ping@example.com", 
             password: hashedPassword,
             profile: {
                 create: {
@@ -15,8 +18,16 @@ async function seed() {
                     bio: ''
                 }
             }
-        },
+        },  
     });
+    
+    console.log("✅ Database seeded successfully");
 }
 
-seed().then(() => prisma.$disconnect());
+seed()
+    .then(() => prisma.$disconnect())
+    .catch((e) => {
+        console.error("❌ Seed error:", e);
+        prisma.$disconnect();
+        process.exit(1);
+    });
