@@ -5,11 +5,10 @@ import { prisma } from '../src/prisma/client';
 async function seed() {
     const hashedPassword = await bcrypt.hash("pong123", 10);
     
-    await prisma.users.upsert({
+    await prisma.user.upsert({
         where: { email: "ping@example.com" },
         update: {},
         create: { 
-            name: "Ping", 
             email: "ping@example.com", 
             password: hashedPassword,
             profile: {

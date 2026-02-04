@@ -22,6 +22,8 @@ model user {
   createdAt DateTime @default(now())
   apiKeys   apiKeys[]
   profile   profile?
+
+  @@map("users")
 }
 
 model profile {
@@ -45,6 +47,6 @@ model apiKeys {
 
   //learn prisma index
 
-   user users @relation(fields: [userId], references: [id])
+   user user @relation(fields: [userId], references: [id])
 
 }
