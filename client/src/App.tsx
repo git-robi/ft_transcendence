@@ -10,6 +10,9 @@ import PrivacyPolicy from './routes/PrivacyPolicy';
 import { LanguageProvider } from './i18n/LanguageProvider';
 import type { PublicUser } from './types';
 import Auth from './APIs/auth';
+import { Navigate  } from 'react-router-dom';
+
+Auth.defaults.withCredentials = true;
 
 const App = () => {
   const [user, setUser] = useState<PublicUser | null>(null);
@@ -22,7 +25,6 @@ const App = () => {
         setUser(res.data);
       } catch (err) {
         setUser(null);
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -38,9 +40,9 @@ const App = () => {
     <LanguageProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LogIn setUser={setUser}/>} />
-          <Route path="/signUp" element={<SignUp setUser={setUser}/>} />
-          <Route path="/home" element={<Home user={user} setUser={setUser}/>} />
+          <Route path="/" element={<Home user={user} setUser={setUser}/>} />
+          <Route path="/signUp" element={user ? <Navigate to="/" /> : <SignUp setUser={setUser}/>} />
+          <Route path="/login" element={user ? <Navigate to="/" /> : <LogIn setUser={setUser}/>} />
           <Route path="/game" element={<Game />} />
           <Route path='/chat' element={<Chat />} />
           <Route path="/tos" element={<TermsOfService />} />
