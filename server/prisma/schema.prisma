@@ -21,8 +21,9 @@ model user {
   password  String
   createdAt DateTime @default(now())
 
-  profile profile?
-  matches match[]
+  profile      profile?
+  matches      match[]
+  achievements achievement[]
 }
 
 model profile {
@@ -48,4 +49,14 @@ model match {
   status        String    @default("pending")
   createdAt     DateTime  @default(now())
   completedAt   DateTime?
+}
+
+model achievement {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       user     @relation(fields: [userId], references: [id])
+  type       String
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, type])
 }

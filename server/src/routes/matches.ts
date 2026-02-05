@@ -258,7 +258,40 @@ router.patch("/:id", protect, async (req, res) => {
     }
 });
 
-//endpoint that returns statistics (games played, wins, losses, ranking)
+/**
+ * @swagger
+ * /api/v1/matches/stats/{id}:
+ *   get:
+ *     summary: Get user statistics
+ *     description: Returns game statistics for the authenticated user or a specific user by ID.
+ *     tags:
+ *       - Matches
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: User ID (optional, defaults to authenticated user)
+ *     responses:
+ *       200:
+ *         description: Statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 gamesPlayed:
+ *                   type: integer
+ *                 wins:
+ *                   type: integer
+ *                 losses:
+ *                   type: integer
+ *                 rank:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/stats/:id?", protect, async (req: any, res) => {
     try {
         
@@ -288,6 +321,41 @@ router.get("/stats/:id?", protect, async (req: any, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/v1/matches/leaderboard:
+ *   get:
+ *     summary: Get leaderboard
+ *     description: Returns all users ranked by wins, with win rate as tiebreaker.
+ *     tags:
+ *       - Matches
+ *     responses:
+ *       200:
+ *         description: Leaderboard retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   userId:
+ *                     type: integer
+ *                   name:
+ *                     type: string
+ *                   avatarUrl:
+ *                     type: string
+ *                   level:
+ *                     type: integer
+ *                   wins:
+ *                     type: integer
+ *                   gamesPlayed:
+ *                     type: integer
+ *                   winRate:
+ *                     type: number
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/leaderboard", protect, async (req, res) => {
     try {
         const ranked = await getRankedUsers();
