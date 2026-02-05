@@ -1,9 +1,11 @@
+
 export const translations = {
   en: {
     header: {
       logInSignUp: 'Log in/Sign up',
       signUp: 'Sign up with email',
       home: 'Home',
+      userSettings: 'User Settings',
       game: 'Game',
       chat: 'Chat',
       termsOfService: 'Terms of Service',
@@ -33,7 +35,7 @@ export const translations = {
     },
     home: {
       welcome: 'Welcome',
-      currentUserSettings: 'Current User Settings',
+      userSettings: 'User Settings',
       yourProfilePage: 'Your Profile Page (how others see you)',
       gameStatistics: 'Game Statistics and Match History',
       playLastSettings: 'Play with the Last Saved Settings',
@@ -45,6 +47,15 @@ export const translations = {
       chat: 'Chat',
       termsOfService: 'Terms of Service',
       privacyPolicy: 'Privacy Policy',
+    },
+    avatarUpload: {
+      browse: 'Browse',
+      upload: 'Upload',
+      uploading: 'Uploading...',
+      success: 'Upload successful!',
+      error: 'Upload failed. Please try again.',
+      invalidType: 'Only PNG and JPEG files are allowed',
+      noFileSelected: 'No file selected',
     },
   },
   es: {
@@ -81,7 +92,7 @@ export const translations = {
     },
     home: {
       welcome: 'Bienvenido',
-      currentUserSettings: 'Configuración del Usuario Actual',
+      userSettings: 'Configuración del Usuario',
       yourProfilePage: 'Tu Página de Perfil (cómo te ven los demás)',
       gameStatistics: 'Estadísticas del Juego e Historial de Partidas',
       playLastSettings: 'Jugar con la Última Configuración Guardada',
@@ -93,6 +104,15 @@ export const translations = {
       chat: 'Chat',
       termsOfService: 'Términos de servicio',
       privacyPolicy: 'Política de privacidad',
+    },
+    avatarUpload: {
+      browse: 'Buscar',
+      upload: 'Subir',
+      uploading: 'Subiendo...',
+      success: '¡Carga exitosa!',
+      error: 'Carga fallida. Inténtalo de nuevo.',
+      invalidType: 'Solo se permiten archivos PNG y JPEG',
+      noFileSelected: 'No hay archivo seleccionado',
     },
   },
   ca: {
@@ -129,7 +149,7 @@ export const translations = {
     },
     home: {
       welcome: 'Benvingut',
-      currentUserSettings: 'Configuració de l\'Usuari Actual',
+      userSettings: 'Configuració de l\'Usuari',
       yourProfilePage: 'La Teva Pàgina de Perfil (com et veuen els altres)',
       gameStatistics: 'Estadístiques del Joc i Historial de Partides',
       playLastSettings: 'Jugar amb l\'Última Configuració Guardada',
@@ -140,6 +160,15 @@ export const translations = {
       logout: 'Tancar sessió',
       termsOfService: 'Termes de servei',
       privacyPolicy: 'Política de privadesa',
+    },
+    avatarUpload: {
+      browse: 'Cercar',
+      upload: 'Pujar',
+      uploading: 'Pujant...',
+      success: 'Pujada exitosa!',
+      error: 'Pujada fallida. Torna-ho a intentar.',
+      invalidType: 'Només es permeten arxius PNG i JPEG',
+      noFileSelected: 'Cap arxiu seleccionat',
     },
   },
   fr: {
@@ -175,7 +204,7 @@ export const translations = {
     },
     home: {
       welcome: 'Bienvenue',
-      currentUserSettings: 'Paramètres de l\'Utilisateur Actuel',
+      userSettings: 'Paramètres de l\'Utilisateur',
       yourProfilePage: 'Votre Page de Profil (comment les autres vous voient)',
       gameStatistics: 'Statistiques de Jeu et Historique des Matchs',
       playLastSettings: 'Jouer avec les Derniers Paramètres Enregistrés',
@@ -184,9 +213,18 @@ export const translations = {
     footer: {
       home: 'Accueil',
       logout: 'Se déconnecter',
-      chat: 'Discussion',
+      chat: 'Chat',
       termsOfService: 'Conditions d\'utilisation',
       privacyPolicy: 'Politique de confidentialité',
+    },
+    avatarUpload: {
+      browse: 'Parcourir',
+      upload: 'Télécharger',
+      uploading: 'Téléchargement...',
+      success: 'Téléchargement réussi !',
+      error: 'Échec du téléchargement. Veuillez réessayer.',
+      invalidType: 'Seuls les fichiers PNG et JPEG sont autorisés',
+      noFileSelected: 'Aucun fichier sélectionné',
     },
   },
   it: {
@@ -223,7 +261,7 @@ export const translations = {
     },
     home: {
       welcome: 'Benvenuto',
-      currentUserSettings: 'Impostazioni Utente Corrente',
+      userSettings: 'Impostazioni Utente',
       yourProfilePage: 'La Tua Pagina Profilo (come ti vedono gli altri)',
       gameStatistics: 'Statistiche di Gioco e Cronologia Partite',
       playLastSettings: 'Gioca con le Ultime Impostazioni Salvate',
@@ -235,6 +273,15 @@ export const translations = {
       chat: 'Chat',
       termsOfService: 'Termini di servizio',
       privacyPolicy: 'Informativa sulla privacy',
+    },
+    avatarUpload: {
+      browse: 'Sfoglia',
+      upload: 'Carica',
+      uploading: 'Caricamento...',
+      success: 'Caricamento riuscito!',
+      error: 'Caricamento fallito. Riprova.',
+      invalidType: 'Sono consentiti solo file PNG e JPEG',
+      noFileSelected: 'Nessun file selezionato',
     },
   },
   pl: {
@@ -271,7 +318,7 @@ export const translations = {
     },
     home: {
       welcome: 'Witaj',
-      currentUserSettings: 'Bieżące Ustawienia Użytkownika',
+      userSettings: 'Ustawienia Użytkownika',
       yourProfilePage: 'Twoja Strona Profilu (jak widzą cię inni)',
       gameStatistics: 'Statystyki Gry i Historia Meczów',
       playLastSettings: 'Graj z Ostatnio Zapisanymi Ustawieniami',
@@ -284,6 +331,15 @@ export const translations = {
       chat: 'Czat',
       termsOfService: 'Warunki korzystania z usługi',
       privacyPolicy: 'Polityka prywatności',
+    },
+    avatarUpload: {
+      browse: 'Przeglądaj',
+      upload: 'Prześlij',
+      uploading: 'Przesyłanie...',
+      success: 'Przesyłanie zakończone sukcesem!',
+      error: 'Przesyłanie nie powiodło się. Spróbuj ponownie.',
+      invalidType: 'Dozwolone są tylko pliki PNG i JPEG',
+      noFileSelected: 'Nie wybrano pliku',
     },
   },
 };
