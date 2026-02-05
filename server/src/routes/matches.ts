@@ -227,12 +227,16 @@ router.post("/", protect, async (req: any, res) => {
  *                       unlockedAt:
  *                         type: string
  *                         format: date-time
+ *       400:
+ *         description: Match is already closed
+ *       403:
+ *         description: Forbidden (match does not belong to the authenticated user)
  *       404:
  *         description: Match or profile not found
  *       500:
  *         description: Internal server error
  */
-router.patch("/:id", protect, async (req, res) => {
+router.patch("/:id", protect, async (req: any, res) => {
     try {
         const { userScore, opponentScore } = req.body;
         const matchId = Number(req.params.id);
@@ -240,6 +244,12 @@ router.patch("/:id", protect, async (req, res) => {
         const match = await prisma.match.findUnique({ where: { id: matchId } });
         if (!match) {
             return res.status(404).json({ message: "Match not found" });
+        }
+        if (match.userId !== req.user.id) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+        if (match.status === "closed") {
+            return res.status(400).json({ message: "Match is already closed" });
         }
         const userId = match.userId;
 
@@ -373,6 +383,7 @@ router.get("/stats/:id?", protect, async (req: any, res) => {
         const matches = await prisma.match.findMany({
             where: {
                 userId: userId,
+                status: "closed"
             }
         });
 
