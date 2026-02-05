@@ -48,12 +48,12 @@ const getRankedUsers = async () => {
             };
         })
         .sort((a, b) => {
-            
+
             if (b.wins !== a.wins) {
                 return b.wins - a.wins;
             }
 
-            
+
             return b.winRate - a.winRate;
         });
 };
@@ -115,19 +115,19 @@ const getRankedUsers = async () => {
  */
 router.post("/", protect, async (req: any, res) => {
     try {
-        const {opponent, guestName} = req.body;
-        
-       
+        const { opponent, guestName } = req.body;
+
+
         const match = await prisma.match.create({
             data: {
-                userId : req.user.id,
+                userId: req.user.id,
                 opponent,
                 guestName
             }
         });
 
         return res.status(201).json(match);
-        
+
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
@@ -139,7 +139,7 @@ router.post("/", protect, async (req: any, res) => {
  * /api/v1/matches/{id}:
  *   patch:
  *     summary: Update match result
- *     description: Updates a match with the final scores and marks it as closed.
+ *     description: Updates a match with the final scores, marks it as closed, updates XP/level, and awards any earned achievements (first_game, first_win, perfect_game, five_games).
  *     tags:
  *       - Matches
  *     parameters:
@@ -167,7 +167,7 @@ router.post("/", protect, async (req: any, res) => {
  *                 description: Final score of the opponent
  *     responses:
  *       200:
- *         description: Match updated and profile XP/level updated successfully
+ *         description: Match updated, profile XP/level updated, and achievements awarded successfully
  *         content:
  *           application/json:
  *             schema:
@@ -211,20 +211,36 @@ router.post("/", protect, async (req: any, res) => {
  *                       type: integer
  *                     xp:
  *                       type: integer
+ *                 achievements:
+ *                   type: array
+ *                   description: Newly unlocked achievements (empty if none)
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       userId:
+ *                         type: integer
+ *                       type:
+ *                         type: string
+ *                         enum: [first_game, first_win, perfect_game, five_games]
+ *                       unlockedAt:
+ *                         type: string
+ *                         format: date-time
  *       500:
  *         description: Internal server error
  */
 router.patch("/:id", protect, async (req, res) => {
     try {
-        const {userScore, opponentScore} = req.body;
+        const { userScore, opponentScore } = req.body;
         const idUser = Number(req.params.id);
         const gainedXp = userScore > opponentScore ? 50 : 10;
         const profile = await prisma.profile.findFirst({
             where: {
-                userId : idUser
+                userId: idUser
             }
         });
-        if (!profile){
+        if (!profile) {
             return;
         }
         const newXp = gainedXp + profile.xp;
@@ -233,16 +249,16 @@ router.patch("/:id", protect, async (req, res) => {
 
         const updatedProfile = await prisma.profile.update({
             where: {
-                userId : idUser,
+                userId: idUser,
             },
-            data : {
-                level : newLevel,
-                xp : newXp
+            data: {
+                level: newLevel,
+                xp: newXp
             }
         });
 
         const updatedMatch = await prisma.match.update({
-            where: { id : idUser},
+            where: { id: idUser },
             data: {
                 userScore,
                 opponentScore,
@@ -251,7 +267,43 @@ router.patch("/:id", protect, async (req, res) => {
             }
         });
 
-        return res.status(200).json({ match: updatedMatch, profile: updatedProfile });
+        // achievements 
+        const closedMatches = await prisma.match.count({
+            where: { userId: idUser, status: "closed" }
+        });
+
+        const won = userScore > opponentScore;
+        const perfect = won && opponentScore === 0;
+
+        const newAchievements: string[] = [];
+
+        if (closedMatches === 1) newAchievements.push("first_game");
+        if (closedMatches >= 5) newAchievements.push("five_games");
+
+        if (won) {
+            const closedWonMatches = await prisma.match.findMany({
+                where: { userId: idUser, status: "closed" }
+            });
+            const totalWins = closedWonMatches.filter(m => m.userScore > m.opponentScore).length;
+            if (totalWins === 1) newAchievements.push("first_win");
+        }
+
+        if (perfect) newAchievements.push("perfect_game");
+
+        let unlockedAchievements: any[] = [];
+
+        if (newAchievements.length > 0) {
+            await prisma.achievement.createMany({
+                data: newAchievements.map(type => ({ userId: idUser, type })),
+                skipDuplicates: true
+            });
+
+            unlockedAchievements = await prisma.achievement.findMany({
+                where: { userId: idUser, type: { in: newAchievements } }
+            });
+        }
+
+        return res.status(200).json({ match: updatedMatch, profile: updatedProfile, achievements: unlockedAchievements });
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
@@ -289,31 +341,53 @@ router.patch("/:id", protect, async (req, res) => {
  *                   type: integer
  *                 rank:
  *                   type: integer
+ *                 achievements:
+ *                   type: array
+ *                   description: All achievements unlocked by the user
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       userId:
+ *                         type: integer
+ *                       type:
+ *                         type: string
+ *                         enum: [first_game, first_win, perfect_game, five_games]
+ *                       unlockedAt:
+ *                         type: string
+ *                         format: date-time
  *       500:
  *         description: Internal server error
  */
 router.get("/stats/:id?", protect, async (req: any, res) => {
     try {
-        
+
         const userId = req.params.id ? Number(req.params.id) : req.user.id;
 
         const matches = await prisma.match.findMany({
             where: {
-                userId : userId,
+                userId: userId,
             }
         });
-        
+
         const gamesPlayed = matches.length;
         const wins = matches.filter(m => m.userScore > m.opponentScore).length;
         const losses = matches.filter(m => m.userScore < m.opponentScore).length;
         const ranked = await getRankedUsers();
         const rank = ranked.findIndex(r => r.userId === userId) + 1;
+        const achievements = await prisma.achievement.findMany({
+            where: {
+                userId : userId
+            }
+        });
 
         return res.status(200).json({
             gamesPlayed,
             wins,
             losses,
-            rank
+            rank,
+            achievements
         })
 
     } catch (error) {

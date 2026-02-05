@@ -34,8 +34,9 @@ model profile {
   avatarUrl String @default("/avatars/avatar_default.png") @db.VarChar(2048)
   bio       String @db.VarChar(255)
 
-  level Int @default(1)
-  xp    Int @default(0)
+  level        Int           @default(1)
+  xp           Int           @default(0)
+  achievements achievement[]
 }
 
 model match {
@@ -52,11 +53,13 @@ model match {
 }
 
 model achievement {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  user       user     @relation(fields: [userId], references: [id])
-  type       String
-  unlockedAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          user     @relation(fields: [userId], references: [id])
+  type          String
+  unlockedAt    DateTime @default(now())
+  profile       profile? @relation(fields: [profileUserId], references: [userId])
+  profileUserId Int?
 
   @@unique([userId, type])
 }
