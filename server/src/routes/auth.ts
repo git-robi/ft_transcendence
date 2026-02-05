@@ -375,7 +375,7 @@ router.get('/github/redirect', passport.authenticate('github', { session: false 
     
     res.cookie('token', token, cookieOptions);
     
-    // Redirect
+    // redirect
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 })
 

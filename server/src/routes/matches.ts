@@ -12,7 +12,52 @@ const calculateLevel = (xp: number) => {
         threshold += (level + 1) * 100;
     }
     return level;
-}
+};
+
+// Users are ranked by total wins
+// If two users have the same number of wins, 
+// we break the tie using win rate
+const getRankedUsers = async () => {
+    const allUsers = await prisma.user.findMany({
+        include: {
+            profile: true,
+            matches: { where: { status: "closed" } }
+        }
+    });
+
+    return allUsers
+        .map(u => {
+            const wins = u.matches.filter(
+                m => m.userScore > m.opponentScore
+            ).length;
+
+            const gamesPlayed = u.matches.length;
+
+            const winRate = gamesPlayed === 0
+                ? 0
+                : wins / gamesPlayed;
+
+            return {
+                userId: u.id,
+                name: u.profile?.name,
+                avatarUrl: u.profile?.avatarUrl,
+                level: u.profile?.level,
+                wins,
+                gamesPlayed,
+                winRate: Number(winRate.toFixed(2))
+            };
+        })
+        .sort((a, b) => {
+            
+            if (b.wins !== a.wins) {
+                return b.wins - a.wins;
+            }
+
+            
+            return b.winRate - a.winRate;
+        });
+};
+
 
 /**
  * @swagger
@@ -228,13 +273,25 @@ router.get("/stats/:id?", protect, async (req: any, res) => {
         const gamesPlayed = matches.length;
         const wins = matches.filter(m => m.userScore > m.opponentScore).length;
         const losses = matches.filter(m => m.userScore < m.opponentScore).length;
+        const ranked = await getRankedUsers();
+        const rank = ranked.findIndex(r => r.userId === userId) + 1;
 
         return res.status(200).json({
             gamesPlayed,
             wins,
-            losses
+            losses,
+            rank
         })
 
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.get("/leaderboard", protect, async (req, res) => {
+    try {
+        const ranked = await getRankedUsers();
+        return res.status(200).json(ranked);
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }
