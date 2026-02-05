@@ -225,7 +225,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     res.cookie('token', token, cookieOptions);
 
-    res.status(200).json({ user: { id: userData.id, name: userData.profile?.name, email: userData.email }});
+    return res.status(200).json({ user: { id: userData.id, name: userData.profile?.name, email: userData.email }});
 })
 
 
