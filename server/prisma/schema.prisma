@@ -23,7 +23,6 @@ model user {
 
   profile      profile?
   matches      match[]
-  achievements achievement[]
 }
 
 model profile {
@@ -36,6 +35,7 @@ model profile {
 
   level        Int           @default(1)
   xp           Int           @default(0)
+
   achievements achievement[]
 }
 
@@ -55,11 +55,9 @@ model match {
 model achievement {
   id            Int      @id @default(autoincrement())
   userId        Int
-  user          user     @relation(fields: [userId], references: [id])
+  profile       profile  @relation(fields: [userId], references: [userId])
   type          String
   unlockedAt    DateTime @default(now())
-  profile       profile? @relation(fields: [profileUserId], references: [userId])
-  profileUserId Int?
 
   @@unique([userId, type])
 }

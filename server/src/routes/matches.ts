@@ -227,30 +227,35 @@ router.post("/", protect, async (req: any, res) => {
  *                       unlockedAt:
  *                         type: string
  *                         format: date-time
+ *       404:
+ *         description: Match or profile not found
  *       500:
  *         description: Internal server error
  */
 router.patch("/:id", protect, async (req, res) => {
     try {
         const { userScore, opponentScore } = req.body;
-        const idUser = Number(req.params.id);
+        const matchId = Number(req.params.id);
+
+        const match = await prisma.match.findUnique({ where: { id: matchId } });
+        if (!match) {
+            return res.status(404).json({ message: "Match not found" });
+        }
+        const userId = match.userId;
+
         const gainedXp = userScore > opponentScore ? 50 : 10;
         const profile = await prisma.profile.findFirst({
-            where: {
-                userId: idUser
-            }
+            where: { userId }
         });
         if (!profile) {
-            return;
+            return res.status(404).json({ message: "Profile not found" });
         }
         const newXp = gainedXp + profile.xp;
 
         const newLevel = calculateLevel(newXp);
 
         const updatedProfile = await prisma.profile.update({
-            where: {
-                userId: idUser,
-            },
+            where: { userId },
             data: {
                 level: newLevel,
                 xp: newXp
@@ -258,7 +263,7 @@ router.patch("/:id", protect, async (req, res) => {
         });
 
         const updatedMatch = await prisma.match.update({
-            where: { id: idUser },
+            where: { id: matchId },
             data: {
                 userScore,
                 opponentScore,
@@ -267,9 +272,9 @@ router.patch("/:id", protect, async (req, res) => {
             }
         });
 
-        // achievements 
+        // achievements
         const closedMatches = await prisma.match.count({
-            where: { userId: idUser, status: "closed" }
+            where: { userId, status: "closed" }
         });
 
         const won = userScore > opponentScore;
@@ -282,7 +287,7 @@ router.patch("/:id", protect, async (req, res) => {
 
         if (won) {
             const closedWonMatches = await prisma.match.findMany({
-                where: { userId: idUser, status: "closed" }
+                where: { userId, status: "closed" }
             });
             const totalWins = closedWonMatches.filter(m => m.userScore > m.opponentScore).length;
             if (totalWins === 1) newAchievements.push("first_win");
@@ -294,12 +299,12 @@ router.patch("/:id", protect, async (req, res) => {
 
         if (newAchievements.length > 0) {
             await prisma.achievement.createMany({
-                data: newAchievements.map(type => ({ userId: idUser, type })),
+                data: newAchievements.map(type => ({ userId, type })),
                 skipDuplicates: true
             });
 
             unlockedAchievements = await prisma.achievement.findMany({
-                where: { userId: idUser, type: { in: newAchievements } }
+                where: { userId, type: { in: newAchievements } }
             });
         }
 
