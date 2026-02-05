@@ -3,7 +3,7 @@ import { Options } from 'swagger-jsdoc';
 
 const options: Options = {
   definition: {
-    openapi: '3.0.0', // OpenAPI version
+    openapi: '3.0.0', 
     info: {
       title: 'Pong API',
       version: '1.0.0',
@@ -11,12 +11,12 @@ const options: Options = {
     },
     servers: [
       {
-        url: 'http://localhost:3001', // Your server URL
+        url: 'http://localhost:3001', 
         description: 'Local server',
       },
     ],
   },
-  // Path to the files containing the documentation comments
+  
   apis: ['./src/routes/*.ts'], 
 };
 
