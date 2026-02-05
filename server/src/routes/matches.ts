@@ -81,7 +81,7 @@ router.post("/", protect, async (req: any, res) => {
             }
         });
 
-        res.send(201).json(match);
+        return res.status(201).json(match);
         
 
     } catch (error) {
@@ -206,11 +206,38 @@ router.patch("/:id", protect, async (req, res) => {
             }
         });
 
-        res.send(200).json({ match: updatedMatch, profile: updatedProfile });
-        
+        return res.status(200).json({ match: updatedMatch, profile: updatedProfile });
+
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }
-})
+});
+
+//endpoint that returns statistics (games played, wins, losses, ranking)
+router.get("/stats/:id?", protect, async (req: any, res) => {
+    try {
+        
+        const userId = req.params.id ? Number(req.params.id) : req.user.id;
+
+        const matches = await prisma.match.findMany({
+            where: {
+                userId : userId,
+            }
+        });
+        
+        const gamesPlayed = matches.length;
+        const wins = matches.filter(m => m.userScore > m.opponentScore).length;
+        const losses = matches.filter(m => m.userScore < m.opponentScore).length;
+
+        return res.status(200).json({
+            gamesPlayed,
+            wins,
+            losses
+        })
+
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 export default router;
