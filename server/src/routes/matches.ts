@@ -375,7 +375,7 @@ router.patch("/:id", protect, async (req: any, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get("/stats/:id?", protect, async (req: any, res) => {
+router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
     try {
 
         const userId = req.params.id ? Number(req.params.id) : req.user.id;
