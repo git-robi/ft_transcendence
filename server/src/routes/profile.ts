@@ -3,6 +3,7 @@ import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
 import multer from "multer";
 import path from "path";
+import bcrypt from "bcrypt";
 
 const router = express.Router();
 
@@ -229,6 +230,66 @@ router.patch("/me", protect, async (req: any, res: Response) => {
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }
-})
+});
+
+/**
+ * @swagger
+ * /api/v1/profile/password:
+ *   patch:
+ *     summary: Update password
+ *     description: Updates the authenticated user's password.
+ *     tags:
+ *       - Profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 description: The new password
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password updated
+ *       400:
+ *         description: Password is required
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/password", protect, async (req: any, res) => {
+    try {
+        const newPassword = req.body.password;
+
+        if (!newPassword || typeof newPassword !== "string") {
+            return res.status(400).json({ message: "Password is required" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        const updated = await prisma.user.update({
+            where: {
+                id : req.user.id
+            },
+            data: {
+                password: hashedPassword
+            }
+        });
+        return res.status(200).json({message: "Password updated"});
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 export default router;
