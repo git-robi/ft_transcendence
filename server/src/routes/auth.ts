@@ -231,7 +231,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     res.cookie('token', token, cookieOptions);
 
-    res.status(200).json({ user: { id: userData.id, name: userData.profile?.name, email: userData.email }});
+    return res.status(200).json({ user: { id: userData.id, name: userData.profile?.name, email: userData.email }});
 })
 
 
@@ -381,7 +381,7 @@ router.get('/github/redirect', passport.authenticate('github', { session: false 
     
     res.cookie('token', token, cookieOptions);
     
-    // Redirect
+    // redirect
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 })
 
