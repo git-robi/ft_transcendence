@@ -32,12 +32,14 @@ const Register = ({ setUser }: { setUser: (user: any) => void }) => {
 
   return (
     <div>
-      <form>
+      <form onSubmit={handleSubmit}>
+      {/*for registering on enter and on click*/}
         <h2> Register </h2>
         <input type="text" placeholder="name" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})}/>
         <input type="email" placeholder="email" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})}/> 
         <input type="password" placeholder="password" value={form.password} onChange={(e) => setForm({...form, password: e.target.value})}/> 
-        <button onClick={handleSubmit}>Register</button>
+        <button type="submit'>Register</button>
+        {/*for regitering on enter and on click*/}
       </form>
     </div>
   )

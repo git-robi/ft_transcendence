@@ -64,7 +64,7 @@ passport.use(
 
             user = await prisma.user.create({
                 data: {
-                    email: profile.emails?.[0]?.value || '',
+                    email: profile.emails?.[0]?.value || `github_${profile.id}@placeholder.local`, //a placeholder for non-public e-mails on git
                     githubId: profile.id,
                     password: '',
                     profile: {

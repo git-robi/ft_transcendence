@@ -6,6 +6,7 @@ import { prisma } from "../prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import {protect } from "../middleware/auth";
+import {protectApiKey } from "../middleware/api-keys"
 import passport from 'passport';
 
 const router = express.Router();
@@ -23,6 +24,11 @@ export const generateToken = (id : number) => {
         expiresIn: '30d'
     });
 } //it signes tokens with userid
+
+router.get("/health", protectApiKey, (req, res) => {
+    res.json({ message: "API key is valid", user: req.user });
+});
+
 
 //Register endpoint
 /**
@@ -101,7 +107,7 @@ router.post('/register', async (req, res) => {
     }
 
     //password requirements
-    if (password.length() < 12) {
+    if (password.length < 12) {
         return res.status(400).json({ message: 'Password must be at least 12 characters'});
     }
 
