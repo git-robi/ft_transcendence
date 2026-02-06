@@ -65,7 +65,7 @@ router.get("/", protect, async (req, res) => {
 
     //put inside try catch 
 
-   const user = req.user as { id: number; name: string };
+   const user = req.user as { id: number };
     
     if (!user) {
         return res.status(401).json({ message: "User not authenticated" });

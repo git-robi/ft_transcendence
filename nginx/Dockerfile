@@ -60,10 +60,11 @@ RUN NGINX_VERSION=$(nginx -v 2>&1 | sed -n 's/.*nginx version: nginx\///p') \
     && rm -rf nginx-${NGINX_VERSION}* modsecurity modsecurity-nginx
 
 # Descargar OWASP Core Rule Set
-RUN mkdir -p /etc/nginx/crs \
+RUN mkdir -p /etc/nginx/crs /etc/nginx/modsecurity \
     && git clone --depth 1 -b v3.3.5 https://github.com/coreruleset/coreruleset.git /tmp/crs \
     && cp -r /tmp/crs/rules /etc/nginx/crs/ \
     && cp /tmp/crs/crs-setup.conf.example /etc/nginx/crs/crs-setup.conf \
+    && find /etc/nginx/crs/rules -type f -name "*.conf" | sort | sed 's#^#Include #' > /etc/nginx/modsecurity/crs-rules.conf \
     && rm -rf /tmp/crs
 
 # Limpiar dependencias de compilación
@@ -71,6 +72,7 @@ RUN apk del .build-deps
 
 # Crear directorios necesarios
 RUN mkdir -p /var/log/nginx \
+    /var/log/nginx/modsec \
     /etc/nginx/modsecurity \
     /etc/nginx/ssl
 
@@ -84,4 +86,3 @@ COPY modsecurity/ /etc/nginx/modsecurity/
 EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]
-

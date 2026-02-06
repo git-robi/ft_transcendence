@@ -45,6 +45,6 @@ model apiKeys {
 
   //learn prisma index
 
-   user users @relation(fields: [userId], references: [id])
+   user user @relation(fields: [userId], references: [id])
 
 }

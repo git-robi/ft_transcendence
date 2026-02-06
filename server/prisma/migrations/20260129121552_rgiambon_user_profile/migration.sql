@@ -1,25 +1,15 @@
-/*
-  Warnings:
+-- Drop FK to allow renaming users table
+ALTER TABLE "apiKeys" DROP CONSTRAINT "apiKeys_userId_fkey";
 
-  - You are about to drop the `users` table. If the table is not empty, all the data it contains will be lost.
+-- Rename users table to user
+ALTER TABLE "users" RENAME TO "user";
 
-*/
--- DropTable
-DROP TABLE "users";
+-- Rename indexes to match new table name (optional but keeps schema clean)
+ALTER INDEX "users_email_key" RENAME TO "user_email_key";
+ALTER INDEX "users_googleId_key" RENAME TO "user_googleId_key";
+ALTER INDEX "users_githubId_key" RENAME TO "user_githubId_key";
 
--- CreateTable
-CREATE TABLE "user" (
-    "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
-    "googleId" TEXT,
-    "githubId" TEXT,
-    "password" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "user_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
+-- Create profile table
 CREATE TABLE "profile" (
     "userId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
@@ -29,14 +19,16 @@ CREATE TABLE "profile" (
     CONSTRAINT "profile_pkey" PRIMARY KEY ("userId")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
+-- Backfill profile from existing users.name
+INSERT INTO "profile" ("userId", "name", "avatarUrl", "bio")
+SELECT "id", "name", '/avatars/avatar_default.png', ''
+FROM "user";
 
--- CreateIndex
-CREATE UNIQUE INDEX "user_googleId_key" ON "user"("googleId");
+-- Drop name column from user (now stored in profile)
+ALTER TABLE "user" DROP COLUMN "name";
 
--- CreateIndex
-CREATE UNIQUE INDEX "user_githubId_key" ON "user"("githubId");
+-- Recreate FK from apiKeys to user
+ALTER TABLE "apiKeys" ADD CONSTRAINT "apiKeys_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
+-- Add FK from profile to user
 ALTER TABLE "profile" ADD CONSTRAINT "profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
