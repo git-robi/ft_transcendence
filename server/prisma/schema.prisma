@@ -18,7 +18,7 @@ model user {
   email     String   @unique
   googleId  String?  @unique
   githubId  String?  @unique
-  password  String
+  password  String?
   createdAt DateTime @default(now())
 
   profile      profile?
