@@ -23,6 +23,7 @@ model user {
 
   profile      profile?
   matches      match[]
+  apiKeys   apiKeys[]
 }
 
 model profile {
@@ -60,4 +61,20 @@ model achievement {
   unlockedAt    DateTime @default(now())
 
   @@unique([userId, type])
+}
+
+model apiKeys {
+  id Int @id @default(autoincrement())
+  userId Int
+  name String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime? 
+  hashedKey String @unique
+
+  //add rate limit
+
+  //learn prisma index
+
+   user users @relation(fields: [userId], references: [id])
+
 }
