@@ -10,10 +10,12 @@ dotenv.config();
 import "./passport-config"
 import auth  from "./routes/auth"
 import profile from "./routes/profile"
+import matches from "./routes/matches"
+import cors from "cors"
 import apiKeys from "./routes/api-keys"
 
 
-// swagger
+// swagger (for API documentation)
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerOptions from "./swaggerOptions";
@@ -40,6 +42,7 @@ app.use(express.json());
 app.use("/avatars", express.static("uploads/avatars"))
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/profile", profile);
+app.use("/api/v1/matches", matches);
 app.use("/api/v1/api-keys", apiKeys);
 
 
