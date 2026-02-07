@@ -49,6 +49,7 @@ export const translations = {
       privacyPolicy: 'Privacy Policy',
     },
     avatarUpload: {
+      clickMessage: 'Click the avatar to upload a new profile picture',
       browse: 'Browse',
       upload: 'Upload',
       uploading: 'Uploading...',
@@ -106,6 +107,7 @@ export const translations = {
       privacyPolicy: 'Política de privacidad',
     },
     avatarUpload: {
+      clickMessage: 'Haz clic en el avatar para subir una nueva foto de perfil',
       browse: 'Buscar',
       upload: 'Subir',
       uploading: 'Subiendo...',
@@ -162,6 +164,7 @@ export const translations = {
       privacyPolicy: 'Política de privadesa',
     },
     avatarUpload: {
+      clickMessage: 'Fes clic a l\'avatar per pujar una nova foto de perfil',
       browse: 'Cercar',
       upload: 'Pujar',
       uploading: 'Pujant...',
@@ -218,6 +221,7 @@ export const translations = {
       privacyPolicy: 'Politique de confidentialité',
     },
     avatarUpload: {
+      clickMessage: 'Cliquez sur l\'avatar pour télécharger une nouvelle photo de profil',
       browse: 'Parcourir',
       upload: 'Télécharger',
       uploading: 'Téléchargement...',
@@ -275,6 +279,7 @@ export const translations = {
       privacyPolicy: 'Informativa sulla privacy',
     },
     avatarUpload: {
+      clickMessage: 'Clicca sull\'avatar per caricare una nuova foto profilo',
       browse: 'Sfoglia',
       upload: 'Carica',
       uploading: 'Caricamento...',
@@ -333,6 +338,7 @@ export const translations = {
       privacyPolicy: 'Polityka prywatności',
     },
     avatarUpload: {
+      clickMessage: 'Kliknij awatar, aby przesłać nowe zdjęcie profilowe',
       browse: 'Przeglądaj',
       upload: 'Prześlij',
       uploading: 'Przesyłanie...',

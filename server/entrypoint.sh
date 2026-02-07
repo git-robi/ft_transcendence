@@ -9,7 +9,7 @@ elif [ "$NODE_ENV" = "migration" ]; then
 	cd /migrations
 	cp -r /app/prisma/migrations/* .
 else
-	npx prisma migrate dev --name="$GIT_BRANCH"
+	npx prisma migrate deploy
 	mkdir -p /migrations
 	cd /migrations
 	cp -r /app/prisma/migrations/* .
