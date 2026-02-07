@@ -247,11 +247,15 @@ router.patch("/me", protect, async (req: any, res: Response) => {
  *           schema:
  *             type: object
  *             required:
- *               - password
+ *               - oldPassword
+ *               - newPassword
  *             properties:
- *               password:
+ *               oldPassword:
  *                 type: string
- *                 description: The new password
+ *                 description: The current password
+ *               newPassword:
+ *                 type: string
+ *                 description: The new password (minimum 12 characters)
  *     responses:
  *       200:
  *         description: Password updated successfully
@@ -264,21 +268,46 @@ router.patch("/me", protect, async (req: any, res: Response) => {
  *                   type: string
  *                   example: Password updated
  *       400:
- *         description: Password is required
+ *         description: Validation error (missing fields or password too short)
+ *       401:
+ *         description: Old password is incorrect
+ *       404:
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */
 router.patch("/password", protect, async (req: any, res) => {
     try {
-        const newPassword = req.body.password;
+        const {oldPassword, newPassword} = req.body;
+
+        if (!oldPassword || typeof oldPassword !== "string") {
+            return res.status(400).json({ message: "Old password is required" });
+        }
 
         if (!newPassword || typeof newPassword !== "string") {
             return res.status(400).json({ message: "Password is required" });
         }
 
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Old password is incorrect" });
+        }
+
+        if (newPassword.length < 12) {
+            return res.status(400).json({ message: 'Password must be at least 12 characters'});
+        }
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        const updated = await prisma.user.update({
+        await prisma.user.update({
             where: {
                 id : req.user.id
             },
