@@ -1,6 +1,7 @@
 import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
+import { PlayMode, AiLevel, Paddle } from "../prisma/generated/prisma/enums";
 
 const router = express.Router();
 
@@ -115,14 +116,29 @@ const getRankedUsers = async () => {
  */
 router.post("/", protect, async (req: any, res) => {
     try {
-        const { opponent, guestName } = req.body;
+        const { guestName, winPoints, playMode, aiLevel, paddle } = req.body;
 
+        if (playMode && !Object.values(PlayMode).includes(playMode)) {
+            return res.status(400).json({ message: "Invalid play mode" });
+        }
+        if (aiLevel && !Object.values(AiLevel).includes(aiLevel)) {
+            return res.status(400).json({ message: "Invalid AI level" });
+        }
+        if (paddle && !Object.values(Paddle).includes(paddle)) {
+            return res.status(400).json({ message: "Invalid paddle" });
+        }
+        if (winPoints !== undefined && (typeof winPoints !== "number" || winPoints < 1)) {
+            return res.status(400).json({ message: "Invalid win points" });
+        }
 
         const match = await prisma.match.create({
             data: {
                 userId: req.user.id,
-                opponent,
-                guestName
+                guestName,
+                winPoints,
+                playMode,
+                aiLevel,
+                paddle
             }
         });
 
