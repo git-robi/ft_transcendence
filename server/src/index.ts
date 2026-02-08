@@ -11,7 +11,6 @@ import "./passport-config"
 import auth  from "./routes/auth"
 import profile from "./routes/profile"
 import matches from "./routes/matches"
-import cors from "cors"
 import apiKeys from "./routes/api-keys"
 
 
