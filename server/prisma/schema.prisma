@@ -21,9 +21,9 @@ model user {
   password  String
   createdAt DateTime @default(now())
 
-  profile      profile?
-  matches      match[]
-  apiKeys   apiKeys[]
+  profile profile?
+  matches match[]
+  apiKeys apiKeys[]
 }
 
 model profile {
@@ -34,8 +34,8 @@ model profile {
   avatarUrl String @default("/avatars/avatar_default.png") @db.VarChar(2048)
   bio       String @db.VarChar(255)
 
-  level        Int           @default(1)
-  xp           Int           @default(0)
+  level Int @default(1)
+  xp    Int @default(0)
 
   achievements achievement[]
 }
@@ -44,37 +44,56 @@ model match {
   id            Int       @id @default(autoincrement())
   userId        Int
   user          user      @relation(fields: [userId], references: [id])
-  opponent      String //is it ai or guest
   guestName     String?
   userScore     Int       @default(0)
   opponentScore Int       @default(0)
   status        String    @default("pending")
   createdAt     DateTime  @default(now())
   completedAt   DateTime?
+
+  winPoints Int      @default(5)
+  playMode  PlayMode @default(AI)
+  aiLevel   AiLevel  @default(EASY)
+  paddle    Paddle   @default(LEFT)
 }
 
 model achievement {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  profile       profile  @relation(fields: [userId], references: [userId])
-  type          String
-  unlockedAt    DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  profile    profile  @relation(fields: [userId], references: [userId])
+  type       String
+  unlockedAt DateTime @default(now())
 
   @@unique([userId, type])
 }
 
 model apiKeys {
-  id Int @id @default(autoincrement())
-  userId Int
-  name String?
-  createdAt DateTime @default(now())
-  expiresAt DateTime? 
-  hashedKey String @unique
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  name      String?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+  hashedKey String    @unique
 
   //add rate limit
 
   //learn prisma index
 
-   user users @relation(fields: [userId], references: [id])
+  user user @relation(fields: [userId], references: [id])
+}
 
+enum PlayMode {
+  AI
+  LOCAL
+}
+
+enum AiLevel {
+  EASY
+  MID
+  HARD
+}
+
+enum Paddle {
+  LEFT
+  RIGHT
 }
