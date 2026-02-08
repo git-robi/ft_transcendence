@@ -12,23 +12,15 @@ export default function AvatarSection() {
     setRefreshKey(prev => prev + 1);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-  }
   return (
     <div className='items-left gap-6 p-6'>
-      <div>{t.avatarUpload.clickMessage}</div>
-      <div className="flex flex-col  rounded-lg">
-        
-        
+      <div className='py-6'>{t.avatarUpload.clickMessage}</div>
+      <div className="flex flex-col rounded-lg items-start">
         {/* File uploader with avatar overlay */}
         <FileUploader 
           onUploadSuccess={handleUploadSuccess}
           avatarComponent={<UserAvatar key={refreshKey} />}
         />
-        <form onSubmit={handleSubmit} className='space-y-4'></form>
-        <div>Your Name</div>
       </div>
     </div>
   );
