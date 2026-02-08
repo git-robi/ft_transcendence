@@ -69,20 +69,29 @@ const getRankedUsers = async () => {
  *     tags:
  *       - Matches
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - opponent
  *             properties:
- *               opponent:
- *                 type: string
- *                 description: Type of opponent ("ai" or "guest")
  *               guestName:
  *                 type: string
- *                 description: Name of the guest player (only when opponent is "guest")
+ *                 description: Name of the guest player (only for LOCAL mode)
+ *               winPoints:
+ *                 type: integer
+ *                 description: Points needed to win (default 5, minimum 1)
+ *               playMode:
+ *                 type: string
+ *                 enum: [AI, LOCAL]
+ *                 description: Game mode (default AI)
+ *               aiLevel:
+ *                 type: string
+ *                 enum: [EASY, MID, HARD]
+ *                 description: AI difficulty (default EASY)
+ *               paddle:
+ *                 type: string
+ *                 enum: [LEFT, RIGHT]
+ *                 description: Paddle side (default LEFT)
  *     responses:
  *       201:
  *         description: Match created successfully
@@ -95,8 +104,6 @@ const getRankedUsers = async () => {
  *                   type: integer
  *                 userId:
  *                   type: integer
- *                 opponent:
- *                   type: string
  *                 guestName:
  *                   type: string
  *                 userScore:
@@ -111,6 +118,19 @@ const getRankedUsers = async () => {
  *                 completedAt:
  *                   type: string
  *                   format: date-time
+ *                 winPoints:
+ *                   type: integer
+ *                 playMode:
+ *                   type: string
+ *                   enum: [AI, LOCAL]
+ *                 aiLevel:
+ *                   type: string
+ *                   enum: [EASY, MID, HARD]
+ *                 paddle:
+ *                   type: string
+ *                   enum: [LEFT, RIGHT]
+ *       400:
+ *         description: Validation error (invalid settings)
  *       500:
  *         description: Internal server error
  */
