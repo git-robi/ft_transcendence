@@ -329,7 +329,7 @@ router.patch("/:id", protect, async (req: any, res) => {
         const newAchievements: string[] = [];
 
         if (closedMatches === 1) newAchievements.push("first_game");
-        if (closedMatches >= 5) newAchievements.push("five_games");
+        if (closedMatches === 5) newAchievements.push("five_games");
 
         if (won) {
             const closedWonMatches = await prisma.match.findMany({
