@@ -1,6 +1,7 @@
 import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
+import { PlayMode, AiLevel, Paddle } from "../prisma/generated/prisma/enums";
 
 const router = express.Router();
 
@@ -68,20 +69,29 @@ const getRankedUsers = async () => {
  *     tags:
  *       - Matches
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - opponent
  *             properties:
- *               opponent:
- *                 type: string
- *                 description: Type of opponent ("ai" or "guest")
  *               guestName:
  *                 type: string
- *                 description: Name of the guest player (only when opponent is "guest")
+ *                 description: Name of the guest player (only for LOCAL mode)
+ *               winPoints:
+ *                 type: integer
+ *                 description: Points needed to win (default 5, minimum 1)
+ *               playMode:
+ *                 type: string
+ *                 enum: [AI, LOCAL]
+ *                 description: Game mode (default AI)
+ *               aiLevel:
+ *                 type: string
+ *                 enum: [EASY, MID, HARD]
+ *                 description: AI difficulty (default EASY)
+ *               paddle:
+ *                 type: string
+ *                 enum: [LEFT, RIGHT]
+ *                 description: Paddle side (default LEFT)
  *     responses:
  *       201:
  *         description: Match created successfully
@@ -94,8 +104,6 @@ const getRankedUsers = async () => {
  *                   type: integer
  *                 userId:
  *                   type: integer
- *                 opponent:
- *                   type: string
  *                 guestName:
  *                   type: string
  *                 userScore:
@@ -110,19 +118,47 @@ const getRankedUsers = async () => {
  *                 completedAt:
  *                   type: string
  *                   format: date-time
+ *                 winPoints:
+ *                   type: integer
+ *                 playMode:
+ *                   type: string
+ *                   enum: [AI, LOCAL]
+ *                 aiLevel:
+ *                   type: string
+ *                   enum: [EASY, MID, HARD]
+ *                 paddle:
+ *                   type: string
+ *                   enum: [LEFT, RIGHT]
+ *       400:
+ *         description: Validation error (invalid settings)
  *       500:
  *         description: Internal server error
  */
 router.post("/", protect, async (req: any, res) => {
     try {
-        const { opponent, guestName } = req.body;
+        const { guestName, winPoints, playMode, aiLevel, paddle } = req.body;
 
+        if (playMode && !Object.values(PlayMode).includes(playMode)) {
+            return res.status(400).json({ message: "Invalid play mode" });
+        }
+        if (aiLevel && !Object.values(AiLevel).includes(aiLevel)) {
+            return res.status(400).json({ message: "Invalid AI level" });
+        }
+        if (paddle && !Object.values(Paddle).includes(paddle)) {
+            return res.status(400).json({ message: "Invalid paddle" });
+        }
+        if (winPoints !== undefined && (typeof winPoints !== "number" || winPoints < 1)) {
+            return res.status(400).json({ message: "Invalid win points" });
+        }
 
         const match = await prisma.match.create({
             data: {
                 userId: req.user.id,
-                opponent,
-                guestName
+                guestName,
+                winPoints,
+                playMode,
+                aiLevel,
+                paddle
             }
         });
 
@@ -293,7 +329,7 @@ router.patch("/:id", protect, async (req: any, res) => {
         const newAchievements: string[] = [];
 
         if (closedMatches === 1) newAchievements.push("first_game");
-        if (closedMatches >= 5) newAchievements.push("five_games");
+        if (closedMatches === 5) newAchievements.push("five_games");
 
         if (won) {
             const closedWonMatches = await prisma.match.findMany({
