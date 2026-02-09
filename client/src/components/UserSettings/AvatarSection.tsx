@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import UserAvatar from '../UserAvatar';
-import FileUploader from '../FileUploader';
+import FileUploader from './FileUploader';
 import { useLanguage } from '../../i18n/useLanguage';
 
 export default function AvatarSection() {
@@ -13,8 +13,8 @@ export default function AvatarSection() {
   };
 
   return (
-    <div className='items-left gap-6 p-6'>
-      <div className='py-6'>{t.avatarUpload.clickMessage}</div>
+    <div className='items-left gap-2 p-6'>
+      <div className='py-0'>{t.avatarUpload.clickMessage}</div>
       <div className="flex flex-col rounded-lg items-start">
         {/* File uploader with avatar overlay */}
         <FileUploader 

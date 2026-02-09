@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import type {ChangeEvent} from 'react';
-import Profile from "../APIs/profile"
-import { useLanguage } from '../i18n/useLanguage';
+import Profile from "../../APIs/profile"
+import { useLanguage } from '../../i18n/useLanguage';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
