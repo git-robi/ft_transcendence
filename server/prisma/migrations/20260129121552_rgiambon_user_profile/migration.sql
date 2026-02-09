@@ -3,7 +3,6 @@ ALTER TABLE "apiKeys" DROP CONSTRAINT "apiKeys_userId_fkey";
 
 -- Rename users table to user
 ALTER TABLE "users" RENAME TO "user";
-
 -- Rename indexes to match new table name (optional but keeps schema clean)
 ALTER INDEX "users_email_key" RENAME TO "user_email_key";
 ALTER INDEX "users_googleId_key" RENAME TO "user_googleId_key";
@@ -14,7 +13,7 @@ CREATE TABLE "profile" (
     "userId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "avatarUrl" VARCHAR(2048) NOT NULL DEFAULT '/avatars/default.png',
-    "bio" VARCHAR(255) NOT NULL,
+    "bio" VARCHAR(255),
 
     CONSTRAINT "profile_pkey" PRIMARY KEY ("userId")
 );

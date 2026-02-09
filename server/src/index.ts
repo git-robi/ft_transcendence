@@ -1,19 +1,17 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-// Defer loading routes/passport until after Vault config is ready
 import cors from "cors";
 import vaultClient from "./config/vault";
 import { configureSecurityHeaders, errorHandler } from "./config/security";
 import { apiRateLimiter } from "./middleware/rateLimiter";
 
-// swagger
+// swagger (for API documentation)
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerOptions from "./swaggerOptions";
 
 import cookieParser from "cookie-parser";
 
-// Load environment variables (development fallback)
 dotenv.config();
 
 const app = express();
@@ -67,9 +65,10 @@ async function initializeApp() {
     // Initialize auth strategies after secrets are ready
     await import("./passport-config");
 
-    const [{ default: auth }, { default: profile }, { default: apiKeys }] = await Promise.all([
+    const [{ default: auth }, { default: profile }, { default: matches }, { default: apiKeys }] = await Promise.all([
         import("./routes/auth"),
         import("./routes/profile"),
+        import("./routes/matches"),
         import("./routes/api-keys"),
     ]);
 
@@ -77,6 +76,7 @@ async function initializeApp() {
     app.use("/api/v1", apiRateLimiter);
     app.use("/api/v1/auth", auth);
     app.use("/api/v1/profile", profile);
+    app.use("/api/v1/matches", matches);
     app.use("/api/v1/api-keys", apiKeys);
 
     // Health check endpoint

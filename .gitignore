@@ -13,7 +13,7 @@ secrets/*
 *.swo
 *.vscode
 # Data
-server/prisma/generated/**
+server/src/prisma/generated/**
 /server/dist
 /client/dist
 # Nginx generated
