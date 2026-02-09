@@ -16,7 +16,7 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
             where: { id: (decoded as any).id },
             select: {
                 id: true,
-                name: true,
+          //      name: true,
                 email: true,
                 googleId: true,
                 githubId: true,
