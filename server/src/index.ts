@@ -1,10 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import "./passport-config";
-
-import auth from "./routes/auth";
-import profile from "./routes/profile";
-import apiKeys from "./routes/api-keys";
+// Defer loading routes/passport until after Vault config is ready
 import cors from "cors";
 import vaultClient from "./config/vault";
 import { configureSecurityHeaders, errorHandler } from "./config/security";
@@ -67,6 +63,15 @@ async function initializeApp() {
 
     // Static assets
     app.use("/avatars", express.static("uploads/avatars"));
+
+    // Initialize auth strategies after secrets are ready
+    await import("./passport-config");
+
+    const [{ default: auth }, { default: profile }, { default: apiKeys }] = await Promise.all([
+        import("./routes/auth"),
+        import("./routes/profile"),
+        import("./routes/api-keys"),
+    ]);
 
     // General API rate limiting (auth has its own stricter limiter)
     app.use("/api/v1", apiRateLimiter);

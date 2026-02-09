@@ -1,4 +1,5 @@
 import passport from 'passport';
+import fs from 'node:fs';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as GithubStrategy } from 'passport-github2';
 import dotenv from 'dotenv';
@@ -9,12 +10,24 @@ dotenv.config();
 const clientUrl = process.env.CLIENT_URL || 'https://localhost';
 const apiBase = `${clientUrl.replace(/\/$/, '')}/api/v1/auth`;
 
+const googleClientSecret =
+    process.env.GOOGLE_CLIENT_SECRET ||
+    (process.env.GOOGLE_CLIENT_SECRET_FILE
+        ? fs.readFileSync(process.env.GOOGLE_CLIENT_SECRET_FILE, 'utf8').trim()
+        : '');
+
+const githubClientSecret =
+    process.env.GITHUB_CLIENT_SECRET ||
+    (process.env.GITHUB_CLIENT_SECRET_FILE
+        ? fs.readFileSync(process.env.GITHUB_CLIENT_SECRET_FILE, 'utf8').trim()
+        : '');
+
 // Google OAuth Strategy (only if keys are configured)
-if (process.env.GOOGLE_ID_CLIENT && process.env.GOOGLE_CLIENT_SECRET) {
+if (process.env.GOOGLE_ID_CLIENT && googleClientSecret) {
     passport.use(
         new GoogleStrategy({
             clientID: process.env.GOOGLE_ID_CLIENT,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            clientSecret: googleClientSecret,
             callbackURL: `${apiBase}/google/redirect`,
         }, async (_accessToken, _refreshToken, profile, done) => {
             try {
@@ -49,11 +62,11 @@ if (process.env.GOOGLE_ID_CLIENT && process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 // GitHub OAuth Strategy (only if keys are configured)
-if (process.env.GITHUB_ID_CLIENT && process.env.GITHUB_CLIENT_SECRET) {
+if (process.env.GITHUB_ID_CLIENT && githubClientSecret) {
     passport.use(
         new GithubStrategy({
             clientID: process.env.GITHUB_ID_CLIENT,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            clientSecret: githubClientSecret,
             callbackURL: `${apiBase}/github/redirect`,
         }, async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
             try {

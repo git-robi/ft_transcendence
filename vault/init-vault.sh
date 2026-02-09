@@ -2,6 +2,9 @@
 # Script to initialize HashiCorp Vault with project secrets
 
 VAULT_ADDR=${VAULT_ADDR:-http://127.0.0.1:8200}
+if [ -z "${VAULT_TOKEN}" ] && [ -f /run/secrets/vault_root_token ]; then
+  VAULT_TOKEN="$(cat /run/secrets/vault_root_token)"
+fi
 VAULT_TOKEN=${VAULT_TOKEN:-${VAULT_DEV_ROOT_TOKEN_ID:-dev-root-token-change-in-production}}
 export VAULT_ADDR VAULT_TOKEN
 
@@ -28,10 +31,18 @@ path "transcendence/metadata/*" {
 }
 EOF
 
+# Create a non-root token for the backend (print it for manual use)
+BACKEND_TOKEN=$(vault token create -policy=transcendence-backend -format=json | \
+  awk -F'"' '/client_token/ {print $4}' | head -n 1)
+
 # Generate JWT secret (use /dev/urandom; openssl is not in the Vault image)
 JWT_SECRET=$(od -A n -t x1 -N 32 /dev/urandom 2>/dev/null | tr -d ' \n' | head -c 64)
 # Use same DB password as Postgres container (from .env) so backend can connect
-DB_PASSWORD="${POSTGRES_PASSWORD:-changeme}"
+if [ -f /run/secrets/postgres_password ]; then
+  DB_PASSWORD="$(cat /run/secrets/postgres_password)"
+else
+  DB_PASSWORD="${POSTGRES_PASSWORD:-changeme}"
+fi
 
 # Store secrets in Vault
 vault kv put transcendence/jwt secret="$JWT_SECRET"
@@ -52,6 +63,6 @@ vault kv put transcendence/oauth/42 \
 echo "Vault initialized successfully."
 echo "JWT_SECRET generated and stored."
 echo "Database credentials stored."
+echo "Backend token created (least privilege): ${BACKEND_TOKEN}"
 echo ""
 echo "IMPORTANT: Update OAuth secrets with real values."
-

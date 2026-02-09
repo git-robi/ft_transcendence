@@ -1,4 +1,5 @@
 import vault from 'node-vault';
+import fs from 'node:fs';
 
 interface VaultSecrets {
     jwt: {
@@ -27,7 +28,17 @@ class VaultClient {
 
     constructor() {
         const vaultAddr = process.env.VAULT_ADDR || 'http://localhost:8200';
-        const vaultToken = process.env.VAULT_TOKEN || 'dev-root-token-change-in-production';
+        let vaultToken = process.env.VAULT_TOKEN || '';
+        if (!vaultToken && process.env.VAULT_TOKEN_FILE) {
+            try {
+                vaultToken = fs.readFileSync(process.env.VAULT_TOKEN_FILE, 'utf8').trim();
+            } catch {
+                vaultToken = '';
+            }
+        }
+        if (!vaultToken) {
+            vaultToken = 'dev-root-token-change-in-production';
+        }
 
         this.client = vault({
             endpoint: vaultAddr,
@@ -154,4 +165,3 @@ class VaultClient {
 const vaultClient = new VaultClient();
 
 export default vaultClient;
-
