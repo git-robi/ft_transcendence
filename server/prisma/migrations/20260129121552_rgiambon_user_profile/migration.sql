@@ -27,7 +27,7 @@ CREATE TABLE "profile" (
     "userId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "avatarUrl" VARCHAR(2048) NOT NULL DEFAULT '/avatars/default.png',
-    "bio" VARCHAR(255) NOT NULL,
+    "bio" VARCHAR(255),
 
     CONSTRAINT "profile_pkey" PRIMARY KEY ("userId")
 );
