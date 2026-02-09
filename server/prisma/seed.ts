@@ -28,6 +28,6 @@ seed()
     .then(() => prisma.$disconnect())
     .catch((e) => {
         console.error("❌ Seed error:", e);
-        prisma.$disconnect();
+        await prisma.$disconnect();
         process.exit(1);
     });
