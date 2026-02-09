@@ -2,6 +2,7 @@
 
 This directory is intentionally ignored by git (except this README).
 Create secret files here and mount them via Docker Compose secrets.
+Use the helper script: ./scripts/setup-secrets.sh
 
 Required files for production-like usage:
 - secrets/postgres_password
