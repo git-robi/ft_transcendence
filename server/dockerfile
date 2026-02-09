@@ -10,8 +10,7 @@ WORKDIR /app
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 -G nodejs && \
-    chown -R nodejs:nodejs /app
+    adduser -S nodejs -u 1001 -G nodejs
 
 # ========================================
 # Dependencies Stage
@@ -19,15 +18,12 @@ RUN addgroup -g 1001 -S nodejs && \
 FROM base AS deps
 
 # Copy package files
-COPY ./server/package*.json /app
+COPY --chown=nodejs:nodejs ./server/package*.json /app
 
 # Install production dependencies
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --omit=dev && \
     npm cache clean --force
-
-# Set proper ownership
-RUN chown -R nodejs:nodejs /app
 
 # ========================================
 # Build Dependencies Stage
@@ -35,15 +31,12 @@ RUN chown -R nodejs:nodejs /app
 FROM base AS build-deps
 
 # Copy package files
-COPY ./server/package*.json /app
+COPY --chown=nodejs:nodejs ./server/package*.json /app
 
 # Install all dependencies with build optimizations
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --no-audit --no-fund && \
     npm cache clean --force
-
-# Create necessary directories and set permissions
-RUN chown -R nodejs:nodejs /app
 
 # ========================================
 # Build Stage
@@ -58,9 +51,6 @@ COPY --chown=nodejs:nodejs ./server /app
 RUN npx prisma generate
 RUN npm run build
 
-# Set proper ownership
-RUN chown -R nodejs:nodejs /app
-
 # ========================================
 # Migration Stage
 # ========================================
@@ -69,8 +59,6 @@ FROM build-deps AS migration
 # Copy only necessary files for building (respects .dockerignore)
 COPY ./server /app
 COPY ./server/entrypoint.sh /app/entrypoint.sh
-RUN chown -R nodejs:nodejs /app && \
-    chmod -R 755 /app
 RUN chmod +x /app/entrypoint.sh
 
 # Execute the migration
@@ -89,22 +77,17 @@ ARG NODE_ENV \
 ENV NODE_ENV=${NODE_ENV} \
     NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
 
-COPY ./server /app
-COPY ./server/entrypoint.sh /app/entrypoint.sh
-
-# Ensure all directories have proper permissions
-RUN chown -R nodejs:nodejs /app && \
-    chmod -R 755 /app
+COPY --chown=nodejs:nodejs ./server /app
+COPY --chown=nodejs:nodejs ./server/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Switch to non-root user
-#USER nodejs
+#USER nodejs //removed as preventing entryscript commands to run properly
 
 # Expose ports
 EXPOSE ${PORT}
 
 # Start development server
-#ENTRYPOINT ["tail", "-f"]
 ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 
 # ========================================
@@ -118,17 +101,16 @@ WORKDIR /app
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 -G nodejs && \
-    chown -R nodejs:nodejs /app
+    adduser -S nodejs -u 1001 -G nodejs
 
-COPY ./server/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
 # Set optimized environment variables
 ENV NODE_ENV=production \
     NODE_OPTIONS="--max-old-space-size=256 --no-warnings" \
     NPM_CONFIG_LOGLEVEL=silent
 
 # Copy production dependencies from deps stage
+COPY --chown=nodejs:nodejs ./server/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=deps --chown=nodejs:nodejs /app/package*.json ./
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
@@ -139,5 +121,4 @@ COPY --chown=nodejs:nodejs ./server/prisma.config.ts .
 USER nodejs
 
 # Start production server
-#ENTRYPOINT ["tail", "-f"]
 ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
