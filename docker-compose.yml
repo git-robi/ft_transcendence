@@ -52,18 +52,28 @@ services:
   backend:
     build:
       context: ./server
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
+      target: ${NODE_ENV:-development}
+      #to check why it was needed previously
+      #args:
+      #  - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
     container_name: transcendence_backend
+    working_dir: /app
     environment:
-      NODE_ENV: production
-      PORT: 3001
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${BACKEND_PORT:-3001}
       CLIENT_URL: https://localhost
+      #to check why was called BASE_URL before
+      #BASE_URL :${CLIENT_URL}
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN_FILE: /run/secrets/vault_backend_token
       GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
       GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
       GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
+      GIT_BRANCH$: ${GIT_BRANCH}
+      #to check why it was needed previously
+      #DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
     depends_on:
       postgres:
         condition: service_healthy
@@ -77,7 +87,11 @@ services:
       - github_client_secret
     # Volumes commented for production (code is already compiled in the image)
     # Uncomment for development with hot-reload:
-    # volumes:
+     volumes:
+      - prisma_migrations:/app/prisma/migrations
+      - ./server/prisma/migrations:/migrations
+      - ./server/src:/app/src
+      - ./server/uploads:/app/uploads
     #   - ./server:/app
     #   - /app/node_modules
     restart: unless-stopped
