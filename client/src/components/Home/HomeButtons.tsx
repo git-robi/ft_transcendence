@@ -23,6 +23,10 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
     navigate('/game');
   };
 
+  const handlePlayCustom = () => {
+    navigate('/gameSettings');
+  };
+
   return (
     <div className="flex flex-col items-center w-full gap-8">
       {user && (
@@ -49,7 +53,7 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
           <Button onClick={handlePlayLast}>
             {t.home.playLastSettings}
           </Button>
-          <Button>
+          <Button onClick={handlePlayCustom}>
             {t.home.playCustomSettings}
           </Button>
         </div>

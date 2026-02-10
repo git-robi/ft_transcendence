@@ -1,3 +1,4 @@
+import GameSettings from "../routes/GameSettings";
 
 export const translations = {
   en: {
@@ -6,6 +7,7 @@ export const translations = {
       signUp: 'Sign up with email',
       home: 'Home',
       userSettings: 'User Settings',
+      gameSettings: 'Game Settings',
       game: 'Game',
       chat: 'Chat',
       termsOfService: 'Terms of Service',
@@ -94,6 +96,8 @@ export const translations = {
       logInSignUp: 'Iniciar sesión/Registrarse',
       signUp: 'Registrarse con correo electrónico',
       home: 'Inicio',
+      userSettings: 'Configuración del Usuario',
+      gameSettings: 'Configuración del Juego',
       game: 'Juego',
       chat: 'Chat',
       termsOfService: 'Términos de servicio',
@@ -182,6 +186,8 @@ export const translations = {
       logInSignUp: 'Iniciar sessió/Registrar-se',
       signUp: 'Registrar-se amb correu electrònic',
       home: 'Inici',
+      userSettings: 'Configuració de l\'Usuari',
+      gameSettings: 'Configuració del Joc',
       game: 'Joc',
       chat: 'Xat',
       termsOfService: 'Termes de servei',
@@ -269,6 +275,8 @@ export const translations = {
       logInSignUp: 'Se connecter/S\'inscrire',
       signUp: 'S\'inscrire avec e-mail',
       home: 'Accueil',
+      userSettings: 'Paramètres de l\'Utilisateur',
+      gameSettings: 'Paramètres du Jeu',
       game: 'Jeu',
       chat: 'Discussion',
       termsOfService: 'Conditions d\'utilisation',
@@ -356,6 +364,8 @@ export const translations = {
       logInSignUp: 'Accedi/Registrati',
       signUp: 'Registrati con e-mail',
       home: 'Home',
+      userSettings: 'Impostazioni Utente',
+      gameSettings: 'Impostazioni di Gioco',
       game: 'Gioco',
       chat: 'Chat',
       termsOfService: 'Termini di servizio',
@@ -444,6 +454,8 @@ export const translations = {
       logInSignUp: 'Zaloguj się/Zarejestruj się',
       signUp: 'Zarejestruj się przez e-mail',
       home: 'Strona główna',
+      userSettings: 'Ustawienia Użytkownika',
+      gameSettings: 'Ustawienia Gry',
       game: 'Gra',
       chat: 'Czat',
       termsOfService: 'Warunki korzystania z usługi',
