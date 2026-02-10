@@ -86,15 +86,23 @@ services:
   frontend:
     build:
       context: ./client
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
+      target: ${NODE_ENV:-development}
+      args:
+        #to double check on VITE_API_URL definition
+        - VITE_API_URL=/api/v1
+    working_dir: /app
     container_name: transcendence_frontend
     environment:
+      #to double check on VITE_API_URL definition
       VITE_API_URL: https://localhost/api
     networks:
       - transcendence_network
     volumes:
-      - ./client:/app
-      - /app/node_modules
+      #- ./client:/app
+      #- /app/node_modules
+      - frontend_data:/app/dist
+      - ./client/src:/app/src
     restart: unless-stopped
 
   # Nginx with ModSecurity v3 and WAF
