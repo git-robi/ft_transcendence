@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import type { PublicUser } from '../types';
@@ -6,15 +8,27 @@ import UserSettingsForm from '../components/UserSettings/UserSettingsForm';
 
 interface UserSettingsProps {
   setUser: (user: PublicUser | null) => void;
-
+  user: PublicUser | null;
 }
 
-const UserSettings = ({ setUser }: UserSettingsProps) => {
+const UserSettings = ({ setUser, user }: UserSettingsProps) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-neutral-700 text-white flex flex-col">
       <Header titleKey='userSettings' />
       {/*Main content*/}
-      <main className='flex-1 flex items-center justify-center p-6'>
+      <main className='flex-1 flex items-center justify-center '>
         <div className='grid grid-cols-2 gap-6 max-w-7xl w-full'>
           {/* Left column - user settings*/}
           <div className='w-full'>
@@ -23,7 +37,7 @@ const UserSettings = ({ setUser }: UserSettingsProps) => {
           </div>
           {/* right column - friends*/}
           <div>
-            
+
           </div>
         </div>
       </main>
