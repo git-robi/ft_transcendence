@@ -135,6 +135,8 @@ services:
       # CRS is built into the image (Dockerfile); do not mount host crs/ or it overrides and breaks
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
+      #marc: how are frontend dist files served?
+      #- frontend_data:/var/www/:ro 
     depends_on:
       - backend
       - frontend
