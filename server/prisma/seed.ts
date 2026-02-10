@@ -14,9 +14,9 @@ async function seed() {
                 create: {
                     name: "Ping",
                     bio: "",
-                },
-            },
-        },
+                }
+            }
+        }
     });
 
     console.log("✅ Database seeded successfully");
@@ -26,6 +26,6 @@ seed()
     .then(() => prisma.$disconnect())
     .catch((error) => {
         console.error("❌ Seed error:", error);
-        prisma.$disconnect();
+        await prisma.$disconnect();
         process.exit(1);
     });
