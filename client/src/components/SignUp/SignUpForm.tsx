@@ -45,7 +45,13 @@ const SignUpForm = ({ setUser }: SignUpFormProps) => {
         password 
       });
       
-      setUser(res.data.user);
+      // Transform the response to match PublicUser type
+      const userData = res.data.user;
+      setUser({
+        id: userData.id,
+        name: userData.profile?.name || userData.name || '',
+        email: userData.email
+      });
       navigate('/home');
     } catch (err: unknown) {
       console.error('Registration failed - Full error:', err);

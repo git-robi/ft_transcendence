@@ -11,8 +11,8 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   
-  const handleCurrentUserSettings = () => {
-    navigate('/currentUserSettings');
+  const handleUserSettings = () => {
+    navigate('/userSettings');
   };
 
   const handleProfilePage = () => {
@@ -33,8 +33,8 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-3.5xl">
         {/* Left column - 2 buttons aligned to the top*/}
         <div className='flex flex-col gap-4 items-start'>
-          <Button onClick={handleCurrentUserSettings}>
-            {t.home.currentUserSettings}
+          <Button onClick={handleUserSettings}>
+            {t.home.userSettings}
           </Button>
           <Button onClick={handleProfilePage}>
             {t.home.yourProfilePage}

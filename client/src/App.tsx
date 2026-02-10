@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import SignUp from './routes/SignUp';
 import LogIn from './routes/LogIn';
 import Home from './routes/Home';
+import UserSettings from './routes/UserSettings';
 import Game from './routes/Game';
 import Chat from './routes/Chat';
 import TermsOfService from './routes/TermsOfService';
@@ -22,7 +23,13 @@ const App = () => {
     const fetchUser = async () => {
       try {
         const res = await Auth.get("/me");
-        setUser(res.data);
+        // Transform the response to match PublicUser type
+        const userData = res.data;
+        setUser({
+          id: userData.id,
+          name: userData.profile?.name || '',
+          email: userData.email
+        });
       } catch (err) {
         setUser(null);
       } finally {
@@ -40,9 +47,11 @@ const App = () => {
     <LanguageProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home user={user} setUser={setUser}/>} />
-          <Route path="/signUp" element={user ? <Navigate to="/" /> : <SignUp setUser={setUser}/>} />
-          <Route path="/login" element={user ? <Navigate to="/" /> : <LogIn setUser={setUser}/>} />
+          <Route path="/" element={user ? <Navigate to="/home" /> : <Navigate to="/login" />} />
+          <Route path="/home" element={user ? <Home user={user} setUser={setUser}/> : <Navigate to="/login" />} />
+          <Route path="/signUp" element={user ? <Navigate to="/home" /> : <SignUp setUser={setUser}/>} />
+          <Route path="/login" element={user ? <Navigate to="/home" /> : <LogIn setUser={setUser}/>} />
+          <Route path="/userSettings" element={<UserSettings user={user} setUser={setUser}/>} />
           <Route path="/game" element={<Game />} />
           <Route path='/chat' element={<Chat />} />
           <Route path="/tos" element={<TermsOfService />} />
