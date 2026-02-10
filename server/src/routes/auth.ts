@@ -3,7 +3,6 @@ import { prisma } from "../prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { protect } from "../middleware/auth";
-import { protectApiKey } from "../middleware/api-keys";
 import { authRateLimiter } from "../middleware/rateLimiter";
 import vaultClient from "../config/vault";
 import passport from 'passport';
@@ -37,10 +36,6 @@ function validatePassword(password: string): boolean {
     }
     return /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
 }
-
-router.get("/health", protectApiKey, (req, res) => {
-    res.json({ message: "API key is valid", user: req.user });
-});
 
 router.post("/register", authRateLimiter, async (req: Request, res: Response) => {
     try {
