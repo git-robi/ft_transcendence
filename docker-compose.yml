@@ -136,7 +136,7 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
       #marc: how are frontend dist files served?
-      #- frontend_data:/var/www/:ro 
+      - frontend_data:/var/www/:ro 
     depends_on:
       - backend
       - frontend
@@ -151,6 +151,7 @@ networks:
 volumes:
   postgres_data:
   vault_data:
+  frontend_data:
 
 secrets:
   postgres_password:
