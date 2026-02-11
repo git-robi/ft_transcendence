@@ -295,6 +295,13 @@ router.patch("/password", protect, async (req: any, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+		
+		//to bypass error where bcrypt expect a string - but the schema.prisma
+		//defines password as optional, aka string || null. Either we make 
+		//pssword mandatory or check for null here	
+		if (!user.password) {
+    		return res.status(400).json({ message: "Invalid credentials" });
+		}
 
         const isMatch = await bcrypt.compare(oldPassword, user.password);
         if (!isMatch) {
