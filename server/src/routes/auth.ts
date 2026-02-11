@@ -36,7 +36,63 @@ function validatePassword(password: string): boolean {
     }
     return /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
 }
-
+//Register endpoint
+/**
+ * @swagger
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: Register
+ *     description: Creates a new user and sets a JWT in an HTTP-only cookie.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: nemo
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: nemo@example.com
+ *               password:
+ *                 type: string
+ *                 minLength: 12
+ *                 example: my_password_123
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: nemo
+ *                     email:
+ *                       type: string
+ *                       example: nemo@example.com
+ *       400:
+ *         description: Invalid input or user already exists
+ */
 router.post("/register", authRateLimiter, async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body as {
@@ -106,6 +162,55 @@ router.post("/register", authRateLimiter, async (req: Request, res: Response) =>
     }
 });
 
+//login checkpoint
+/**
+ * @swagger
+ * /api/v1/auth/login:
+ *   post:
+ *     summary: Login
+ *     description: Authenticates a user and sets a JWT in an HTTP-only cookie.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: nemo
+ *               password:
+ *                 type: string
+ *                 example: my_password
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: nemo
+ *       400:
+ *         description: Invalid input or invalid credentials
+ */
+
 router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body as { email?: unknown; password?: unknown };
@@ -154,19 +259,92 @@ router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/v1/auth/me:
+ *   get:
+ *     summary: Get current user
+ *     description: Returns the currently logged-in user based on the JWT cookie.
+ *     responses:
+ *       200:
+ *         description: Current user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 name:
+ *                   type: string
+ *                   example: nemo
+ *       401:
+ *         description: Not authorized
+ */
 router.get('/me', protect, async (req: any, res: Response) => {
     res.json(req.user);
 });
 
+/**
+ * @swagger
+ * /api/v1/auth/logout:
+ *   post:
+ *     summary: Logout
+ *     description: Clears the authentication cookie.
+ *     responses:
+ *       200:
+ *         description: Logged out
+ *         headers:
+ *           Set-Cookie:
+ *             description: Clears the auth cookie
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Logged out successfully
+ */
 router.post('/logout', (req: Request, res: Response) => {
     res.cookie('token', '', { ...cookieOptions, maxAge: 1 });
     res.json({ message: 'Logged out successfully' });
 });
 
+/**
+ * @swagger
+ * /api/v1/auth/google:
+ *   get:
+ *     summary: Google OAuth login
+ *     description: Redirects to Google for authentication.
+ *     responses:
+ *       302:
+ *         description: Redirects to Google OAuth consent screen
+ */
 router.get('/google', passport.authenticate("google", {
     scope: ['profile', 'email']
 }));
 
+/**
+ * @swagger
+ * /api/v1/auth/google/redirect:
+ *   get:
+ *     summary: Google OAuth callback
+ *     description: Handles the callback from Google OAuth, sets JWT cookie, and redirects to frontend.
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend after successful authentication
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Authentication failed
+ */
 router.get('/google/redirect', passport.authenticate('google', { session: false }), (req, res) => {
     const user = req.user as { id: number };
     const token = generateToken(user.id);
@@ -174,10 +352,37 @@ router.get('/google/redirect', passport.authenticate('google', { session: false 
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 });
 
+/**
+ * @swagger
+ * /api/v1/auth/github:
+ *   get:
+ *     summary: GitHub OAuth login
+ *     description: Redirects to GitHub for authentication.
+ *     responses:
+ *       302:
+ *         description: Redirects to GitHub OAuth consent screen
+ */
 router.get('/github', passport.authenticate("github", {
     scope: ['profile', 'email']
 }));
 
+/**
+ * @swagger
+ * /api/v1/auth/github/redirect:
+ *   get:
+ *     summary: GitHub OAuth callback
+ *     description: Handles the callback from GitHub OAuth, sets JWT cookie, and redirects to frontend.
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend after successful authentication
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only cookie containing the JWT
+ *             schema:
+ *               type: string
+ *       401:
+ *         description: Authentication failed
+ */
 router.get('/github/redirect', passport.authenticate('github', { session: false }), (req, res) => {
     const user = req.user as { id: number };
     const token = generateToken(user.id);
