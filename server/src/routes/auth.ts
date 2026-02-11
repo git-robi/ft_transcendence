@@ -237,7 +237,12 @@ router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
         if (!user) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
-
+		//to bypass error where bcrypt expect a string - but the schema.prisma
+		//defines password as optional, aka string || null. Either we make 
+		//pssword mandatory or check for null here	
+		if (!user.password) {
+    		return res.status(400).json({ message: "Invalid credentials" });
+		}
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" });
