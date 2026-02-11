@@ -18,7 +18,7 @@ RUN addgroup -g 1001 -S nodejs && \
 FROM base AS deps
 
 # Copy package files
-COPY --chown=nodejs:nodejs package*.json /app
+COPY --chown=nodejs:nodejs ./package*.json /app
 
 # Install production dependencies
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
@@ -31,7 +31,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 FROM base AS build-deps
 
 # Copy package files
-COPY --chown=nodejs:nodejs package*.json /app
+COPY --chown=nodejs:nodejs ./package*.json /app
 
 # Install all dependencies with build optimizations
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
