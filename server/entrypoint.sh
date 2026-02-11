@@ -1,5 +1,8 @@
 #!/bin/sh
 set -e
+
+export DATABASE_URL=postgresql://${POSTGRES_USER}:$(cat /run/secrets/postgres_password)@postgres:5432/${POSTGRES_DB}?schema=public
+
 if [ "$NODE_ENV" = "production" ]; then
 	npx prisma migrate deploy
 	#npx prisma db seed  prisma/seed.ts is not copied over production image. We would need to include in src/prisma if we need seed in prod

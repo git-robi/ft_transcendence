@@ -72,6 +72,9 @@ services:
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
       GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
       GIT_BRANCH$: ${GIT_BRANCH}
+      POSTGRES_PASSWORD: /run/secrets/postgres_password
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-transcendence}
       #to check why it was needed previously
       #DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
     depends_on:
@@ -85,6 +88,7 @@ services:
       - vault_backend_token
       - google_client_secret
       - github_client_secret
+      - postgres_password
     # Volumes commented for production (code is already compiled in the image)
     # Uncomment for development with hot-reload:
     volumes:
