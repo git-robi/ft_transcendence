@@ -1,43 +1,124 @@
-FROM node:20-alpine
+# ========================================
+# Optimized Multi-Stage Dockerfile
+# Node.js TypeScript Application
+# ========================================
+ARG NODE_VERSION=lts-alpine
+FROM node:${NODE_VERSION} AS base
 
+# Set working directory
 WORKDIR /app
 
-# Instalar dependencias del sistema necesarias para Prisma y bcrypt
-RUN apk add --no-cache \
-    openssl \
-    libc6-compat \
-    python3 \
-    make \
-    g++
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
 
-# Copiar archivos de dependencias
-COPY package*.json ./
-COPY prisma ./prisma/
+# ========================================
+# Dependencies Stage
+# ========================================
+FROM base AS deps
 
-# Instalar TODAS las dependencias (incluyendo dev para TypeScript)
-# Si package-lock.json está desincronizado, npm ci fallará
-# En ese caso, usar npm install que actualizará el lock file
-RUN if [ -f package-lock.json ]; then \
-        npm ci || npm install; \
-    else \
-        npm install; \
-    fi
+# Copy package files
+COPY --chown=nodejs:nodejs ./package*.json /app
 
-# Instalar Prisma CLI globalmente para migraciones
-RUN npm install -g prisma
+# Install production dependencies
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci --omit=dev && \
+    npm cache clean --force
 
-# Copiar código fuente
-COPY . .
+# ========================================
+# Build Dependencies Stage
+# ========================================
+FROM base AS build-deps
 
-# Generar Prisma Client
+# Copy package files
+COPY --chown=nodejs:nodejs ./package*.json /app
+
+# Install all dependencies with build optimizations
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci --no-audit --no-fund && \
+    npm cache clean --force
+
+# ========================================
+# Build Stage
+# ========================================
+FROM build-deps AS build
+
+# Copy only necessary files for building (respects .dockerignore)
+COPY --chown=nodejs:nodejs ./ /app
+
+#ENTRYPOINT ["tail", "-f"]
+# Generate the application
 RUN npx prisma generate
-
-# Compilar TypeScript (necesita devDependencies)
 RUN npm run build
 
-# Exponer puerto
-EXPOSE 3001
+# ========================================
+# Migration Stage
+# ========================================
+FROM build-deps AS migration
 
-# Comando de inicio (espera a que Vault esté listo antes de iniciar)
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+# Copy only necessary files for building (respects .dockerignore)
+COPY ./ /app
+COPY ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
+# Execute the migration
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+
+# ========================================
+# Development Stage
+# ========================================
+FROM build-deps AS development
+
+ARG NODE_ENV \
+	NPM_CONFIG_LOGLEVEL \
+	PORT
+
+# Set environment
+ENV NODE_ENV=${NODE_ENV} \
+    NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
+
+COPY --chown=nodejs:nodejs ./ /app
+COPY --chown=nodejs:nodejs ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Switch to non-root user
+#USER nodejs //removed as preventing entryscript commands to run properly
+
+# Expose ports
+EXPOSE ${PORT}
+
+# Start development server
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+
+# ========================================
+# Production Stage
+# ========================================
+ARG NODE_VERSION=lts-alpine
+FROM node:${NODE_VERSION} AS production
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
+
+# Set optimized environment variables
+ENV NODE_ENV=production \
+    NODE_OPTIONS="--max-old-space-size=256 --no-warnings" \
+    NPM_CONFIG_LOGLEVEL=silent
+
+# Copy production dependencies from deps stage
+COPY --chown=nodejs:nodejs ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=deps --chown=nodejs:nodejs /app/package*.json ./
+COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
+COPY --chown=nodejs:nodejs ./prisma ./prisma
+COPY --chown=nodejs:nodejs ./prisma.config.ts .
+
+# Switch to non-root user for security
+USER nodejs
+
+# Start production server
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
