@@ -121,7 +121,7 @@ services:
       #- /app/node_modules
       - frontend_data:/app/dist
       - ./client/src:/app/src
-    restart: unless-stopped
+    restart: no
 
   # Nginx with ModSecurity v3 and WAF
   nginx:
@@ -140,7 +140,7 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
       #marc: how are frontend dist files served?
-      - frontend_data:/var/www/:ro
+      - frontend_data:/var/www/html:ro
     depends_on:
       - backend
       - frontend
