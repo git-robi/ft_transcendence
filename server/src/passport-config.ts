@@ -1,4 +1,5 @@
 import passport from 'passport';
+import fs from 'node:fs';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as GithubStrategy } from 'passport-github2';
 import dotenv from 'dotenv';
@@ -6,80 +7,95 @@ import { prisma } from './prisma/client';
 
 dotenv.config();
 
-// Google OAuth Strategy
-passport.use(
-    new GoogleStrategy({
-        clientID: process.env.GOOGLE_ID_CLIENT!,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        callbackURL: 'http://localhost:3001/api/v1/auth/google/redirect'
-    }, async (accessToken, refreshToken, profile, done) => {
-        try {
-            let user = await prisma.user.findFirst({
-                where: { googleId: profile.id },
-                include: { profile: true }
-            });
+const clientUrl = process.env.CLIENT_URL || 'https://localhost';
+const apiBase = `${clientUrl.replace(/\/$/, '')}/api/v1/auth`;
 
-            if (user) {
-                return done(null, user);
+const googleClientSecret =
+    process.env.GOOGLE_CLIENT_SECRET ||
+    (process.env.GOOGLE_CLIENT_SECRET_FILE
+        ? fs.readFileSync(process.env.GOOGLE_CLIENT_SECRET_FILE, 'utf8').trim()
+        : '');
+
+const githubClientSecret =
+    process.env.GITHUB_CLIENT_SECRET ||
+    (process.env.GITHUB_CLIENT_SECRET_FILE
+        ? fs.readFileSync(process.env.GITHUB_CLIENT_SECRET_FILE, 'utf8').trim()
+        : '');
+
+// Google OAuth Strategy (only if keys are configured)
+if (process.env.GOOGLE_ID_CLIENT && googleClientSecret) {
+    passport.use(
+        new GoogleStrategy({
+            clientID: process.env.GOOGLE_ID_CLIENT,
+            clientSecret: googleClientSecret,
+            callbackURL: `${apiBase}/google/redirect`,
+        }, async (_accessToken, _refreshToken, profile, done) => {
+            try {
+                let user = await prisma.user.findFirst({
+                    where: { googleId: profile.id },
+                });
+
+                if (user) {
+                    return done(null, user);
+                }
+
+                user = await prisma.user.create({
+                    data: {
+                        email: profile.emails?.[0]?.value || '',
+                        googleId: profile.id,
+                        password: '',
+                        profile: {
+                            create: {
+                                name: profile.displayName || 'Google User',
+                                bio: '',
+                            },
+                        },
+                    },
+                });
+
+                done(null, user);
+            } catch (err) {
+                done(err as Error, undefined);
             }
+        })
+    );
+}
 
-            user = await prisma.user.create({
-                data: {
-                    email: profile.emails?.[0]?.value || '',
-                    googleId: profile.id,
-                    password: '',
-                    profile: {
-                        create: {
-                            name: profile.displayName,
-                            bio: ''
-                        }
-                    }
-                },
-                include: { profile: true }
-            });
+// GitHub OAuth Strategy (only if keys are configured)
+if (process.env.GITHUB_ID_CLIENT && githubClientSecret) {
+    passport.use(
+        new GithubStrategy({
+            clientID: process.env.GITHUB_ID_CLIENT,
+            clientSecret: githubClientSecret,
+            callbackURL: `${apiBase}/github/redirect`,
+        }, async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
+            try {
+                let user = await prisma.user.findFirst({
+                    where: { githubId: profile.id },
+                });
 
-            done(null, user);
-        } catch (err) {
-            done(err as Error, undefined);
-        }
-    })
-);
+                if (user) {
+                    return done(null, user);
+                }
 
-// GitHub OAuth Strategy
-passport.use(
-    new GithubStrategy({
-        clientID: process.env.GITHUB_ID_CLIENT!,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-        callbackURL: 'http://localhost:3001/api/v1/auth/github/redirect'
-    }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
-        try {
-            let user = await prisma.user.findFirst({
-                where: { githubId: profile.id },
-                include: { profile: true }
-            });
+                user = await prisma.user.create({
+                    data: {
+                        email: profile.emails?.[0]?.value || '',
+                        githubId: profile.id,
+                        password: '',
+                        profile: {
+                            create: {
+                                name: profile.displayName || profile.username || 'GitHub User',
+                                bio: '',
+                            },
+                        },
+                    },
+                });
 
-            if (user) {
-                return done(null, user);
+                done(null, user);
+            } catch (err) {
+                done(err as Error, undefined);
             }
-
-            user = await prisma.user.create({
-                data: {
-                    email: profile.emails?.[0]?.value || `github_${profile.id}@placeholder.local`, //a placeholder for non-public e-mails on git
-                    githubId: profile.id,
-                    password: '',
-                    profile: {
-                        create: {
-                            name: profile.displayName || profile.username,
-                            bio: ''
-                        }
-                    }
-                },
-                include: { profile: true }
-            });
-
-            done(null, user);
-        } catch (err) {
-            done(err as Error, undefined);
-        }
-    })
-);
+        })
+    );
+}

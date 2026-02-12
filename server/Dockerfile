@@ -18,7 +18,7 @@ RUN addgroup -g 1001 -S nodejs && \
 FROM base AS deps
 
 # Copy package files
-COPY --chown=nodejs:nodejs ./server/package*.json /app
+COPY --chown=nodejs:nodejs ./package*.json /app
 
 # Install production dependencies
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
@@ -31,7 +31,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 FROM base AS build-deps
 
 # Copy package files
-COPY --chown=nodejs:nodejs ./server/package*.json /app
+COPY --chown=nodejs:nodejs ./package*.json /app
 
 # Install all dependencies with build optimizations
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
@@ -44,7 +44,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 FROM build-deps AS build
 
 # Copy only necessary files for building (respects .dockerignore)
-COPY --chown=nodejs:nodejs ./server /app
+COPY --chown=nodejs:nodejs ./ /app
 
 #ENTRYPOINT ["tail", "-f"]
 # Generate the application
@@ -57,8 +57,8 @@ RUN npm run build
 FROM build-deps AS migration
 
 # Copy only necessary files for building (respects .dockerignore)
-COPY ./server /app
-COPY ./server/entrypoint.sh /app/entrypoint.sh
+COPY ./ /app
+COPY ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Execute the migration
@@ -77,8 +77,8 @@ ARG NODE_ENV \
 ENV NODE_ENV=${NODE_ENV} \
     NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
 
-COPY --chown=nodejs:nodejs ./server /app
-COPY --chown=nodejs:nodejs ./server/entrypoint.sh /app/entrypoint.sh
+COPY --chown=nodejs:nodejs ./ /app
+COPY --chown=nodejs:nodejs ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Switch to non-root user
@@ -109,13 +109,13 @@ ENV NODE_ENV=production \
     NPM_CONFIG_LOGLEVEL=silent
 
 # Copy production dependencies from deps stage
-COPY --chown=nodejs:nodejs ./server/entrypoint.sh /app/entrypoint.sh
+COPY --chown=nodejs:nodejs ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=deps --chown=nodejs:nodejs /app/package*.json ./
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
-COPY --chown=nodejs:nodejs ./server/prisma ./prisma
-COPY --chown=nodejs:nodejs ./server/prisma.config.ts .
+COPY --chown=nodejs:nodejs ./prisma ./prisma
+COPY --chown=nodejs:nodejs ./prisma.config.ts .
 
 # Switch to non-root user for security
 USER nodejs
