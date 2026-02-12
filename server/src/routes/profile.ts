@@ -3,6 +3,7 @@ import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
 import multer from "multer";
 import path from "path";
+import bcrypt from "bcrypt";
 
 const router = express.Router();
 
@@ -230,5 +231,97 @@ router.patch("/me", protect, async (req: any, res: Response) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 })
+
+/**
+ * @swagger
+ * /api/v1/profile/password:
+ *   patch:
+ *     summary: Update password
+ *     description: Updates the authenticated user's password.
+ *     tags:
+ *       - Profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *                 description: Current password
+ *               newPassword:
+ *                 type: string
+ *                 description: New password (min 12 characters)
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *       400:
+ *         description: Validation error or incorrect old password
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/password", protect, async (req: any, res: Response) => {
+    try {
+        const { oldPassword, newPassword } = req.body as {
+            oldPassword?: string;
+            newPassword?: string;
+        };
+
+        // Validation
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ message: "Old password and new password are required" });
+        }
+
+        if (typeof oldPassword !== "string" || typeof newPassword !== "string") {
+            return res.status(400).json({ message: "Passwords must be strings" });
+        }
+
+        if (newPassword.length < 12) {
+            return res.status(400).json({ message: "New password must be at least 12 characters" });
+        }
+
+        // Get the user with password
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: { id: true, password: true }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Check if user has a password (OAuth users might not)
+        if (!user.password) {
+            return res.status(400).json({ message: "Cannot update password for OAuth accounts" });
+        }
+
+        // Verify old password
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+        if (!isMatch) {
+            return res.status(400).json({ message: "Incorrect old password" });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update password
+        await prisma.user.update({
+            where: { id: req.user.id },
+            data: { password: hashedPassword }
+        });
+
+        return res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error("Password update error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 export default router;
