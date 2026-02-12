@@ -18,7 +18,7 @@ RUN addgroup -g 1001 -S nodejs && \
 FROM base AS deps
 
 # Copy package files
-COPY --chown=nodejs:nodejs ./client/package*.json /app
+COPY --chown=nodejs:nodejs ./package*.json /app
 
 # Install production dependencies
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
@@ -31,7 +31,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 FROM base AS build-deps
 
 # Copy package files
-COPY --chown=nodejs:nodejs ./client/package*.json /app
+COPY --chown=nodejs:nodejs ./package*.json /app
 
 # Install all dependencies with build optimizations
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
@@ -50,7 +50,7 @@ ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 
 # Copy only necessary files for building (respects .dockerignore)
-COPY --chown=nodejs:nodejs ./client /app
+COPY --chown=nodejs:nodejs ./ /app
 
 # Build the application
 RUN npm run build
@@ -69,7 +69,7 @@ ENV NODE_ENV=${NODE_ENV} \
     NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
 
 # Copy source files
-COPY --chown=nodejs:nodejs ./client /app
+COPY --chown=nodejs:nodejs ./ /app
 
 # Ensure all directories have proper permissions
 RUN mkdir -p /app/node_modules/.vite && \

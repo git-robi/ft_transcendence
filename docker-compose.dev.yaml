@@ -8,9 +8,9 @@ services:
     ports:
       - 8080:8080
     networks:
-      - t42bcnet
+      - transcendence_network
     depends_on:
-      postgresql:
+      postgres:
         condition: service_healthy
   
   #FRONTEND
@@ -20,10 +20,10 @@ services:
       args:
         NODE_ENV: development
         NPM_CONFIG_LOGLEVEL: warn
-        PORT: ${FRONTEND_PORT}
+        PORT: ${FRONTEND_PORT:-5173}
     user: "0:0"
     environment:
-      - VITE_API_URL=http://localhost:${BACKEND_PORT}/api/v1
+      - VITE_API_URL=http://localhost:${BACKEND_PORT:-3001}/api/v1
       - VITE_APP_ENV=development
       - NODE_ENV=development
       - NPM_CONFIG_LOGLEVEL=warn
@@ -31,7 +31,7 @@ services:
       - ./client:/app
       - /app/node_modules
     ports:
-      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+      - ${FRONTEND_PORT:-5173}:${FRONTEND_PORT-5173}
     restart: unless-stopped
   
   #BACKEND
@@ -39,20 +39,20 @@ services:
     build: 
       target: development
       args:
-        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
+        #DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${DB_PASSWORD}@postgresql:5432/${POSTGRES_DB:-transcendence}
         NODE_ENV: development
         NPM_CONFIG_LOGLEVEL: warn
-        PORT: ${BACKEND_PORT}
+        PORT: ${BACKEND_PORT:-3001}
     working_dir: /app
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
-      - GIT_BRANCH=${GIT_BRANCH}
-      - PORT=${BACKEND_PORT}
-      - JWT_SECRET=${BACKEND_JWT_SECRET}
-      - BASE_URL=${CLIENT_URL}
-      - LOG_LEVEL=debug
-      - NODE_ENV=development
-      - PRISMA_QUERY_LOGGING=true
-      - PRISMA_METRICS=true
+      #- DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
+      GIT_BRANCH: ${GIT_BRANCH}
+      PORT: ${BACKEND_PORT:-3001}
+      #JWT_SECRET: ${BACKEND_JWT_SECRET}
+      BASE_URL: ${CLIENT_URL:-https://localhost}
+      LOG_LEVEL: debug
+      NODE_ENV: development
+      PRISMA_QUERY_LOGGING: true
+      PRISMA_METRICS: true
     ports:
-      - ${BACKEND_PORT}:${BACKEND_PORT}
+      - ${BACKEND_PORT:-3001}:${BACKEND_PORT:-3001}

@@ -23,11 +23,11 @@ async function seed() {
     
     console.log("✅ Database seeded successfully");
 }
-
 seed()
-    .then(() => prisma.$disconnect())
     .catch((e) => {
         console.error("❌ Seed error:", e);
+        return prisma.$disconnect();
+    })
+    .finally(async () => {
         await prisma.$disconnect();
-        process.exit(1);
     });
