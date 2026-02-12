@@ -19,6 +19,10 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
     navigate('/profile');
   };
 
+  const handleStatisticsHistory = () => {
+    navigate('/statisticsHistory')
+  };
+
   const handlePlayLast = () => {
     navigate('/game');
   };
@@ -47,7 +51,7 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
 
         {/* Right column - 3 buttons aligned to the top*/}
         <div className="flex flex-col gap-4 items-start">
-          <Button>
+          <Button onClick={handleStatisticsHistory} >
             {t.home.gameStatistics}
           </Button>
           <Button onClick={handlePlayLast}>

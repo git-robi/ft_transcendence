@@ -4,6 +4,7 @@ import SignUp from './routes/SignUp';
 import LogIn from './routes/LogIn';
 import Home from './routes/Home';
 import UserSettings from './routes/UserSettings';
+import StatisticsHistory from './routes/StatisticsHistory';
 import GameSettings from './routes/GameSettings';
 import Game from './routes/Game';
 import Chat from './routes/Chat';
@@ -53,6 +54,7 @@ const App = () => {
           <Route path="/signUp" element={user ? <Navigate to="/home" /> : <SignUp setUser={setUser}/>} />
           <Route path="/login" element={user ? <Navigate to="/home" /> : <LogIn setUser={setUser}/>} />
           <Route path="/userSettings" element={<UserSettings user={user} setUser={setUser}/>} />
+          <Route path='/statisticsHistory' element={<StatisticsHistory user={user} setUser={setUser}/>} />
           <Route path='/gameSettings' element={<GameSettings user={user} setUser={setUser} />} />
           <Route path="/game" element={<Game />} />
           <Route path='/chat' element={<Chat />} />

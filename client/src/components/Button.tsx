@@ -5,7 +5,7 @@ interface ButtonProps {
   children: React.ReactNode;
   onClick?: (e: React.FormEvent) => void;
   type?: 'button' | 'submit';
-  variant?: 'primary' | 'secondary' | 'oauth' | 'github';
+  variant?: 'primary' | 'secondary' | 'oauth' | 'github' | 'green';
   className?: string;
 }
 
@@ -25,6 +25,7 @@ const Button = ({
     oauth: "bg-neutral-800 flex items-center justify-center gap-2 px-6 py-3",
     github: "bg-neutral-800 flex items-center justify-center gap-2 px-6 py-3",
     google: "bg-neutral-800 flex items-center justify-center gap-2 px-6 py-3",
+    green: "bg-[#008000] flex items-center justify-center gap-2 px-6 py-3"
   };
 
   const renderContent = () => {
