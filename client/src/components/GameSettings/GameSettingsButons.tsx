@@ -79,22 +79,25 @@ const GameSettingsButtons = () => {
       <div className='flex w-full max-w-3xl my-12'>
         <Button variant='green'>{t.gameSettings.play}</Button>
       </div>
-      <div className="grid grid-cols-3 w-full max-w-3xl">
+      <div className="grid grid-cols-2 w-full max-w-3xl">
         <div>
           <div className="h-6"></div>
           <div>{t.gameSettings.pauseKey}</div>
           <div>{t.gameSettings.quitKey}</div>
         </div>
-        <div className="text-center">
-          <div>{t.gameSettings.onePlayerTitle}</div>
-          <div>{t.gameSettings.onePlayerKeys1}</div>
-          <div>{t.gameSettings.onePlayerKeys2}</div>
-        </div>
+        {isPressedSingle ? (
+          <div className="text-right">
+            <div>{t.gameSettings.onePlayerTitle}</div>
+            <div>{t.gameSettings.onePlayerKeys1}</div>
+            <div>{t.gameSettings.onePlayerKeys2}</div>
+          </div>
+        ) : (
         <div className="text-right">
           <div>{t.gameSettings.twoPlayersTitle}</div>
           <div>{t.gameSettings.twoPlayersKeys1}</div>
           <div>{t.gameSettings.twoPlayersKeys2}</div>
         </div>
+        )}
       </div>
     </div>
   )
