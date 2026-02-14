@@ -61,7 +61,7 @@ services:
     working_dir: /app
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-      PORT: ${BACKEND_PORT:-3001}
+      PORT: 3001
       CLIENT_URL: https://localhost
       #to check why was called BASE_URL before
       #BASE_URL :${CLIENT_URL}
@@ -130,8 +130,8 @@ services:
       dockerfile: Dockerfile
     container_name: transcendence_nginx
     ports:
-      - "443:443"
-      - "80:80"
+      - "${NGINX_PORT_HTTP:-80}:80"
+      - "${NGINX_PORT_HTTPS:-443}:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
