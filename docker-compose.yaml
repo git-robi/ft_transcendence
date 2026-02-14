@@ -34,8 +34,8 @@ services:
       - vault_data:/vault/data
       - ./vault/config:/vault/config
       - ./vault/policies:/vault/policies
-      - ./vault/init-vault.sh:/vault/init-vault.sh:ro
-      - ./vault/entrypoint.sh:/usr/local/bin/vault-entrypoint.sh:ro
+      - ./vault/init-vault.sh:/vault/init-vault.sh
+      - ./vault/entrypoint.sh:/usr/local/bin/vault-entrypoint.sh
     networks:
       - transcendence_network
     secrets:
@@ -46,13 +46,14 @@ services:
       test: ["CMD", "vault", "status"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 4
 
   #Backend Node.js
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
+      #target: build
       target: ${NODE_ENV:-production}
       #to check why it was needed previously
       #args:
@@ -72,11 +73,12 @@ services:
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
       GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
       GIT_BRANCH$: ${GIT_BRANCH}
-      POSTGRES_PASSWORD: /run/secrets/postgres_password
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-transcendence}
-      #to check why it was needed previously
-      #DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
+      PGPASSWORD: /run/secrets/postgres_password
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGDATABASE: ${POSTGRES_DB:-transcendence}
+      PGHOST: postgres
+      JWT_SECRET: "123456"
+
     depends_on:
       postgres:
         condition: service_healthy
