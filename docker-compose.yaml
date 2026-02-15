@@ -55,17 +55,12 @@ services:
       dockerfile: Dockerfile
       #target: build
       target: ${NODE_ENV:-production}
-      #to check why it was needed previously
-      #args:
-      #  - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresql:5432/${DB_NAME}?schema=${DB_SCHEMA}
     container_name: transcendence_backend
     working_dir: /app
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 3001
       CLIENT_URL: https://localhost
-      #to check why was called BASE_URL before
-      #BASE_URL :${CLIENT_URL}
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN_FILE: /run/secrets/vault_backend_token
       GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
@@ -91,8 +86,6 @@ services:
       - google_client_secret
       - github_client_secret
       - postgres_password
-    # Volumes commented for production (code is already compiled in the image)
-    # Uncomment for development with hot-reload:
     volumes:
       - prisma_migrations:/app/prisma/migrations
       - ./server/prisma/migrations:/migrations
@@ -109,13 +102,11 @@ services:
       dockerfile: Dockerfile
       target: ${NODE_ENV:-production}
       args:
-        #to double check on VITE_API_URL definition
         - VITE_API_URL=/api/v1
     working_dir: /app
     container_name: transcendence_frontend
     environment:
-      #to double check on VITE_API_URL definition
-      VITE_API_URL: https://localhost/api
+      VITE_API_URL: /api/v1
     networks:
       - transcendence_network
     volumes:
@@ -141,7 +132,6 @@ services:
       # CRS is built into the image (Dockerfile); do not mount host crs/ or it overrides and breaks
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
-      #marc: how are frontend dist files served?
       - frontend_data:/var/www/html:ro
     depends_on:
       - backend
