@@ -6,7 +6,7 @@ GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD || echo "unknown")
 export GIT_BRANCH
 
 .PHONY: dev prod re clean fclean help
-all: dev
+all: prod
 help:
 	@echo "Available targets:"
 	@echo "  dev      - Run docker compose with dev config (.dev.yml and .env.development)"
