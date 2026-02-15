@@ -46,7 +46,6 @@ FROM build-deps AS build
 # Copy only necessary files for building (respects .dockerignore)
 COPY --chown=nodejs:nodejs ./ /app
 
-#ENTRYPOINT ["tail", "-f"]
 # Generate the application
 RUN npx prisma generate
 RUN npm run build
