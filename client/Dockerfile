@@ -111,5 +111,4 @@ COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
 
 # Switch to non-root user
 USER nodejs
-
 CMD ["/bin/sh", "-c", "echo 'Build complete' && exit 0"]

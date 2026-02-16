@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-export DATABASE_URL=postgresql://${POSTGRES_USER}:$(cat /run/secrets/postgres_password)@postgres:5432/${POSTGRES_DB}?schema=public
+export DATABASE_URL=postgresql://${PGUSER}:$(cat /run/secrets/postgres_password)@postgres:5432/${PGDATABASE}?schema=public
 
 if [ "$NODE_ENV" = "production" ]; then
 	npx prisma migrate deploy
