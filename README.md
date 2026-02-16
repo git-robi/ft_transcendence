@@ -16,14 +16,19 @@ https://www.notion.so/Docker-services-2cbaa892ab4b8030b2dbce06ca8cfc09
 
 The values of the variables must be shared privately so you'll have to ask me for them. We can use the service share.doppler.com to share env values securely.
 
-In the root folder, create a .env and a .env.development ile and put in it all the variables that you find in ./.env.example. 
+1. In the root folder, create a .env and a .env.development ile and put in it all the variables that you find in ./.env.example. 
+2. Move into nginx/ folder, delete the ssl folder if already existing and run ./generate-ssh.sh
+3. Back to root folder, run ./scripts/setup-secrets.sh to create secret files. 5 empty secret files are created
+4. Now populate those files: 
+    - for github and google files, do 'echo "the_secret_key" > secrets/google_xxxx' for each file
+    - for passwords and token files, 'openssl rand -hex 32 > secrets/the_file_to_feed'for each file
 
 </b>
 <b>
 
 ### Run the containers with Makefile
 
-Simply type make to launch a dev environment. 
+Simply type make to launch a production environment.The website can be tested on https://localhost:NGINX_PORT_HTTPS
 
 make help provide a brief description of available make commands.
 
