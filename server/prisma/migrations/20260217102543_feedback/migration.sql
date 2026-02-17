@@ -1,11 +1,15 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "feedback" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "text" VARCHAR(500) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-  - Made the column `bio` on table `profile` required. This step will fail if there are existing NULL values in that column.
+    CONSTRAINT "feedback_pkey" PRIMARY KEY ("id")
+);
 
-*/
--- AlterTable
-ALTER TABLE "profile" ALTER COLUMN "bio" SET NOT NULL;
+-- AddForeignKey
+ALTER TABLE "feedback" ADD CONSTRAINT "feedback_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AlterTable
 ALTER TABLE "user" ALTER COLUMN "password" DROP NOT NULL;

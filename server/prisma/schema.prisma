@@ -33,7 +33,7 @@ model profile {
 
   name      String
   avatarUrl String @default("/avatars/avatar_default.png") @db.VarChar(2048)
-  bio       String @db.VarChar(255)
+  bio       String? @db.VarChar(255)
 
   level Int @default(1)
   xp    Int @default(0)
