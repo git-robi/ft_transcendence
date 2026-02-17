@@ -296,6 +296,10 @@ router.patch("/password", protect, async (req: any, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        if (!user.password) {
+            return res.status(400).json({ message: "User has no local password" });
+        }
+
         const isMatch = await bcrypt.compare(oldPassword, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Old password is incorrect" });
@@ -305,7 +309,7 @@ router.patch("/password", protect, async (req: any, res) => {
             return res.status(400).json({ message: 'Password must be at least 12 characters'});
         }
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
 
         await prisma.user.update({
             where: {

@@ -107,6 +107,33 @@ class VaultClient {
                 throw error;
             }
             console.warn('Falling back to environment variables');
+            const fallbackDb = {
+                user: process.env.PGUSER || 'postgres',
+                password: process.env.PGPASSWORD || '',
+                host: process.env.PGHOST || 'localhost',
+                port: process.env.PGPORT || '5432',
+                database: process.env.PGDATABASE || 'transcendence',
+            };
+
+            if (process.env.DATABASE_URL) {
+                try {
+                    const parsed = new URL(process.env.DATABASE_URL);
+                    fallbackDb.user = decodeURIComponent(parsed.username || fallbackDb.user);
+                    fallbackDb.password = decodeURIComponent(parsed.password || fallbackDb.password);
+                    fallbackDb.host = parsed.hostname || fallbackDb.host;
+                    fallbackDb.port = parsed.port || fallbackDb.port;
+                    fallbackDb.database = parsed.pathname.replace(/^\//, '') || fallbackDb.database;
+                } catch {
+                    // Keep default fallback values when DATABASE_URL parsing fails.
+                }
+            }
+
+            this.secrets = {
+                jwt: {
+                    secret: process.env.JWT_SECRET || '',
+                },
+                database: fallbackDb,
+            };
             this.initialized = true;
         }
     }

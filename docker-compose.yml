@@ -26,7 +26,6 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
       VAULT_ADDR: http://127.0.0.1:8200
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-transcendence}
@@ -39,11 +38,10 @@ services:
     networks:
       - transcendence_network
     secrets:
-      - vault_root_token
       - postgres_password
     entrypoint: ["/bin/sh", "/usr/local/bin/vault-entrypoint.sh"]
     healthcheck:
-      test: ["CMD", "vault", "status"]
+      test: ["CMD-SHELL", "vault status > /dev/null 2>&1 && [ -s /vault/data/vault_backend_token ]"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -59,7 +57,7 @@ services:
       PORT: 3001
       CLIENT_URL: https://localhost
       VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN_FILE: /run/secrets/vault_backend_token
+      VAULT_TOKEN_FILE: /vault/shared/vault_backend_token
       GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
       GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
@@ -71,8 +69,9 @@ services:
         condition: service_healthy
     networks:
       - transcendence_network
+    volumes:
+      - vault_data:/vault/shared:ro
     secrets:
-      - vault_backend_token
       - google_client_secret
       - github_client_secret
     # Volumes commented for production (code is already compiled in the image)
@@ -99,20 +98,24 @@ services:
 
   # Nginx with ModSecurity v3 and WAF
   nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: ${NGINX_WAF_IMAGE:-owasp/modsecurity-crs:nginx}
     container_name: transcendence_nginx
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        envsubst < /etc/nginx/templates/modsecurity.d/modsecurity.conf.template > /etc/modsecurity.d/modsecurity.conf
+        envsubst < /etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template > /etc/modsecurity.d/modsecurity-override.conf
+        envsubst < /etc/nginx/templates/modsecurity.d/setup.conf.template > /etc/modsecurity.d/setup.conf
+        /usr/sbin/nginx -g 'daemon off;'
     ports:
       - "443:443"
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx/modsecurity:/etc/nginx/modsecurity:ro
       # CRS is built into the image (Dockerfile); do not mount host crs/ or it overrides and breaks
       - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./nginx/logs:/var/log/nginx
     depends_on:
       - backend
       - frontend
@@ -131,10 +134,6 @@ volumes:
 secrets:
   postgres_password:
     file: ./secrets/postgres_password
-  vault_root_token:
-    file: ./secrets/vault_root_token
-  vault_backend_token:
-    file: ./secrets/vault_backend_token
   google_client_secret:
     file: ./secrets/google_client_secret
   github_client_secret:

@@ -38,6 +38,7 @@ RUN npm run build
 # Exponer puerto
 EXPOSE 3001
 
-# Comando de inicio (espera a que Vault esté listo antes de iniciar)
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
-
+# Comando de inicio
+# If DATABASE_URL is not available at container boot, skip migrations and let the app
+# load DB config from Vault during startup.
+CMD ["sh", "-c", "if [ -n \"${DATABASE_URL:-}\" ]; then npx prisma migrate deploy; else echo 'DATABASE_URL not set at startup; skipping prisma migrate deploy'; fi && node dist/index.js"]
