@@ -21,9 +21,10 @@ model user {
   password  String?
   createdAt DateTime @default(now())
 
-  profile profile?
-  matches match[]
-  apiKeys apiKeys[]
+  profile  profile?
+  matches  match[]
+  apiKeys  apiKeys[]
+  feedback feedback[]
 }
 
 model profile {
@@ -75,11 +76,15 @@ model apiKeys {
   expiresAt DateTime?
   hashedKey String    @unique
 
-  //add rate limit
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  //learn prisma index
-
-  user user @relation(fields: [userId], references: [id])
+model feedback {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String   @db.VarChar(500)
+  createdAt DateTime @default(now())
 }
 
 enum PlayMode {
