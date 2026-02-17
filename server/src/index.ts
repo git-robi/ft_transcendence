@@ -2,8 +2,8 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import vaultClient from "./config/vault";
-import { configureSecurityHeaders, errorHandler } from "./config/security";
-import { apiRateLimiter } from "./middleware/rateLimiter";
+import { configureSecurityHeaders, errorHandler, notFoundHandler } from "./config/security";
+import { apiRateLimiter, docsRateLimiter } from "./middleware/rateLimiter";
 
 // swagger (for API documentation)
 import swaggerUi from "swagger-ui-express";
@@ -54,10 +54,16 @@ async function initializeApp() {
 
     const specs = swaggerJsdoc(swaggerOptions);
 
-    // Swagger only in non-production
-    if (process.env.NODE_ENV !== 'production') {
-        app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-    }
+    // Swagger docs (public) with protections
+    app.use("/api-docs", docsRateLimiter, (req, res, next) => {
+        console.info(`API docs access from IP: ${req.ip} UA: ${req.headers['user-agent'] || 'unknown'}`);
+        next();
+    });
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
+        swaggerOptions: {
+            supportedSubmitMethods: [], // disable "Try it out" in public docs
+        },
+    }));
 
     // Static assets
     app.use("/avatars", express.static("uploads/avatars"));
@@ -83,6 +89,9 @@ async function initializeApp() {
     app.get("/health", (req: Request, res: Response) => {
         res.status(200).json({ status: "ok" });
     });
+
+    // 404 handler (before error handler)
+    app.use(notFoundHandler);
 
     // Error handling (must be the last middleware)
     app.use(errorHandler);

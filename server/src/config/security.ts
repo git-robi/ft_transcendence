@@ -51,6 +51,9 @@ export function errorHandler(err: any, req: any, res: any, next: any): void {
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
         path: req.path,
         method: req.method,
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        userId: req.user?.id,
     });
 
     // Generic response to client
@@ -65,5 +68,17 @@ export function errorHandler(err: any, req: any, res: any, next: any): void {
     });
 }
 
+/**
+ * Not-found handler with minimal logging.
+ */
+export function notFoundHandler(req: any, res: any, next: any): void {
+    console.warn('Not Found:', {
+        path: req.path,
+        method: req.method,
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+    });
+    res.status(404).json({ error: 'Not found' });
+}
 
 
