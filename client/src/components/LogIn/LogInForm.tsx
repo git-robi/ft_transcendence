@@ -5,7 +5,9 @@ import GoogleButton from '../GoogleButton';
 import Input from '../Input';
 import { useLanguage } from '../../i18n/useLanguage';
 import Auth from '../../APIs/auth';
+import Profile from '../../APIs/profile';
 import type { PublicUser } from '../../types';
+import normalizeApiUser from '../../utils/normalizeUser';
 
 interface LogInFormProps {
   setUser: (user: PublicUser | null) => void;
@@ -20,30 +22,52 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  /**
+   * Handles the sign-in form submission.
+   *
+   * Prevents the default form submission, validates the email and password fields,
+   * attempts to authenticate the user via the Auth API, and fetches the user's profile data.
+   * On successful login, sets the user context and navigates to the home page.
+   * Handles and displays errors if authentication fails.
+   *
+   * @param e - The form submission event.
+   */
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
-    
+    setError('');
     if (!email.trim() || !password.trim()) {
       setError("Email and password are required");
       return;
     }
     try {
-      const res = await Auth.post('/login', {email, password} )
-      setUser(res.data.user);
+      const res = await Auth.post('/login', { email, password });
+      const userData = res.data.user as { id: string | number; name?: string; email: string };
+
+      type profileData = { name?: string; [k: string]: any}
+      let profileData: Partial<PublicUser> = {};
+      try {
+        const profileRes = await Profile.get('/me');
+        profileData = profileRes.data as Partial<PublicUser>;
+      } catch {
+        profileData = {};
+      }
+      setUser(normalizeApiUser({ ...userData, profile: profileData }));
       navigate('/home');
     } catch (err: unknown) {
       console.error('Login failed:', err);
-      
+
       let errorMessage = 'Login failed. Please try again.';
-      
-      if (err && typeof err === 'object' && 'response' in err) {
+
+      // clearer message for network/backend down
+      if (err && typeof err === 'object' && 'message' in err && (err as any).message === 'Network Error') {
+        errorMessage = 'Cannot reach backend — is the server running?';
+      } else if (err && typeof err === 'object' && 'response' in err) {
         const response = (err as { response?: { data?: { message?: string } } }).response;
         errorMessage = response?.data?.message || errorMessage;
       }
-      
+
       setError(errorMessage);
-    }  
+    }
   };
 
   const handleSignUp = () => {
@@ -107,7 +131,7 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
         <div className="space-y-2 pt-4">
           <Button 
             variant="github" 
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`}
+            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL ?? '/api/v1'}/auth/github`}
           >
             {t.logIn.githubLogIn}
           </Button>

@@ -11,16 +11,24 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   
-  const handleCurrentUserSettings = () => {
-    navigate('/currentUserSettings');
+  const handleUserSettings = () => {
+    navigate('/userSettings');
   };
 
   const handleProfilePage = () => {
     navigate('/profile');
   };
 
+  const handleStatisticsHistory = () => {
+    navigate('/statisticsHistory')
+  };
+
   const handlePlayLast = () => {
     navigate('/game');
+  };
+
+  const handlePlayCustom = () => {
+    navigate('/gameSettings');
   };
 
   return (
@@ -33,8 +41,8 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-3.5xl">
         {/* Left column - 2 buttons aligned to the top*/}
         <div className='flex flex-col gap-4 items-start'>
-          <Button onClick={handleCurrentUserSettings}>
-            {t.home.currentUserSettings}
+          <Button onClick={handleUserSettings}>
+            {t.home.userSettings}
           </Button>
           <Button onClick={handleProfilePage}>
             {t.home.yourProfilePage}
@@ -43,13 +51,13 @@ const HomeButtons = ({ user }: HomeButtonsProps) => {
 
         {/* Right column - 3 buttons aligned to the top*/}
         <div className="flex flex-col gap-4 items-start">
-          <Button>
+          <Button onClick={handleStatisticsHistory} >
             {t.home.gameStatistics}
           </Button>
           <Button onClick={handlePlayLast}>
             {t.home.playLastSettings}
           </Button>
-          <Button>
+          <Button onClick={handlePlayCustom}>
             {t.home.playCustomSettings}
           </Button>
         </div>

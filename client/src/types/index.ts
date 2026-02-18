@@ -14,7 +14,26 @@ export interface User {
 // Type for user data returned from API (without password)
 export type UserResponse = Omit<User, 'password'>;
 
-// Type for public user info (what login/register returns)
+// API shapes coming from the server
+export interface ApiProfile {
+  userId?: number;
+  id?: number;
+  name?: string;
+  avatarUrl?: string;
+  bio?: string;
+}
+
+export interface ApiUser {
+  id: number;
+  email: string;
+  name?: string | null;
+  profile?: ApiProfile;
+  googleId?: string | null;
+  githubId?: string | null;
+  createdAt?: Date;
+}
+
+// Type for public user info (what the UI consumes)
 export interface PublicUser {
   id: number;
   name: string;

@@ -4,7 +4,9 @@ import Button from '../Button';
 import { useLanguage } from '../../i18n/useLanguage';
 import Input from '../Input';
 import Auth from '../../APIs/auth';
+import Profile from '../../APIs/profile';
 import type { PublicUser } from '../../types';
+import normalizeApiUser from '../../utils/normalizeUser';
 
 interface SignUpFormProps {
   setUser: (user: PublicUser | null) => void;
@@ -21,7 +23,7 @@ const SignUpForm = ({ setUser }: SignUpFormProps) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -39,28 +41,37 @@ const SignUpForm = ({ setUser }: SignUpFormProps) => {
     setLoading(true);
 
     try {
-      const res = await Auth.post('/register', { 
-        name: name.trim(), 
-        email: email.trim(), 
-        password 
+      const res = await Auth.post('/register', {
+        name: name.trim(),
+        email: email.trim(),
+        password,
       });
-      
-      setUser(res.data.user);
+
+      const userData = res.data.user as { id: number; name?: string; email: string };
+
+      // fetch authoritative profile from /profile/me (server creates profile on register)
+      let profileData: Partial<PublicUser> = {};
+      try {
+        const profileRes = await Profile.get('/me'); // requires cookies / CORS or vite proxy
+        profileData = profileRes.data as Partial<PublicUser>;
+      } catch {
+        profileData = {};
+      }
+
+      setUser(normalizeApiUser({ ...userData, profile: profileData }));
+
       navigate('/home');
     } catch (err: unknown) {
       console.error('Registration failed - Full error:', err);
-      console.error('Error type:', typeof err);
-      console.error('Error object:', JSON.stringify(err, null, 2));
-      
-      let errorMessage = 'Registration failed. Please try again.';
-      
-      if (err && typeof err === 'object' && 'response' in err) {
-        const response = (err as { response?: { data?: { message?: string } } }).response;
-        console.error('Response data:', response?.data);
-        errorMessage = response?.data?.message || errorMessage;
+
+      let message = 'Registration failed';
+      if (err && typeof err === 'object' && 'message' in err && (err as any).message === 'Network Error') {
+        message = 'Cannot reach backend — is the server running?';
+      } else if (err && typeof err === 'object' && 'response' in err) {
+        message = (err as any).response?.data?.message ?? message;
       }
-      
-      setError(errorMessage);
+
+      setError(message);
     } finally {
       setLoading(false);
     }

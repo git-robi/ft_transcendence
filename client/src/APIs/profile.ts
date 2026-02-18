@@ -1,9 +1,8 @@
 import axios from "axios"
-const AUTH_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const AUTH_BASE_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
 
-//this is creating an axios instance
-export default axios.create({ 
-    baseURL: AUTH_BASE_URL + "/profile",
-    withCredentials: true
-
+// Create axios instance (uses relative /api/v1 in dev so Vite can proxy)
+export default axios.create({
+  baseURL: AUTH_BASE_URL + "/profile",
+  withCredentials: true,
 });
