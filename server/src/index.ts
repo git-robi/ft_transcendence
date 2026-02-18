@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
+import { createServer } from "http";
 import dotenv from "dotenv";
 import cors from "cors";
 import vaultClient from "./config/vault";
 import { configureSecurityHeaders, errorHandler } from "./config/security";
 import { apiRateLimiter } from "./middleware/rateLimiter";
+import { initSocket } from "./socket/socket";
 
 // swagger (for API documentation)
 import swaggerUi from "swagger-ui-express";
@@ -92,7 +94,9 @@ async function initializeApp() {
     app.use(errorHandler);
 
     const PORT = process.env.PORT || 3001;
-    app.listen(PORT, () => {
+    const httpServer = createServer(app);
+    initSocket(httpServer);
+    httpServer.listen(PORT, () => {
         console.log(`Server is up listening to port ${PORT}`);
     });
 }

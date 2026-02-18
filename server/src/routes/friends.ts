@@ -2,6 +2,7 @@ import express from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
 import { FriendStatus } from "../prisma/generated/prisma/enums";
+import { onlineUsers } from "../socket/onlineUsers";
 
 const router = express.Router();
 
@@ -73,7 +74,7 @@ router.get("/", protect, async (req, res) => {
                 friendshipId: f.id,
                 since: f.createdAt,
                 friend,
-                isOnline: false, // TODO: update with Socket.io
+                isOnline: onlineUsers.has(friend.id),
             };
         });
 
