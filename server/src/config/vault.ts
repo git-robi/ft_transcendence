@@ -72,7 +72,7 @@ class VaultClient {
                 },
                 database: {
                     user: dbSecret?.data?.data?.user || process.env.PGUSER || 'postgres',
-                    password: dbSecret?.data?.data?.password || process.env.PGPASSWORD || '',
+                    password: dbSecret?.data?.data?.password || this.resolveDatabasePassword(),
                     host: dbSecret?.data?.data?.host || process.env.PGHOST || 'localhost',
                     port: dbSecret?.data?.data?.port || process.env.PGPORT || '5432',
                     database: dbSecret?.data?.data?.database || process.env.PGDATABASE || 'transcendence',
@@ -158,6 +158,31 @@ class VaultClient {
     async refresh(): Promise<void> {
         this.initialized = false;
         await this.initialize();
+    }
+
+    private resolveDatabasePassword(): string {
+        const fromFile = process.env.PGPASSWORD_FILE;
+        if (fromFile) {
+            try {
+                return fs.readFileSync(fromFile, 'utf8').trim();
+            } catch {
+                // Fall back below.
+            }
+        }
+
+        const raw = process.env.PGPASSWORD || '';
+        if (!raw) return '';
+
+        // Support legacy config where PGPASSWORD contains a secret file path.
+        if (raw.startsWith('/') && fs.existsSync(raw)) {
+            try {
+                return fs.readFileSync(raw, 'utf8').trim();
+            } catch {
+                return '';
+            }
+        }
+
+        return raw;
     }
 }
 
