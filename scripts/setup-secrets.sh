@@ -3,64 +3,22 @@ set -e
 
 mkdir -p secrets
 
-prompt_secret() {
+create_if_missing() {
   file="$1"
-  label="$2"
-  required="$3"
-  exists="false"
-
-  if [ -f "$file" ]; then
-    exists="true"
-  fi
-
-  read_secret_value() {
-    # Hide input only when running in an interactive terminal.
-    if [ -t 0 ]; then
-      stty -echo
-      IFS= read -r value
-      stty echo
-      printf '\n'
-    else
-      IFS= read -r value
-    fi
-  }
-
-  while true; do
-    if [ "$exists" = "true" ]; then
-      printf "%s already exists. Press Enter to keep it, or type a new value (hidden): " "$label"
-      read_secret_value
-      if [ -z "$value" ]; then
-        echo "Keeping existing $label"
-        return 0
-      fi
-    else
-      if [ "$required" = "true" ]; then
-        printf "Enter %s (hidden): " "$label"
-      else
-        printf "Enter %s (optional, hidden; leave blank to skip): " "$label"
-      fi
-      read_secret_value
-    fi
-
-    if [ "$required" = "true" ] && [ -z "$value" ]; then
-      echo "$label is required and cannot be empty."
-      continue
-    fi
-
+  value="$2"
+  if [ ! -f "$file" ]; then
     printf '%s' "$value" > "$file"
-    echo "Saved $label"
-    return 0
-  done
+    echo "Created $file"
+  fi
 }
 
-echo "Configuring secrets in ./secrets"
-
 # Required secrets
-prompt_secret "secrets/postgres_password" "Postgres password" "true"
+create_if_missing "secrets/postgres_password" "postgres_password"
+create_if_missing "secrets/vault_root_token" "vault_root_token"
+create_if_missing "secrets/vault_backend_token" "vault_backend_token"
 
-# Optional OAuth secrets
-prompt_secret "secrets/google_client_secret" "Google client secret" "false"
-prompt_secret "secrets/github_client_secret" "GitHub client secret" "false"
+# Optional OAuth secrets (leave empty if not used)
+create_if_missing "secrets/google_client_secret" ""
+create_if_missing "secrets/github_client_secret" ""
 
-echo "Vault tokens are managed by Vault and are not requested here."
-echo "Secrets configuration complete."
+echo "Secrets check complete in ./secrets"
