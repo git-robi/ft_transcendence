@@ -21,10 +21,12 @@ model user {
   password  String?
   createdAt DateTime @default(now())
 
-  profile  profile?
-  matches  match[]
-  apiKeys  apiKeys[]
-  feedback feedback[]
+  profile             profile?
+  matches             match[]
+  apiKeys             apiKeys[]
+  feedback            feedback[]
+  sentFriendships     friends[]  @relation("FriendSender")
+  receivedFriendships friends[]  @relation("FriendReceiver")
 }
 
 model profile {
@@ -32,7 +34,7 @@ model profile {
   user   user @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   name      String
-  avatarUrl String @default("/avatars/avatar_default.png") @db.VarChar(2048)
+  avatarUrl String  @default("/avatars/avatar_default.png") @db.VarChar(2048)
   bio       String? @db.VarChar(255)
 
   level Int @default(1)
@@ -85,6 +87,24 @@ model feedback {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   text      String   @db.VarChar(500)
   createdAt DateTime @default(now())
+}
+
+model friends {
+  id         Int          @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     FriendStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  sender   user @relation("FriendSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver user @relation("FriendReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
 }
 
 enum PlayMode {

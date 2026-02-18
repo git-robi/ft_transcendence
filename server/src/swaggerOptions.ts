@@ -51,6 +51,10 @@ const options: Options = {
       {
         name: 'Public',
         description: 'Public API endpoints (requires API key)'
+      },
+      {
+        name: 'Friends',
+        description: 'Friend requests and friendship management (requires JWT cookie)'
       }
     ]
   },
