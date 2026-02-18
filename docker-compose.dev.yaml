@@ -31,7 +31,7 @@ services:
       - ./client:/app
       - /app/node_modules
     ports:
-      - ${FRONTEND_PORT:-5173}:${FRONTEND_PORT-5173}
+      - ${FRONTEND_PORT:-5173}:${FRONTEND_PORT:-5173}
     restart: unless-stopped
   
   #BACKEND
