@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import { spawnSync } from "node:child_process";
 import vaultClient from "./config/vault";
 import { configureSecurityHeaders, errorHandler, notFoundHandler } from "./config/security";
 import { apiRateLimiter, docsRateLimiter } from "./middleware/rateLimiter";
@@ -25,6 +26,16 @@ async function initializeApp() {
         // Update Prisma DATABASE_URL when available
         if (process.env.NODE_ENV !== 'production' || vaultClient.getDatabaseUrl()) {
             process.env.DATABASE_URL = vaultClient.getDatabaseUrl();
+        }
+
+        if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+            const migrate = spawnSync("npx", ["prisma", "migrate", "deploy"], {
+                stdio: "inherit",
+                env: process.env as NodeJS.ProcessEnv,
+            });
+            if (migrate.status !== 0) {
+                throw new Error("Prisma migrate deploy failed");
+            }
         }
     } catch (error) {
         console.error("Error initializing Vault:", error);

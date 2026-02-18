@@ -86,9 +86,11 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://localhost/api/v1
     container_name: transcendence_frontend
     environment:
-      VITE_API_URL: https://localhost/api
+      VITE_API_URL: https://localhost/api/v1
     networks:
       - transcendence_network
     volumes:

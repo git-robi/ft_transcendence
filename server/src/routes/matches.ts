@@ -2,6 +2,7 @@ import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
 import { PlayMode, AiLevel, Paddle } from "../prisma/generated/prisma/enums";
+import { calculateXp } from "../services/xp";
 
 const router = express.Router();
 
@@ -289,7 +290,7 @@ router.patch("/:id", protect, async (req: any, res) => {
         }
         const userId = match.userId;
 
-        const gainedXp = userScore > opponentScore ? 50 : 10;
+        const gainedXp = calculateXp({ userScore, opponentScore });
         const profile = await prisma.profile.findFirst({
             where: { userId }
         });
