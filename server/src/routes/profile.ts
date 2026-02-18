@@ -230,7 +230,7 @@ router.patch("/me", protect, async (req: any, res: Response) => {
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }
-});
+})
 
 /**
  * @swagger
@@ -252,78 +252,74 @@ router.patch("/me", protect, async (req: any, res: Response) => {
  *             properties:
  *               oldPassword:
  *                 type: string
- *                 description: The current password
+ *                 description: Current password
  *               newPassword:
  *                 type: string
- *                 description: The new password (minimum 12 characters)
+ *                 description: New password (min 12 characters)
  *     responses:
  *       200:
  *         description: Password updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Password updated
  *       400:
- *         description: Validation error (missing fields or password too short)
- *       401:
- *         description: Old password is incorrect
+ *         description: Validation error or incorrect old password
  *       404:
  *         description: User not found
  *       500:
  *         description: Internal server error
  */
-router.patch("/password", protect, async (req: any, res) => {
+router.patch("/password", protect, async (req: any, res: Response) => {
     try {
-        const {oldPassword, newPassword} = req.body;
+        const { oldPassword, newPassword } = req.body as {
+            oldPassword?: string;
+            newPassword?: string;
+        };
 
-        if (!oldPassword || typeof oldPassword !== "string") {
-            return res.status(400).json({ message: "Old password is required" });
+        // Validation
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ message: "Old password and new password are required" });
         }
 
-        if (!newPassword || typeof newPassword !== "string") {
-            return res.status(400).json({ message: "Password is required" });
+        if (typeof oldPassword !== "string" || typeof newPassword !== "string") {
+            return res.status(400).json({ message: "Passwords must be strings" });
         }
 
+        if (newPassword.length < 12) {
+            return res.status(400).json({ message: "New password must be at least 12 characters" });
+        }
+
+        // Get the user with password
         const user = await prisma.user.findUnique({
             where: { id: req.user.id },
+            select: { id: true, password: true }
         });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-		
-		//to bypass error where bcrypt expect a string - but the schema.prisma
-		//defines password as optional, aka string || null. Either we make 
-		//pssword mandatory or check for null here	
-		if (!user.password) {
-    		return res.status(400).json({ message: "Invalid credentials" });
-		}
 
+        // Check if user has a password (OAuth users might not)
+        if (!user.password) {
+            return res.status(400).json({ message: "Cannot update password for OAuth accounts" });
+        }
+
+        // Verify old password
         const isMatch = await bcrypt.compare(oldPassword, user.password);
+
         if (!isMatch) {
-            return res.status(401).json({ message: "Old password is incorrect" });
+            return res.status(400).json({ message: "Incorrect old password" });
         }
 
-        if (newPassword.length < 12) {
-            return res.status(400).json({ message: 'Password must be at least 12 characters'});
-        }
-
+        // Hash new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+        // Update password
         await prisma.user.update({
-            where: {
-                id : req.user.id
-            },
-            data: {
-                password: hashedPassword
-            }
+            where: { id: req.user.id },
+            data: { password: hashedPassword }
         });
-        return res.status(200).json({message: "Password updated"});
+
+        return res.status(200).json({ message: "Password updated successfully" });
     } catch (error) {
+        console.error("Password update error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 });

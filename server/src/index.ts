@@ -43,7 +43,7 @@ async function initializeApp() {
 
     // Production-ready CORS
     app.use(cors({
-        origin: process.env.CLIENT_URL || "https://localhost",
+        origin: 'http://localhost:5173', // allow Vite frontend
         credentials: true,
         optionsSuccessStatus: 200,
     }));
