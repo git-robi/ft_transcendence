@@ -4,6 +4,7 @@ import { protect } from "../middleware/auth";
 import multer from "multer";
 import path from "path";
 import bcrypt from "bcrypt";
+import { displayXpFromUnits } from "../services/xp";
 
 const router = express.Router();
 
@@ -70,7 +71,10 @@ router.get("/me", protect, async (req: any, res: Response) => {
             return res.status(404).json({ message: "Profile not found" });
         }
 
-        return res.status(200).json(profile);
+        return res.status(200).json({
+            ...profile,
+            xp: displayXpFromUnits(profile.xp),
+        });
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }
@@ -131,7 +135,10 @@ router.patch("/upload", protect, upload.single("avatar"), async (req: any, res) 
             }
         })
 
-        return res.status(200).json(updated);
+        return res.status(200).json({
+            ...updated,
+            xp: displayXpFromUnits(updated.xp),
+        });
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }
@@ -225,7 +232,10 @@ router.patch("/me", protect, async (req: any, res: Response) => {
       },
     });
 
-    return res.status(200).json(updated);
+    return res.status(200).json({
+      ...updated,
+      xp: displayXpFromUnits(updated.xp),
+    });
         
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });

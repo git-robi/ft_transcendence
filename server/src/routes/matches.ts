@@ -2,16 +2,16 @@ import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
 import { PlayMode, AiLevel, Paddle } from "../prisma/generated/prisma/enums";
-import { calculateXp } from "../services/xp";
+import { calculateXp, displayXpFromUnits, XP_SCALE } from "../services/xp";
 
 const router = express.Router();
 
 const calculateLevel = (xp: number) => {
     let level = 1;
-    let threshold = 200;
-    while (xp >= threshold) {
+    let thresholdUnits = 200 * XP_SCALE;
+    while (xp >= thresholdUnits) {
         level++;
-        threshold += (level + 1) * 100;
+        thresholdUnits += (level + 1) * 100 * XP_SCALE;
     }
     return level;
 };
@@ -247,7 +247,7 @@ router.post("/", protect, async (req: any, res) => {
  *                     level:
  *                       type: integer
  *                     xp:
- *                       type: integer
+ *                       type: number
  *                 achievements:
  *                   type: array
  *                   description: Newly unlocked achievements (empty if none)
@@ -290,7 +290,12 @@ router.patch("/:id", protect, async (req: any, res) => {
         }
         const userId = match.userId;
 
-        const gainedXp = calculateXp({ userScore, opponentScore });
+        const gainedXp = calculateXp({
+            userScore,
+            opponentScore,
+            playMode: match.playMode,
+            aiLevel: match.aiLevel,
+        });
         const profile = await prisma.profile.findFirst({
             where: { userId }
         });
@@ -355,7 +360,14 @@ router.patch("/:id", protect, async (req: any, res) => {
             });
         }
 
-        return res.status(200).json({ match: updatedMatch, profile: updatedProfile, achievements: unlockedAchievements });
+        return res.status(200).json({
+            match: updatedMatch,
+            profile: {
+                ...updatedProfile,
+                xp: displayXpFromUnits(updatedProfile.xp),
+            },
+            achievements: unlockedAchievements
+        });
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
