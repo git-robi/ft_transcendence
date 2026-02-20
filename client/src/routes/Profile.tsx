@@ -96,10 +96,6 @@ const Profile = () => {
   };
 
   const getAvatarUrl = (url: string) => {
-    if (url.startsWith('/avatars/') && url !== '/avatars/avatar_default.png') {
-      const base = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      return `${base}/profile${url}`;
-    }
     return url;
   };
 
