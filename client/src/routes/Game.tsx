@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PongGameLarge from '../components/Game/PongGameLarge';
@@ -20,11 +21,19 @@ interface Match {
   paddle: 'LEFT' | 'RIGHT';
 }
 
+interface MatchResult {
+  winnerName: string;
+  userScore: number;
+  opponentScore: number;
+}
+
 const Game = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [match, setMatch] = useState<Match | null>(null);
+  const [result, setResult] = useState<MatchResult | null>(null);
   const [playMode, setPlayMode] = useState<'AI' | 'LOCAL'>('AI');
   const [aiLevel, setAiLevel] = useState<'EASY' | 'MID' | 'HARD'>('EASY');
   const [guestName, setGuestName] = useState('');
@@ -32,6 +41,27 @@ const Game = () => {
   const [paddle, setPaddle] = useState<'LEFT' | 'RIGHT'>('LEFT');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleMatchEnd = async (userScore: number, opponentScore: number) => {
+    if (!match) return;
+    try {
+      await Matches.patch(`/${match.id}`, { userScore, opponentScore });
+    } catch {
+      // silently fail — match result couldn't be saved
+    }
+
+    const playerName = user?.name || 'You';
+    const opponentName = match.playMode === 'AI'
+      ? `AI (${match.aiLevel.charAt(0) + match.aiLevel.slice(1).toLowerCase()})`
+      : match.guestName || 'Player 2';
+
+    setResult({
+      winnerName: userScore > opponentScore ? playerName : opponentName,
+      userScore,
+      opponentScore,
+    });
+    setMatch(null);
+  };
 
   const handleStart = async () => {
     setError('');
@@ -79,6 +109,55 @@ const Game = () => {
               paddle={match.paddle}
             />
             <PongGameLarge />
+            {/* TODO: remove — temp button to simulate game end */}
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => handleMatchEnd(match.winPoints, 2)}
+                className="flex-1 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-500"
+              >
+                Simulate Win
+              </button>
+              <button
+                onClick={() => handleMatchEnd(1, match.winPoints)}
+                className="flex-1 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-500"
+              >
+                Simulate Loss
+              </button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Result screen
+  if (result) {
+    return (
+      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-md text-center space-y-6">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-accent-purple via-accent-blue to-accent-cyan bg-clip-text text-transparent">
+              {result.winnerName} {t.game.won}
+            </h1>
+            <p className="text-4xl font-bold text-text-primary">
+              {result.userScore} – {result.opponentScore}
+            </p>
+            <div className="flex gap-4 justify-center pt-4">
+              <button
+                onClick={() => setResult(null)}
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                {t.game.newGame}
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="px-6 py-3 rounded-lg border border-white/10 text-text-secondary hover:bg-white/10 transition-colors font-medium"
+              >
+                {t.game.goHome}
+              </button>
+            </div>
           </div>
         </main>
         <Footer />

@@ -101,6 +101,9 @@ export const translations = {
       paddleLeft: 'Left',
       paddleRight: 'Right',
       startGame: 'Start Game',
+      won: 'won!',
+      newGame: 'New Game',
+      goHome: 'Go Home',
     },
     common: {
       loading: 'Loading...',
@@ -208,6 +211,9 @@ export const translations = {
       paddleLeft: 'Izquierda',
       paddleRight: 'Derecha',
       startGame: 'Iniciar Partida',
+      won: 'ha ganado!',
+      newGame: 'Nueva Partida',
+      goHome: 'Ir al Inicio',
     },
     common: {
       loading: 'Cargando...',
@@ -315,6 +321,9 @@ export const translations = {
       paddleLeft: 'Esquerra',
       paddleRight: 'Dreta',
       startGame: 'Iniciar Partida',
+      won: 'ha guanyat!',
+      newGame: 'Nova Partida',
+      goHome: 'Anar a l\'Inici',
     },
     common: {
       loading: 'Carregant...',
@@ -422,6 +431,9 @@ export const translations = {
       paddleLeft: 'Gauche',
       paddleRight: 'Droite',
       startGame: 'Lancer la Partie',
+      won: 'a gagné !',
+      newGame: 'Nouvelle Partie',
+      goHome: 'Retour à l\'Accueil',
     },
     common: {
       loading: 'Chargement...',
@@ -529,6 +541,9 @@ export const translations = {
       paddleLeft: 'Sinistra',
       paddleRight: 'Destra',
       startGame: 'Inizia Partita',
+      won: 'ha vinto!',
+      newGame: 'Nuova Partita',
+      goHome: 'Torna alla Home',
     },
     common: {
       loading: 'Caricamento...',
@@ -636,6 +651,9 @@ export const translations = {
       paddleLeft: 'Lewa',
       paddleRight: 'Prawa',
       startGame: 'Rozpocznij Grę',
+      won: 'wygrał!',
+      newGame: 'Nowa Gra',
+      goHome: 'Strona Główna',
     },
     common: {
       loading: 'Ładowanie...',
