@@ -1,39 +1,57 @@
-const PlayerOpponentBar = () => {
+interface PlayerOpponentBarProps {
+  playerName: string;
+  opponentName: string;
+  playerScore: number;
+  opponentScore: number;
+  winPoints: number;
+  paddle: 'LEFT' | 'RIGHT';
+}
+
+const PlayerOpponentBar = ({
+  playerName,
+  opponentName,
+  playerScore,
+  opponentScore,
+  winPoints,
+  paddle,
+}: PlayerOpponentBarProps) => {
+  const leftName = paddle === 'LEFT' ? playerName : opponentName;
+  const rightName = paddle === 'RIGHT' ? playerName : opponentName;
+  const leftScore = paddle === 'LEFT' ? playerScore : opponentScore;
+  const rightScore = paddle === 'RIGHT' ? playerScore : opponentScore;
+
   return (
-    <div className="w-full bg-neutral-800 py-4 px-6 flex justify-between items-center">
-      {/* Left side - You (Player) */}
+    <div className="w-full bg-neutral-800 py-3 px-6 flex justify-between items-center rounded-t-lg">
+      {/* Left side */}
       <div className="flex items-center gap-3">
-        <span className="text-sm text-neutral-400">You</span>
-        <div className="flex items-center gap-2">
-          {/* User icon/avatar */}
-          <div className="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-6 w-6 text-white" 
-              viewBox="0 0 20 20" 
-              fill="currentColor"
-            >
-              <path 
-                fillRule="evenodd" 
-                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" 
-                clipRule="evenodd" 
-              />
-            </svg>
-          </div>
-          <span className="text-white font-medium">John Doe (jdoe7)</span>
+        <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-white"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+              clipRule="evenodd"
+            />
+          </svg>
         </div>
+        <span className="text-white font-medium text-sm">{leftName}</span>
+        <span className="text-2xl font-bold text-white">{leftScore}</span>
       </div>
 
-      {/* Right side - Your Opponent */}
+      {/* Center - score target */}
+      <span className="text-xs text-neutral-400">First to {winPoints}</span>
+
+      {/* Right side */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-white font-medium">Adam Smith (asmith2)</span>
-          {/* Opponent avatar - using emoji for now */}
-          <div className="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center text-xl">
-            🎮
-          </div>
+        <span className="text-2xl font-bold text-white">{rightScore}</span>
+        <span className="text-white font-medium text-sm">{rightName}</span>
+        <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-lg">
+          🎮
         </div>
-        <span className="text-sm text-neutral-400">Your Opponent</span>
       </div>
     </div>
   );
