@@ -14,7 +14,6 @@ export function initSocket(httpServer: HttpServer) {
         },
     });
 
-    // Auth middleware — verify JWT from cookie
     io.use((socket, next) => {
         const cookie = socket.handshake.headers.cookie;
         const token = cookie
@@ -38,11 +37,11 @@ export function initSocket(httpServer: HttpServer) {
     io.on("connection", async (socket) => {
         const userId: number = socket.data.userId;
 
-        // Join personal room and mark as online
+        // join room + become online
         socket.join(`user:${userId}`);
         onlineUsers.add(userId);
 
-        // Notify friends this user is now online
+        // notify browser that user is online
         const friendIds = await getFriendIds(userId);
         friendIds.forEach(friendId => {
             io.to(`user:${friendId}`).emit("friend:online", { userId });
@@ -51,7 +50,7 @@ export function initSocket(httpServer: HttpServer) {
         socket.on("disconnect", async () => {
             onlineUsers.delete(userId);
 
-            // Notify friends this user went offline
+            // notify browser that user is offiline
             const friendIds = await getFriendIds(userId);
             friendIds.forEach(friendId => {
                 io.to(`user:${friendId}`).emit("friend:offline", { userId });
