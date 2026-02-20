@@ -22,8 +22,8 @@ async function initializeApp() {
         await vaultClient.initialize();
         console.log("Vault initialized successfully");
 
-        // Update Prisma DATABASE_URL when available
-        if (process.env.NODE_ENV !== 'production' || vaultClient.getDatabaseUrl()) {
+        // Only set DATABASE_URL from vault if entrypoint.sh didn't already set it
+        if (!process.env.DATABASE_URL) {
             process.env.DATABASE_URL = vaultClient.getDatabaseUrl();
         }
     } catch (error) {

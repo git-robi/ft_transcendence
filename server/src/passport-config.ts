@@ -8,7 +8,7 @@ import { prisma } from './prisma/client';
 dotenv.config();
 
 const clientUrl = process.env.CLIENT_URL || 'https://localhost';
-const apiBase = `${clientUrl.replace(/\/$/, '')}/api/v1/auth`;
+//const apiBase = `${clientUrl.replace(/\/$/, '')}/api/v1/auth`;
 
 const googleClientSecret =
     process.env.GOOGLE_CLIENT_SECRET ||
@@ -28,7 +28,7 @@ if (process.env.GOOGLE_ID_CLIENT && googleClientSecret) {
         new GoogleStrategy({
             clientID: process.env.GOOGLE_ID_CLIENT,
             clientSecret: googleClientSecret,
-            callbackURL: `${apiBase}/google/redirect`,
+            callbackURL: `https://localhost/api/v1/auth/google/redirect`,
         }, async (_accessToken, _refreshToken, profile, done) => {
             try {
                 let user = await prisma.user.findFirst({
@@ -67,7 +67,7 @@ if (process.env.GITHUB_ID_CLIENT && githubClientSecret) {
         new GithubStrategy({
             clientID: process.env.GITHUB_ID_CLIENT,
             clientSecret: githubClientSecret,
-            callbackURL: `${apiBase}/github/redirect`,
+            callbackURL: `https://localhost/api/v1/auth/github/redirect`,
         }, async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
             try {
                 let user = await prisma.user.findFirst({

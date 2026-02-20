@@ -53,8 +53,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-      #target: build
-      target: ${NODE_ENV:-production}
+      target: development
     container_name: transcendence_backend
     working_dir: /app
     environment:
@@ -100,21 +99,22 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-      target: ${NODE_ENV:-production}
+      target: development
       args:
         - VITE_API_URL=/api/v1
     working_dir: /app
+    user: "0:0"
     container_name: transcendence_frontend
     environment:
       VITE_API_URL: /api/v1
+    command: ["npx", "vite", "build", "--watch"]
     networks:
       - transcendence_network
     volumes:
-      #- ./client:/app
-      #- /app/node_modules
       - frontend_data:/app/dist
       - ./client/src:/app/src
-    restart: no
+      - ./client/public:/app/public
+    restart: unless-stopped
 
   # Nginx with ModSecurity v3 and WAF
   nginx:

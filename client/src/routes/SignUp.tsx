@@ -1,22 +1,27 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import SignUpForm from "../components/SignUp/SignUpForm";
-import type { PublicUser } from "../types";
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import SignUpForm from '../components/SignUp/SignUpForm';
+import { useLanguage } from '../i18n/useLanguage';
 
-interface SignUpProps {
-  setUser: (user: PublicUser | null) => void;
-}
+const SignUp = () => {
+  const { t } = useLanguage();
 
-const SignUp = ({ setUser }: SignUpProps) => {
   return (
-     <div className="min-h-screen bg-neutral-700 text-white flex flex-col">
-      <Header titleKey='signUp'/>
-        <div className="flex-1 flex items-center justify-center">
-          <SignUpForm setUser={setUser} />
+    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      <Header />
+
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-8 w-full max-w-md">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-accent-purple via-accent-blue to-accent-cyan bg-clip-text text-transparent text-center mb-8">
+            {t.header.signUp}
+          </h1>
+          <SignUpForm />
         </div>
-      <Footer showHome={false} showLogout={false} showChat={false} />
-     </div>
-  )
-}
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
 
 export default SignUp;

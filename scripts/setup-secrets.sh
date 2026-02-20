@@ -3,13 +3,14 @@ set -e
 
 mkdir -p secrets
 
-# Required secrets (replace values)
-printf '%s' 'postgres_password' > secrets/postgres_password
-printf '%s' 'vault_root_token' > secrets/vault_root_token
-printf '%s' 'vault_backend_token' > secrets/vault_backend_token
+# Generate secure random secrets (hex = URL-safe)
+# Required secrets
+printf '%s' "$(openssl rand -hex 32)" > secrets/postgres_password
+printf '%s' "$(openssl rand -hex 32)" > secrets/vault_root_token
+printf '%s' "$(openssl rand -hex 32)" > secrets/vault_backend_token
 
-# Optional OAuth secrets (leave empty if not used)
-: > secrets/google_client_secret
-: > secrets/github_client_secret
+# OAuth secrets
+printf '%s' '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' > secrets/google_client_secret
+printf '%s' '5d301aa53e7dfee6bbdf098632cf760287375c51' > secrets/github_client_secret
 
 echo "Secrets created in ./secrets"

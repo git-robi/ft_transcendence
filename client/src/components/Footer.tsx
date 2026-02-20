@@ -1,87 +1,39 @@
 import { useLanguage } from '../i18n/useLanguage';
 import { useNavigate } from 'react-router-dom';
-import FooterButton from './Footer/FooterButton';
-import Auth from '../APIs/auth';
-import type { PublicUser } from '../types';
+import LanguageSelector from './LanguageSelector';
 
 interface FooterProps {
-  showLogout?: boolean,
-  showHome?: boolean,
-  showChat?: boolean,
-  showTOS?:boolean,
-  showPrivacy?:boolean;
-  setUser?: (user: PublicUser | null) => void;
+  showTOS?: boolean;
+  showPrivacy?: boolean;
 }
 
-const Footer = ({ showLogout = true, showHome = true, showChat = true, showTOS = true, showPrivacy = true, setUser }: FooterProps) => {
+const Footer = ({ showTOS = true, showPrivacy = true }: FooterProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  
-  const handleHomeClick = () => {
-    navigate('/home');
-  };
 
-  const handleLogoutClick = async () => {
-    try {
-      await Auth.post('/logout');
-      if (setUser) {
-        setUser(null);
-      }
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Still navigate and clear user even if API call fails
-      if (setUser) {
-        setUser(null);
-      }
-      navigate('/');
-    }
-  }
-
-  const handleTOSClick = () => {
-    navigate('/tos')
-  }
-  
-  const handlePrivacyClick = () => {
-    navigate('/privacy')
-  }
-  const handleChat = () => {
-    navigate('/chat')
-  }
+  const linkClass = 'text-sm text-text-muted hover:text-text-primary transition-colors';
 
   return (
-    <footer className="w-full py-4 px-6 bg-neutral-800 flex justify-end shadow-[0_0_10px_5px_rgba(255,255,255,0.3)] mt-auto">
-      <div className="flex gap-6">
-        {showHome && (
-          <FooterButton onClick={handleHomeClick}>
-            {t.footer.home}
-          </FooterButton>
-        )}
-        {showLogout && (
-          <FooterButton onClick={handleLogoutClick}>
-            {t.footer.logout}
-          </FooterButton>
-        )}
-        {showChat && (
-          <FooterButton onClick={handleChat}>
-            {t.footer.chat}
-          </FooterButton>
-
-        )}
-        {showTOS && (
-          <FooterButton onClick={handleTOSClick}>
+    <footer className="mt-auto">
+      <div className="h-px bg-gradient-to-r from-accent-purple via-accent-blue to-accent-cyan" />
+      <div className="bg-bg-primary px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+        <span className="text-xs text-text-muted">ft_transcendence</span>
+        <div className="flex flex-wrap items-center gap-4">
+          {showTOS && (
+            <button onClick={() => navigate('/tos')} className={linkClass}>
               {t.footer.termsOfService}
-          </FooterButton>
-        )}
-        {showPrivacy && (
-          <FooterButton onClick={handlePrivacyClick}>
+            </button>
+          )}
+          {showPrivacy && (
+            <button onClick={() => navigate('/privacy')} className={linkClass}>
               {t.footer.privacyPolicy}
-          </FooterButton>
-        )}
+            </button>
+          )}
+          <LanguageSelector />
+        </div>
       </div>
     </footer>
   );
 };
-
 
 export default Footer;
