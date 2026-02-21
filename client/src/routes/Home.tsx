@@ -85,7 +85,7 @@ const Home = () => {
                             </span>
                           </td>
                           <td className="py-3 px-4 text-center text-green-400">{entry.wins}</td>
-                          <td className="py-3 px-4 text-right text-text-muted">{entry.winRate}%</td>
+                          <td className="py-3 px-4 text-right text-text-muted">{Math.round(entry.winRate * 100)}%</td>
                         </tr>
                       ))}
                     </tbody>

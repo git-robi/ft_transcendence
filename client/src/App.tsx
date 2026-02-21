@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import SignUp from './routes/SignUp';
 import LogIn from './routes/LogIn';
 import Home from './routes/Home';
@@ -7,6 +7,7 @@ import Chat from './routes/Chat';
 import TermsOfService from './routes/TermsOfService';
 import PrivacyPolicy from './routes/PrivacyPolicy';
 import Profile from './routes/Profile';
+import ApiKeys from './routes/ApiKeys';
 import { LanguageProvider } from './i18n/LanguageProvider';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useLanguage } from './i18n/useLanguage';
@@ -14,6 +15,7 @@ import { useLanguage } from './i18n/useLanguage';
 const AppRoutes = () => {
   const { user, loading } = useAuth();
   const { t } = useLanguage();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -24,13 +26,14 @@ const AppRoutes = () => {
   }
 
   return (
-    <Routes>
+    <Routes key={location.key}>
       <Route path="/" element={<Home />} />
       <Route path="/signUp" element={user ? <Navigate to="/" /> : <SignUp />} />
       <Route path="/login" element={user ? <Navigate to="/" /> : <LogIn />} />
       <Route path="/game" element={<Game />} />
       <Route path="/chat" element={<Chat />} />
       <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+      <Route path="/api-keys" element={user ? <ApiKeys /> : <Navigate to="/login" />} />
       <Route path="/tos" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
     </Routes>

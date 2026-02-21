@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,8 +7,15 @@ const Header = () => {
   const { t } = useLanguage();
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const linkClass = 'block px-4 py-3 text-sm text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors';
+  const handleNav = (path: string) => {
+    setMenuOpen(false);
+    navigate(path + '?_=' + Date.now());
+    window.scrollTo(0, 0);
+  };
+
+  const linkClass = 'block px-4 py-3 text-sm text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors cursor-pointer';
 
   return (
     <>
@@ -70,10 +77,11 @@ const Header = () => {
                 </svg>
               </button>
             </div>
-            <Link to="/" onClick={() => setMenuOpen(false)} className={linkClass}>{t.header.home}</Link>
-            <Link to="/game" onClick={() => setMenuOpen(false)} className={linkClass}>{t.header.game}</Link>
-            <Link to="/chat" onClick={() => setMenuOpen(false)} className={linkClass}>{t.header.chat}</Link>
-            <Link to="/profile" onClick={() => setMenuOpen(false)} className={linkClass}>{t.header.profile}</Link>
+            <div onClick={() => handleNav('/')} className={linkClass}>{t.header.home}</div>
+            <div onClick={() => handleNav('/game')} className={linkClass}>{t.header.game}</div>
+            <div onClick={() => handleNav('/chat')} className={linkClass}>{t.header.chat}</div>
+            <div onClick={() => handleNav('/profile')} className={linkClass}>{t.header.profile}</div>
+            <div onClick={() => handleNav('/api-keys')} className={linkClass}>{t.header.apiKeys}</div>
             <div className="mt-auto border-t border-white/10">
               <button
                 onClick={() => { logout(); setMenuOpen(false); }}
