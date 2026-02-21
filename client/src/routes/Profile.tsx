@@ -5,23 +5,7 @@ import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import ProfileAPI from '../APIs/profile';
 import Matches from '../APIs/matches';
-
-interface ProfileData {
-  userId: number;
-  name: string;
-  avatarUrl: string;
-  bio: string;
-  level: number;
-  xp: number;
-}
-
-interface StatsData {
-  gamesPlayed: number;
-  wins: number;
-  losses: number;
-  rank: number;
-  achievements: { id: number; type: string; unlockedAt: string }[];
-}
+import type { ProfileData, StatsData } from '../types';
 
 const ALL_ACHIEVEMENTS = ['first_game', 'first_win', 'perfect_game', 'five_games'];
 

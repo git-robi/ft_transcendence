@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../../i18n/useLanguage';
-import { useAuth } from '../../context/AuthContext';
-import Auth from '../../APIs/auth';
-import GoogleIcon from '../icons/GoogleIcon';
-import OctocatIcon from '../icons/OctocatIcon';
+import { useLanguage } from '../i18n/useLanguage';
+import { useAuth } from '../context/AuthContext';
+import Auth from '../APIs/auth';
+import GoogleIcon from './icons/GoogleIcon';
+import OctocatIcon from './icons/OctocatIcon';
 
 const LogInForm = () => {
   const { t } = useLanguage();

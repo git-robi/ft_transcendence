@@ -1,6 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import LogInForm from '../components/LogIn/LogInForm';
+import LogInForm from '../components/LogInForm';
 import { useLanguage } from '../i18n/useLanguage';
 
 const LogIn = () => {

@@ -7,25 +7,7 @@ import PlayerOpponentBar from '../components/Game/PlayerOpponentBar';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import Matches from '../APIs/matches';
-
-interface Match {
-  id: number;
-  userId: number;
-  guestName: string | null;
-  userScore: number;
-  opponentScore: number;
-  status: string;
-  winPoints: number;
-  playMode: 'AI' | 'LOCAL';
-  aiLevel: 'EASY' | 'MID' | 'HARD';
-  paddle: 'LEFT' | 'RIGHT';
-}
-
-interface MatchResult {
-  winnerName: string;
-  userScore: number;
-  opponentScore: number;
-}
+import type { Match, MatchResult } from '../types';
 
 const Game = () => {
   const { t } = useLanguage();
@@ -144,10 +126,16 @@ const Game = () => {
             <p className="text-4xl font-bold text-text-primary">
               {result.userScore} – {result.opponentScore}
             </p>
-            <div className="flex gap-4 justify-center pt-4">
+            <div className="flex gap-3 justify-center pt-4">
+              <button
+                onClick={() => { setResult(null); handleStart(); }}
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                {t.game.rematch}
+              </button>
               <button
                 onClick={() => setResult(null)}
-                className="px-6 py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity"
+                className="px-6 py-3 rounded-lg border border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10 transition-colors font-medium"
               >
                 {t.game.newGame}
               </button>

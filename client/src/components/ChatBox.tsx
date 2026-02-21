@@ -1,10 +1,5 @@
 import { useState } from 'react';
-
-interface Message {
-  id: number;
-  text: string;
-  sender: 'user' | 'opponent';
-}
+import type { Message } from '../types';
 
 const ChatBox = () => {
   const [messages] = useState<Message[]>([

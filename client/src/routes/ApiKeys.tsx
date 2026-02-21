@@ -3,14 +3,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useLanguage } from '../i18n/useLanguage';
 import ApiKeysAPI from '../APIs/api-keys';
-
-interface ApiKey {
-  id: number;
-  name: string | null;
-  createdAt: string;
-  expiresAt: string | null;
-  hashedKey: string;
-}
+import type { ApiKey } from '../types';
 
 const ApiKeys = () => {
   const { t } = useLanguage();

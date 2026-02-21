@@ -5,16 +5,7 @@ import Footer from '../components/Footer';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import Matches from '../APIs/matches';
-
-interface LeaderboardEntry {
-  userId: number;
-  name: string;
-  avatarUrl: string;
-  level: number;
-  wins: number;
-  gamesPlayed: number;
-  winRate: number;
-}
+import type { LeaderboardEntry } from '../types';
 
 const Home = () => {
   const { t } = useLanguage();
@@ -49,6 +40,27 @@ const Home = () => {
             >
               {t.home.newGame}
             </Link>
+
+            <div className="flex gap-3 mt-4">
+              <Link
+                to="/profile"
+                className="px-5 py-2 rounded-lg border border-white/10 text-text-secondary hover:bg-white/10 transition-colors text-sm font-medium"
+              >
+                {t.header.profile}
+              </Link>
+              <Link
+                to="/chat"
+                className="px-5 py-2 rounded-lg border border-white/10 text-text-secondary hover:bg-white/10 transition-colors text-sm font-medium"
+              >
+                {t.header.chat}
+              </Link>
+              <Link
+                to="/api-keys"
+                className="px-5 py-2 rounded-lg border border-white/10 text-text-secondary hover:bg-white/10 transition-colors text-sm font-medium"
+              >
+                {t.header.apiKeys}
+              </Link>
+            </div>
 
             {/* Leaderboard */}
             {leaderboard.length > 0 && (
