@@ -54,10 +54,7 @@ async function initializeApp() {
 
     const specs = swaggerJsdoc(swaggerOptions);
 
-    // Swagger only in non-production
-    if (process.env.NODE_ENV !== 'production') {
-        app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-    }
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
     // Static assets
     app.use("/avatars", express.static("uploads/avatars"));

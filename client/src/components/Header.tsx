@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
+import Button from './Button';
 
 const Header = () => {
   const { t } = useLanguage();
@@ -46,12 +47,9 @@ const Header = () => {
               >
                 {t.logIn.signIn}
               </Link>
-              <Link
-                to="/signUp"
-                className="text-sm px-3 py-1.5 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white hover:opacity-90 transition-opacity"
-              >
+              <Button to="/signUp">
                 {t.header.signUp}
-              </Link>
+              </Button>
             </div>
           )}
         </div>
@@ -81,7 +79,7 @@ const Header = () => {
             <div onClick={() => handleNav('/game')} className={linkClass}>{t.header.game}</div>
             <div onClick={() => handleNav('/chat')} className={linkClass}>{t.header.chat}</div>
             <div onClick={() => handleNav('/profile')} className={linkClass}>{t.header.profile}</div>
-            <div onClick={() => handleNav('/api-keys')} className={linkClass}>{t.header.apiKeys}</div>
+            <div onClick={() => handleNav('/public-api')} className={linkClass}>{t.header.publicApi}</div>
             <div className="mt-auto border-t border-white/10">
               <button
                 onClick={() => { logout(); setMenuOpen(false); }}

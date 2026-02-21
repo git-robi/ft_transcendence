@@ -7,7 +7,7 @@ import Chat from './routes/Chat';
 import TermsOfService from './routes/TermsOfService';
 import PrivacyPolicy from './routes/PrivacyPolicy';
 import Profile from './routes/Profile';
-import ApiKeys from './routes/ApiKeys';
+import PublicApi from './routes/PublicApi';
 import { LanguageProvider } from './i18n/LanguageProvider';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useLanguage } from './i18n/useLanguage';
@@ -33,7 +33,8 @@ const AppRoutes = () => {
       <Route path="/game" element={<Game />} />
       <Route path="/chat" element={<Chat />} />
       <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
-      <Route path="/api-keys" element={user ? <ApiKeys /> : <Navigate to="/login" />} />
+      <Route path="/profile/:id" element={user ? <Profile /> : <Navigate to="/login" />} />
+      <Route path="/public-api" element={user ? <PublicApi /> : <Navigate to="/login" />} />
       <Route path="/tos" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
     </Routes>

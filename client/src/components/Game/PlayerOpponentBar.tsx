@@ -21,10 +21,10 @@ const PlayerOpponentBar = ({
   const rightScore = paddle === 'RIGHT' ? playerScore : opponentScore;
 
   return (
-    <div className="w-full bg-neutral-800 py-3 px-6 flex justify-between items-center rounded-t-lg">
+    <div className="w-full bg-white/5 py-3 px-6 flex justify-between items-center rounded-t-lg">
       {/* Left side */}
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 text-white"
@@ -43,13 +43,13 @@ const PlayerOpponentBar = ({
       </div>
 
       {/* Center - score target */}
-      <span className="text-xs text-neutral-400">First to {winPoints}</span>
+      <span className="text-xs text-text-muted">First to {winPoints}</span>
 
       {/* Right side */}
       <div className="flex items-center gap-3">
         <span className="text-2xl font-bold text-white">{rightScore}</span>
         <span className="text-white font-medium text-sm">{rightName}</span>
-        <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-lg">
+        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-lg">
           🎮
         </div>
       </div>

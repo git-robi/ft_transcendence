@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Button from '../components/Button';
 import PongGameLarge from '../components/Game/PongGameLarge';
 import PlayerOpponentBar from '../components/Game/PlayerOpponentBar';
 import { useLanguage } from '../i18n/useLanguage';
@@ -127,24 +128,15 @@ const Game = () => {
               {result.userScore} – {result.opponentScore}
             </p>
             <div className="flex gap-3 justify-center pt-4">
-              <button
-                onClick={() => { setResult(null); handleStart(); }}
-                className="px-6 py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity"
-              >
+              <Button onClick={() => { setResult(null); handleStart(); }}>
                 {t.game.rematch}
-              </button>
-              <button
-                onClick={() => setResult(null)}
-                className="px-6 py-3 rounded-lg border border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10 transition-colors font-medium"
-              >
+              </Button>
+              <Button variant="outline" onClick={() => setResult(null)}>
                 {t.game.newGame}
-              </button>
-              <button
-                onClick={() => navigate('/')}
-                className="px-6 py-3 rounded-lg border border-white/10 text-text-secondary hover:bg-white/10 transition-colors font-medium"
-              >
+              </Button>
+              <Button variant="secondary" onClick={() => navigate('/')}>
                 {t.game.goHome}
-              </button>
+              </Button>
             </div>
           </div>
         </main>
@@ -236,13 +228,9 @@ const Game = () => {
           </div>
 
           {/* Start */}
-          <button
-            onClick={handleStart}
-            disabled={loading}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
+          <Button className="w-full py-3" onClick={handleStart} disabled={loading}>
             {loading ? '...' : t.game.startGame}
-          </button>
+          </Button>
         </div>
       </main>
 

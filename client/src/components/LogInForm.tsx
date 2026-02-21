@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import Auth from '../APIs/auth';
+import Button from './Button';
 import GoogleIcon from './icons/GoogleIcon';
 import OctocatIcon from './icons/OctocatIcon';
 
@@ -83,12 +84,9 @@ const LogInForm = () => {
         </button>
       </div>
 
-      <button
-        type="submit"
-        className="w-full py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity"
-      >
+      <Button type="submit" className="w-full py-3">
         {t.logIn.signIn}
-      </button>
+      </Button>
 
       <div className="flex items-center gap-4">
         <div className="flex-1 h-px bg-white/10" />
@@ -97,22 +95,22 @@ const LogInForm = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <button
+        <Button
           type="button"
+          variant="secondary"
           onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`}
-          className="flex items-center justify-center gap-2 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-text-primary"
         >
           <OctocatIcon className="w-5 h-5" />
           <span className="text-sm">GitHub</span>
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
           onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
-          className="flex items-center justify-center gap-2 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-text-primary"
         >
           <GoogleIcon />
           <span className="text-sm">Google</span>
-        </button>
+        </Button>
       </div>
 
       <p className="text-center text-sm text-text-muted">
