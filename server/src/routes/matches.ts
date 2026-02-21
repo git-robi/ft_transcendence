@@ -18,7 +18,7 @@ const calculateLevel = (xp: number) => {
 // Users are ranked by total wins
 // If two users have the same number of wins, 
 // we break the tie using win rate
-const getRankedUsers = async () => {
+export const getRankedUsers = async () => {
     const allUsers = await prisma.user.findMany({
         include: {
             profile: true,
@@ -416,6 +416,10 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
 
         const userId = req.params.id ? Number(req.params.id) : req.user.id;
 
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+        
         const matches = await prisma.match.findMany({
             where: {
                 userId: userId,
