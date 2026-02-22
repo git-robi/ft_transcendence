@@ -79,7 +79,6 @@ const Header = () => {
             <div onClick={() => handleNav('/game')} className={linkClass}>{t.header.game}</div>
             <div onClick={() => handleNav('/chat')} className={linkClass}>{t.header.chat}</div>
             <div onClick={() => handleNav('/profile')} className={linkClass}>{t.header.profile}</div>
-            <div onClick={() => handleNav('/public-api')} className={linkClass}>{t.header.publicApi}</div>
             <div className="mt-auto border-t border-white/10">
               <button
                 onClick={() => { logout(); setMenuOpen(false); }}

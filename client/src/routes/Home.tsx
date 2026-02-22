@@ -30,9 +30,6 @@ const Home = () => {
               <Button variant="secondary" to="/chat">
                 {t.header.chat}
               </Button>
-              <Button variant="secondary" to="/public-api">
-                {t.header.publicApi}
-              </Button>
             </div>
 
             <Leaderboard />

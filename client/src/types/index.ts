@@ -18,13 +18,6 @@ export interface PublicUser {
   email: string;
 }
 
-export interface ApiKey {
-  id: number;
-  name: string | null;
-  createdAt: string;
-  expiresAt: string | null;
-  hashedKey: string;
-}
 
 export interface Match {
   id: number;
