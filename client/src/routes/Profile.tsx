@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import ProfileHeader from '../components/ProfileHeader';
 import StatsGrid from '../components/StatsGrid';
 import Achievements from '../components/Achievements';
+import MatchHistory from '../components/MatchHistory';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import ProfileAPI from '../APIs/profile';
@@ -15,8 +16,6 @@ const Profile = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { id } = useParams<{ id?: string }>();
-
-  const isOwnProfile = !id || (user && String(user.id) === id);
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [stats, setStats] = useState<StatsData | null>(null);
@@ -51,13 +50,10 @@ const Profile = () => {
 
       <main className="flex-1 px-4 py-8">
         <div className="max-w-2xl mx-auto space-y-6">
-          <ProfileHeader
-            profile={profile}
-            isOwnProfile={!!isOwnProfile}
-            onProfileUpdate={setProfile}
-          />
+          <ProfileHeader profile={profile} />
           <StatsGrid stats={stats} />
           <Achievements stats={stats} />
+          <MatchHistory userId={profile.userId} />
         </div>
       </main>
 

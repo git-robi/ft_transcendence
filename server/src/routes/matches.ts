@@ -486,6 +486,24 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
  *       500:
  *         description: Internal server error
  */
+router.get("/history/:id", protect, async (req: any, res) => {
+    try {
+        const userId = Number(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const matches = await prisma.match.findMany({
+            where: { userId, status: "closed" },
+            orderBy: { completedAt: "desc" },
+        });
+
+        return res.status(200).json(matches);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 router.get("/leaderboard", protect, async (req, res) => {
     try {
         const ranked = await getRankedUsers();

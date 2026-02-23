@@ -26,6 +26,8 @@ export interface Match {
   userScore: number;
   opponentScore: number;
   status: string;
+  createdAt: string;
+  completedAt: string | null;
   winPoints: number;
   playMode: 'AI' | 'LOCAL';
   aiLevel: 'EASY' | 'MID' | 'HARD';
