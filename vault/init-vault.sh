@@ -60,9 +60,39 @@ vault kv put transcendence/oauth/42 \
     client_secret="your-42-client-secret" \
     redirect_uri="https://localhost/api/v1/auth/oauth/42/callback"
 
+# Store Google OAuth secrets from env vars and Docker secrets
+if [ -f /run/secrets/google_client_secret ]; then
+  GOOGLE_CLIENT_SECRET="$(cat /run/secrets/google_client_secret)"
+else
+  GOOGLE_CLIENT_SECRET=""
+fi
+
+if [ -n "${GOOGLE_ID_CLIENT}" ] && [ -n "${GOOGLE_CLIENT_SECRET}" ]; then
+  vault kv put transcendence/oauth/google \
+      client_id="${GOOGLE_ID_CLIENT}" \
+      client_secret="${GOOGLE_CLIENT_SECRET}"
+  echo "Google OAuth secrets stored."
+else
+  echo "WARNING: Google OAuth credentials not found, skipping."
+fi
+
+# Store GitHub OAuth secrets from env vars and Docker secrets
+if [ -f /run/secrets/github_client_secret ]; then
+  GITHUB_CLIENT_SECRET="$(cat /run/secrets/github_client_secret)"
+else
+  GITHUB_CLIENT_SECRET=""
+fi
+
+if [ -n "${GITHUB_ID_CLIENT}" ] && [ -n "${GITHUB_CLIENT_SECRET}" ]; then
+  vault kv put transcendence/oauth/github \
+      client_id="${GITHUB_ID_CLIENT}" \
+      client_secret="${GITHUB_CLIENT_SECRET}"
+  echo "GitHub OAuth secrets stored."
+else
+  echo "WARNING: GitHub OAuth credentials not found, skipping."
+fi
+
 echo "Vault initialized successfully."
 echo "JWT_SECRET generated and stored."
 echo "Database credentials stored."
 echo "Backend token created (least privilege): ${BACKEND_TOKEN}"
-echo ""
-echo "IMPORTANT: Update OAuth secrets with real values."

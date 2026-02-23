@@ -18,6 +18,14 @@ interface VaultSecrets {
             client_secret: string;
             redirect_uri: string;
         };
+        google?: {
+            client_id: string;
+            client_secret: string;
+        };
+        github?: {
+            client_id: string;
+            client_secret: string;
+        };
     };
 }
 
@@ -60,10 +68,12 @@ class VaultClient {
             await this.client.health();
 
             // Load secrets from Vault
-            const [jwtSecret, dbSecret, oauthSecret] = await Promise.all([
+            const [jwtSecret, dbSecret, oauthSecret, googleOauth, githubOauth] = await Promise.all([
                 this.client.read('transcendence/data/jwt').catch(() => null),
                 this.client.read('transcendence/data/database').catch(() => null),
                 this.client.read('transcendence/data/oauth/42').catch(() => null),
+                this.client.read('transcendence/data/oauth/google').catch(() => null),
+                this.client.read('transcendence/data/oauth/github').catch(() => null),
             ]);
 
             this.secrets = {
@@ -79,14 +89,30 @@ class VaultClient {
                 },
             };
 
-            if (oauthSecret?.data?.data) {
-                this.secrets.oauth = {
-                    '42': {
+            if (oauthSecret?.data?.data || googleOauth?.data?.data || githubOauth?.data?.data) {
+                this.secrets.oauth = {};
+
+                if (oauthSecret?.data?.data) {
+                    this.secrets.oauth['42'] = {
                         client_id: oauthSecret.data.data.client_id || '',
                         client_secret: oauthSecret.data.data.client_secret || '',
                         redirect_uri: oauthSecret.data.data.redirect_uri || '',
-                    },
-                };
+                    };
+                }
+
+                if (googleOauth?.data?.data) {
+                    this.secrets.oauth.google = {
+                        client_id: googleOauth.data.data.client_id || '',
+                        client_secret: googleOauth.data.data.client_secret || '',
+                    };
+                }
+
+                if (githubOauth?.data?.data) {
+                    this.secrets.oauth.github = {
+                        client_id: githubOauth.data.data.client_id || '',
+                        client_secret: githubOauth.data.data.client_secret || '',
+                    };
+                }
             }
 
             // Validate that critical secrets are present
@@ -145,7 +171,7 @@ class VaultClient {
     /**
      * Returns OAuth config for the specified provider.
      */
-    getOAuthConfig(provider: '42') {
+    getOAuthConfig(provider: '42' | 'google' | 'github') {
         if (!this.initialized) {
             throw new Error('Vault is not initialized. Call initialize() first.');
         }

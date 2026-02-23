@@ -4,29 +4,36 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as GithubStrategy } from 'passport-github2';
 import dotenv from 'dotenv';
 import { prisma } from './prisma/client';
+import vaultClient from './config/vault';
 
 dotenv.config();
 
 const clientUrl = process.env.CLIENT_URL || 'https://localhost';
-//const apiBase = `${clientUrl.replace(/\/$/, '')}/api/v1/auth`;
 
+const vaultGoogle = vaultClient.getOAuthConfig('google');
+const vaultGithub = vaultClient.getOAuthConfig('github');
+
+const googleClientId = vaultGoogle?.client_id || process.env.GOOGLE_ID_CLIENT || '';
 const googleClientSecret =
+    vaultGoogle?.client_secret ||
     process.env.GOOGLE_CLIENT_SECRET ||
     (process.env.GOOGLE_CLIENT_SECRET_FILE
         ? fs.readFileSync(process.env.GOOGLE_CLIENT_SECRET_FILE, 'utf8').trim()
         : '');
 
+const githubClientId = vaultGithub?.client_id || process.env.GITHUB_ID_CLIENT || '';
 const githubClientSecret =
+    vaultGithub?.client_secret ||
     process.env.GITHUB_CLIENT_SECRET ||
     (process.env.GITHUB_CLIENT_SECRET_FILE
         ? fs.readFileSync(process.env.GITHUB_CLIENT_SECRET_FILE, 'utf8').trim()
         : '');
 
 // Google OAuth Strategy (only if keys are configured)
-if (process.env.GOOGLE_ID_CLIENT && googleClientSecret) {
+if (googleClientId && googleClientSecret) {
     passport.use(
         new GoogleStrategy({
-            clientID: process.env.GOOGLE_ID_CLIENT,
+            clientID: googleClientId,
             clientSecret: googleClientSecret,
             callbackURL: `https://localhost/api/v1/auth/google/redirect`,
         }, async (_accessToken, _refreshToken, profile, done) => {
@@ -62,10 +69,10 @@ if (process.env.GOOGLE_ID_CLIENT && googleClientSecret) {
 }
 
 // GitHub OAuth Strategy (only if keys are configured)
-if (process.env.GITHUB_ID_CLIENT && githubClientSecret) {
+if (githubClientId && githubClientSecret) {
     passport.use(
         new GithubStrategy({
-            clientID: process.env.GITHUB_ID_CLIENT,
+            clientID: githubClientId,
             clientSecret: githubClientSecret,
             callbackURL: `https://localhost/api/v1/auth/github/redirect`,
         }, async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
