@@ -1,6 +1,7 @@
 import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
+import { onlineUsers } from "../socket/onlineUsers";
 import multer from "multer";
 import path from "path";
 import bcrypt from "bcrypt";
@@ -367,6 +368,79 @@ router.patch("/password", protect, async (req: any, res) => {
             }
         });
         return res.status(200).json({message: "Password updated"});
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+/**
+ * @swagger
+ * /api/v1/profile/{id}:
+ *   get:
+ *     summary: Get a user's profile by ID
+ *     description: Returns the profile of any user by their ID, including their online status
+ *     tags:
+ *       - Profile
+ *     security:
+ *       - CookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The user ID
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userId:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 avatarUrl:
+ *                   type: string
+ *                 bio:
+ *                   type: string
+ *                 level:
+ *                   type: integer
+ *                 xp:
+ *                   type: integer
+ *                 isOnline:
+ *                   type: boolean
+ *       400:
+ *         description: Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Profile not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id", protect, async (req: any, res: Response) => {
+    try {
+        const userId = parseInt(req.params.id);
+
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid ID" });
+        }
+
+        const profile = await prisma.profile.findUnique({
+            where: { userId },
+        });
+
+        if (!profile) {
+            return res.status(404).json({ message: "Profile not found" });
+        }
+
+        return res.status(200).json({
+            ...profile,
+            isOnline: onlineUsers.has(userId),
+        });
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
     }
