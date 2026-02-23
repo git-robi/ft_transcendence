@@ -16,6 +16,8 @@ export interface PublicUser {
   id: number;
   name: string;
   email: string;
+  googleId?: string | null;
+  githubId?: string | null;
 }
 
 
@@ -71,4 +73,35 @@ export interface Message {
   id: number;
   text: string;
   sender: 'user' | 'opponent';
+}
+
+export interface UserListItem {
+  id: number;
+  email: string;
+  profile: { name: string; avatarUrl: string } | null;
+}
+
+export interface FriendEntry {
+  friendshipId: number;
+  since: string;
+  friend: { id: number; profile: { name: string; avatarUrl: string } };
+  isOnline: boolean;
+}
+
+export interface FriendRequest {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  status: string;
+  createdAt: string;
+  sender: { id: number; profile: { name: string; avatarUrl: string } };
+}
+
+export interface SentRequest {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  status: string;
+  createdAt: string;
+  receiver: { id: number; profile: { name: string; avatarUrl: string } };
 }

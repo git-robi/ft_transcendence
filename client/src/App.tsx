@@ -8,6 +8,7 @@ import TermsOfService from './routes/TermsOfService';
 import PrivacyPolicy from './routes/PrivacyPolicy';
 import Profile from './routes/Profile';
 import Settings from './routes/Settings';
+import Social from './routes/Social';
 import { LanguageProvider } from './i18n/LanguageProvider';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useLanguage } from './i18n/useLanguage';
@@ -35,6 +36,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
       <Route path="/profile/:id" element={user ? <Profile /> : <Navigate to="/login" />} />
       <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" />} />
+      <Route path="/social" element={user ? <Social /> : <Navigate to="/login" />} />
       <Route path="/tos" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
     </Routes>

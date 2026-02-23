@@ -11,7 +11,7 @@ import Auth from '../APIs/auth';
 
 const Settings = () => {
   const { t } = useLanguage();
-  const { setUser } = useAuth();
+  const { user, setUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -121,9 +121,9 @@ const Settings = () => {
     <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
       <Header />
 
-      <main className="flex-1 px-4 py-8">
+      <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 md:py-8">
         <div className="max-w-lg mx-auto space-y-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-accent-purple via-accent-blue to-accent-cyan bg-clip-text text-transparent">
+          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-accent-purple via-accent-blue to-accent-cyan bg-clip-text text-transparent">
             {t.settings.title}
           </h1>
 
@@ -161,49 +161,51 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* Password */}
-          <div className={sectionClass}>
-            <p className={labelClass}>{t.settings.password}</p>
+          {/* Password — hidden for OAuth users */}
+          {!user?.googleId && !user?.githubId && (
+            <div className={sectionClass}>
+              <p className={labelClass}>{t.settings.password}</p>
 
-            <div className="relative">
+              <div className="relative">
+                <input
+                  type={showOld ? 'text' : 'password'}
+                  placeholder={t.settings.oldPassword}
+                  value={oldPassword}
+                  onChange={e => setOldPassword(e.target.value)}
+                  className={`${inputClass} pr-12`}
+                />
+                <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1}>
+                  {showOld ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showNew ? 'text' : 'password'}
+                  placeholder={t.settings.newPassword}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className={`${inputClass} pr-12`}
+                />
+                <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1}>
+                  {showNew ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+
               <input
-                type={showOld ? 'text' : 'password'}
-                placeholder={t.settings.oldPassword}
-                value={oldPassword}
-                onChange={e => setOldPassword(e.target.value)}
-                className={`${inputClass} pr-12`}
+                type="password"
+                placeholder={t.settings.confirmPassword}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                className={inputClass}
               />
-              <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1}>
-                {showOld ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
-            </div>
 
-            <div className="relative">
-              <input
-                type={showNew ? 'text' : 'password'}
-                placeholder={t.settings.newPassword}
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                className={`${inputClass} pr-12`}
-              />
-              <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1}>
-                {showNew ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
+              <div className="flex items-center gap-3">
+                <Button onClick={handleSavePassword}>{t.settings.save}</Button>
+                {pwMsg && <span className={`text-sm ${pwError ? 'text-red-400' : 'text-accent-blue'}`}>{pwMsg}</span>}
+              </div>
             </div>
-
-            <input
-              type="password"
-              placeholder={t.settings.confirmPassword}
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              className={inputClass}
-            />
-
-            <div className="flex items-center gap-3">
-              <Button onClick={handleSavePassword}>{t.settings.save}</Button>
-              {pwMsg && <span className={`text-sm ${pwError ? 'text-red-400' : 'text-accent-blue'}`}>{pwMsg}</span>}
-            </div>
-          </div>
+          )}
         </div>
       </main>
 

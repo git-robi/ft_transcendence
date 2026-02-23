@@ -277,6 +277,15 @@ router.patch("/:id", protect, async (req: any, res) => {
         const { userScore, opponentScore } = req.body;
         const matchId = Number(req.params.id);
 
+        if (isNaN(matchId)) {
+            return res.status(400).json({ message: "Invalid match ID" });
+        }
+        if (typeof userScore !== "number" || typeof opponentScore !== "number" ||
+            !Number.isInteger(userScore) || !Number.isInteger(opponentScore) ||
+            userScore < 0 || opponentScore < 0) {
+            return res.status(400).json({ message: "Scores must be non-negative integers" });
+        }
+
         const match = await prisma.match.findUnique({ where: { id: matchId } });
         if (!match) {
             return res.status(404).json({ message: "Match not found" });

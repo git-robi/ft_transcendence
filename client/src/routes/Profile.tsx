@@ -48,7 +48,7 @@ const Profile = () => {
     <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
       <Header />
 
-      <main className="flex-1 px-4 py-8">
+      <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 md:py-8">
         <div className="max-w-2xl mx-auto space-y-6">
           <ProfileHeader profile={profile} />
           <StatsGrid stats={stats} />

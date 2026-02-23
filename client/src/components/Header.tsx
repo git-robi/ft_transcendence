@@ -52,7 +52,7 @@ const Header = () => {
         <div className="h-px bg-gradient-to-r from-accent-purple via-accent-blue to-accent-cyan" />
       </header>
 
-      {/* Sidebar overlay */}
+      {/* menu */}
       {menuOpen && (
         <div className="fixed inset-0 z-50" onClick={() => setMenuOpen(false)}>
           <div className="absolute inset-0 bg-black/50" />
@@ -72,6 +72,7 @@ const Header = () => {
             <div onClick={() => handleNav('/')} className={linkClass}>{t.header.home}</div>
             <div onClick={() => handleNav('/game')} className={linkClass}>{t.header.game}</div>
             <div onClick={() => handleNav('/chat')} className={linkClass}>{t.header.chat}</div>
+            <div onClick={() => handleNav('/social')} className={linkClass}>{t.header.social}</div>
             <div onClick={() => handleNav('/profile')} className={linkClass}>{t.header.profile}</div>
             <div onClick={() => handleNav('/settings')} className={linkClass}>{t.header.settings}</div>
             <div className="mt-auto border-t border-white/10">

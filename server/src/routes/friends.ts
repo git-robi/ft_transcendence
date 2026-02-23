@@ -247,6 +247,43 @@ router.get("/requests", protect, async (req, res) => {
 
 /**
  * @swagger
+ * /api/v1/friends/requests/sent:
+ *   get:
+ *     summary: List outgoing friend requests
+ *     tags: [Friends]
+ *     security:
+ *       - CookieAuth: []
+ *     responses:
+ *       200:
+ *         description: List of sent pending friend requests
+ */
+router.get("/requests/sent", protect, async (req, res) => {
+    try {
+        const userId = (req.user as { id: number }).id;
+
+        const sent = await prisma.friends.findMany({
+            where: {
+                senderId: userId,
+                status: FriendStatus.PENDING,
+            },
+            include: {
+                receiver: {
+                    select: {
+                        id: true,
+                        profile: { select: { name: true, avatarUrl: true } },
+                    },
+                },
+            },
+        });
+
+        return res.status(200).json(sent);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+/**
+ * @swagger
  * /api/v1/friends/accept/{id}:
  *   put:
  *     summary: Accept a friend request

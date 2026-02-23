@@ -353,8 +353,8 @@ router.patch("/password", protect, async (req: any, res) => {
             return res.status(401).json({ message: "Old password is incorrect" });
         }
 
-        if (newPassword.length < 12) {
-            return res.status(400).json({ message: 'Password must be at least 12 characters'});
+        if (newPassword.length < 12 || !/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+            return res.status(400).json({ message: 'Password must be at least 12 characters long and contain at least one letter and one number.'});
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
