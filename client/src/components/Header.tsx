@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import Button from './Button';
+import MenuIcon from './icons/MenuIcon';
+import CloseIcon from './icons/CloseIcon';
 
 const Header = () => {
   const { t } = useLanguage();
@@ -31,13 +33,7 @@ const Header = () => {
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/10 transition-colors"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                {menuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              {menuOpen ? <CloseIcon /> : <MenuIcon />}
             </button>
           ) : (
             <div className="flex items-center gap-2">
@@ -70,9 +66,7 @@ const Header = () => {
                 onClick={() => setMenuOpen(false)}
                 className="p-1 rounded text-text-secondary hover:text-text-primary transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <CloseIcon />
               </button>
             </div>
             <div onClick={() => handleNav('/')} className={linkClass}>{t.header.home}</div>

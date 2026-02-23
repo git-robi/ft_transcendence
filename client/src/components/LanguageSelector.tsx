@@ -37,7 +37,7 @@ const LanguageSelector = () => {
         {current}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-40 bg-white/5 border border-white/10 rounded-xl py-1 z-50">
+        <div className="absolute right-0 bottom-full mb-2 w-40 bg-white/5 border border-white/10 rounded-xl py-1 z-50">
           {languages.map((lang) => (
             <button
               key={lang.code}
