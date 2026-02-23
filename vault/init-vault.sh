@@ -31,9 +31,16 @@ path "transcendence/metadata/*" {
 }
 EOF
 
-# Create a non-root token for the backend (print it for manual use)
-BACKEND_TOKEN=$(vault token create -policy=transcendence-backend -format=json | \
-  awk -F'"' '/client_token/ {print $4}' | head -n 1)
+# Create a backend token with the pre-shared ID from the secrets file
+# so the backend can authenticate with the token it already has
+if [ -f /run/secrets/vault_backend_token ]; then
+  BACKEND_TOKEN_ID="$(cat /run/secrets/vault_backend_token | tr -d '[:space:]')"
+  vault token create -id="${BACKEND_TOKEN_ID}" -policy=transcendence-backend -format=json > /dev/null
+  BACKEND_TOKEN="${BACKEND_TOKEN_ID}"
+else
+  BACKEND_TOKEN=$(vault token create -policy=transcendence-backend -format=json | \
+    awk -F'"' '/client_token/ {print $4}' | head -n 1)
+fi
 
 # Generate JWT secret (use /dev/urandom; openssl is not in the Vault image)
 JWT_SECRET=$(od -A n -t x1 -N 32 /dev/urandom 2>/dev/null | tr -d ' \n' | head -c 64)
@@ -96,3 +103,6 @@ echo "Vault initialized successfully."
 echo "JWT_SECRET generated and stored."
 echo "Database credentials stored."
 echo "Backend token created (least privilege): ${BACKEND_TOKEN}"
+
+# Signal that init is complete (used by healthcheck)
+touch /tmp/vault-init-done
