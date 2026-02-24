@@ -79,6 +79,50 @@ router.get("/me", protect, async (req: any, res: Response) => {
 
 /**
  * @swagger
+ * /api/v1/profile/{id}:
+ *   get:
+ *     summary: Get a user's public profile
+ *     description: Returns the public profile for the given user ID.
+ *     tags:
+ *       - Profile
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The user ID
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *       404:
+ *         description: Profile not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id", protect, async (req: any, res: Response) => {
+    try {
+        const userId = parseInt(req.params.id, 10);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const profile = await prisma.profile.findUnique({
+            where: { userId },
+        });
+
+        if (!profile) {
+            return res.status(404).json({ message: "Profile not found" });
+        }
+
+        return res.status(200).json(profile);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+/**
+ * @swagger
  * /api/v1/profile/upload:
  *   patch:
  *     summary: Upload avatar
@@ -309,8 +353,8 @@ router.patch("/password", protect, async (req: any, res) => {
             return res.status(401).json({ message: "Old password is incorrect" });
         }
 
-        if (newPassword.length < 12) {
-            return res.status(400).json({ message: 'Password must be at least 12 characters'});
+        if (newPassword.length < 12 || !/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+            return res.status(400).json({ message: 'Password must be at least 12 characters long and contain at least one letter and one number.'});
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);

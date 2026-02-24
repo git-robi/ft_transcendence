@@ -30,6 +30,8 @@ services:
       VAULT_ADDR: http://127.0.0.1:8200
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-transcendence}
+      GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
+      GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
     volumes:
       - vault_data:/vault/data
       - ./vault/config:/vault/config
@@ -40,21 +42,23 @@ services:
       - transcendence_network
     secrets:
       - vault_root_token
+      - vault_backend_token
       - postgres_password
+      - google_client_secret
+      - github_client_secret
     entrypoint: ["/bin/sh", "/usr/local/bin/vault-entrypoint.sh"]
     healthcheck:
-      test: ["CMD", "vault", "status"]
-      interval: 10s
+      test: ["CMD-SHELL", "vault status && test -f /tmp/vault-init-done"]
+      interval: 5s
       timeout: 5s
-      retries: 4
+      retries: 12
 
   #Backend Node.js
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
-      #target: build
-      target: ${NODE_ENV:-production}
+      target: development
     container_name: transcendence_backend
     working_dir: /app
     environment:
@@ -72,7 +76,6 @@ services:
       PGUSER: ${POSTGRES_USER:-postgres}
       PGDATABASE: ${POSTGRES_DB:-transcendence}
       PGHOST: postgres
-      JWT_SECRET: "123456"
 
     depends_on:
       postgres:
@@ -100,21 +103,22 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-      target: ${NODE_ENV:-production}
+      target: development
       args:
         - VITE_API_URL=/api/v1
     working_dir: /app
+    user: "0:0"
     container_name: transcendence_frontend
     environment:
       VITE_API_URL: /api/v1
+    command: ["npx", "vite", "build", "--watch"]
     networks:
       - transcendence_network
     volumes:
-      #- ./client:/app
-      #- /app/node_modules
       - frontend_data:/app/dist
       - ./client/src:/app/src
-    restart: no
+      - ./client/public:/app/public
+    restart: unless-stopped
 
   # Nginx with ModSecurity v3 and WAF
   nginx:
