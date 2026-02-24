@@ -27,6 +27,8 @@ model user {
   feedback            feedback[]
   sentFriendships     friends[]  @relation("FriendSender")
   receivedFriendships friends[]  @relation("FriendReceiver")
+  sentMessages        message[]  @relation("SentMessages")
+  receivedMessages    message[]  @relation("ReceivedMessages")
 }
 
 model profile {
@@ -100,6 +102,19 @@ model friends {
   receiver user @relation("FriendReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
+}
+
+model message {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  sender   user @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver user @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId, createdAt])
 }
 
 enum FriendStatus {
