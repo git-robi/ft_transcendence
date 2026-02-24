@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import Button from '../components/Button';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../hooks/useSocket';
+import { useSocket } from '../context/SocketContext';
 import FriendsAPI from '../APIs/friends';
 import Auth from '../APIs/auth';
 import type { UserListItem, FriendEntry, FriendRequest, SentRequest } from '../types';

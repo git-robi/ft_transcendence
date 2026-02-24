@@ -11,6 +11,7 @@ import Settings from './routes/Settings';
 import Social from './routes/Social';
 import { LanguageProvider } from './i18n/LanguageProvider';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import { useLanguage } from './i18n/useLanguage';
 
 const AppRoutes = () => {
@@ -48,7 +49,9 @@ const App = () => {
     <LanguageProvider>
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <SocketProvider>
+            <AppRoutes />
+          </SocketProvider>
         </AuthProvider>
       </BrowserRouter>
     </LanguageProvider>
