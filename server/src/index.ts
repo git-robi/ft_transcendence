@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
+import { createServer } from "http";
 import dotenv from "dotenv";
 import cors from "cors";
 import vaultClient from "./config/vault";
 import { configureSecurityHeaders, errorHandler } from "./config/security";
 import { apiRateLimiter } from "./middleware/rateLimiter";
+import { initSocket } from "./socket/socket";
 
 // swagger (for API documentation)
 import swaggerUi from "swagger-ui-express";
@@ -22,8 +24,8 @@ async function initializeApp() {
         await vaultClient.initialize();
         console.log("Vault initialized successfully");
 
-        // Update Prisma DATABASE_URL when available
-        if (process.env.NODE_ENV !== 'production' || vaultClient.getDatabaseUrl()) {
+        // Only set DATABASE_URL from vault if entrypoint.sh didn't already set it
+        if (!process.env.DATABASE_URL) {
             process.env.DATABASE_URL = vaultClient.getDatabaseUrl();
         }
     } catch (error) {
@@ -54,10 +56,7 @@ async function initializeApp() {
 
     const specs = swaggerJsdoc(swaggerOptions);
 
-    // Swagger only in non-production
-    if (process.env.NODE_ENV !== 'production') {
-        app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-    }
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
     // Static assets
     app.use("/avatars", express.static("uploads/avatars"));
@@ -65,11 +64,13 @@ async function initializeApp() {
     // Initialize auth strategies after secrets are ready
     await import("./passport-config");
 
-    const [{ default: auth }, { default: profile }, { default: matches }, { default: apiKeys }] = await Promise.all([
+    const [{ default: auth }, { default: profile }, { default: matches }, { default: apiKeys }, { default: publicApi }, { default: friends }] = await Promise.all([
         import("./routes/auth"),
         import("./routes/profile"),
         import("./routes/matches"),
         import("./routes/api-keys"),
+        import("./routes/public"),
+        import("./routes/friends")
     ]);
 
     // General API rate limiting (auth has its own stricter limiter)
@@ -78,6 +79,8 @@ async function initializeApp() {
     app.use("/api/v1/profile", profile);
     app.use("/api/v1/matches", matches);
     app.use("/api/v1/api-keys", apiKeys);
+    app.use("/api/v1/public", publicApi);
+    app.use("/api/v1/friends", friends);
 
     // Health check endpoint
     app.get("/health", (req: Request, res: Response) => {
@@ -88,7 +91,9 @@ async function initializeApp() {
     app.use(errorHandler);
 
     const PORT = process.env.PORT || 3001;
-    app.listen(PORT, () => {
+    const httpServer = createServer(app);
+    initSocket(httpServer);
+    httpServer.listen(PORT, () => {
         console.log(`Server is up listening to port ${PORT}`);
     });
 }

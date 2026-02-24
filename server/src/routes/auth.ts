@@ -291,6 +291,28 @@ router.get('/me', protect, async (req: any, res: Response) => {
     res.json(req.user);
 });
 
+router.get('/users', async (_req: Request, res: Response) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                createdAt: true,
+                profile: {
+                    select: {
+                        name: true,
+                        avatarUrl: true,
+                    },
+                },
+            },
+        });
+        return res.json(users);
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 /**
  * @swagger
  * /api/v1/auth/logout:

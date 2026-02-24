@@ -18,7 +18,7 @@ const calculateLevel = (xp: number) => {
 // Users are ranked by total wins
 // If two users have the same number of wins, 
 // we break the tie using win rate
-const getRankedUsers = async () => {
+export const getRankedUsers = async () => {
     const allUsers = await prisma.user.findMany({
         include: {
             profile: true,
@@ -161,7 +161,7 @@ router.post("/", protect, async (req: any, res) => {
                 paddle
             }
         });
-
+        
         return res.status(201).json(match);
 
 
@@ -276,6 +276,15 @@ router.patch("/:id", protect, async (req: any, res) => {
     try {
         const { userScore, opponentScore } = req.body;
         const matchId = Number(req.params.id);
+
+        if (isNaN(matchId)) {
+            return res.status(400).json({ message: "Invalid match ID" });
+        }
+        if (typeof userScore !== "number" || typeof opponentScore !== "number" ||
+            !Number.isInteger(userScore) || !Number.isInteger(opponentScore) ||
+            userScore < 0 || opponentScore < 0) {
+            return res.status(400).json({ message: "Scores must be non-negative integers" });
+        }
 
         const match = await prisma.match.findUnique({ where: { id: matchId } });
         if (!match) {
@@ -416,6 +425,10 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
 
         const userId = req.params.id ? Number(req.params.id) : req.user.id;
 
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+        
         const matches = await prisma.match.findMany({
             where: {
                 userId: userId,
@@ -482,6 +495,24 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
  *       500:
  *         description: Internal server error
  */
+router.get("/history/:id", protect, async (req: any, res) => {
+    try {
+        const userId = Number(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const matches = await prisma.match.findMany({
+            where: { userId, status: "closed" },
+            orderBy: { completedAt: "desc" },
+        });
+
+        return res.status(200).json(matches);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 router.get("/leaderboard", protect, async (req, res) => {
     try {
         const ranked = await getRankedUsers();
