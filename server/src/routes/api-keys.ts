@@ -84,8 +84,23 @@ router.delete("/:id", protect,  async (req, res) => {
     try {
 
         const keyId = parseInt(req.params.id);
+        const user = req.user as { id: number };
 
-        //check if key exists and if it does not return error
+        if (!Number.isInteger(keyId) || keyId <= 0) {
+            return res.status(400).json({ message: "Invalid API key id" });
+        }
+
+        const key = await prisma.apiKeys.findFirst({
+            where: {
+                id: keyId,
+                userId: user.id,
+            },
+            select: { id: true },
+        });
+
+        if (!key) {
+            return res.status(404).json({ message: "API key not found" });
+        }
 
         await prisma.apiKeys.delete({
             where: {

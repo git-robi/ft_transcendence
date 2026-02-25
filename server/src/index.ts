@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import vaultClient from "./config/vault";
 import { configureSecurityHeaders, errorHandler, notFoundHandler } from "./config/security";
 import { apiRateLimiter, docsRateLimiter } from "./middleware/rateLimiter";
+import { verifyCsrfToken } from "./middleware/csrf";
 
 // swagger (for API documentation)
 import swaggerUi from "swagger-ui-express";
@@ -91,6 +92,7 @@ async function initializeApp() {
 
     // General API rate limiting (auth has its own stricter limiter)
     app.use("/api/v1", apiRateLimiter);
+    app.use("/api/v1", verifyCsrfToken);
     app.use("/api/v1/auth", auth);
     app.use("/api/v1/profile", profile);
     app.use("/api/v1/matches", matches);

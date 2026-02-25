@@ -1,20 +1,31 @@
 import express, { CookieOptions, Request, Response } from "express";
+import { randomBytes } from "node:crypto";
 import { prisma } from "../prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { protect } from "../middleware/auth";
 import { protectApiKey } from "../middleware/api-keys";
 import { authRateLimiter } from "../middleware/rateLimiter";
+import { issueCsrfToken, rotateCsrfToken } from "../middleware/csrf";
 import vaultClient from "../config/vault";
 import passport from 'passport';
 
 const router = express.Router();
+const OAUTH_STATE_COOKIE = "oauth_state";
 
 const cookieOptions: CookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/',
+};
+
+const oauthStateCookieOptions: CookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 10 * 60 * 1000,
     path: '/',
 };
 
@@ -38,9 +49,26 @@ function validatePassword(password: string): boolean {
     return /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
 }
 
+const createOauthState = (): string => randomBytes(24).toString("hex");
+
+const setOauthState = (res: Response, state: string) => {
+    res.cookie(OAUTH_STATE_COOKIE, state, oauthStateCookieOptions);
+};
+
+const clearOauthState = (res: Response) => {
+    res.cookie(OAUTH_STATE_COOKIE, "", { ...oauthStateCookieOptions, maxAge: 1 });
+};
+
+const readOauthState = (req: Request): string => {
+    const state = req.cookies?.[OAUTH_STATE_COOKIE];
+    return typeof state === "string" ? state : "";
+};
+
 router.get("/health", protectApiKey, (req, res) => {
-    res.json({ message: "API key is valid", user: req.user });
+    res.json({ message: "API key is valid" });
 });
+
+router.get("/csrf-token", issueCsrfToken);
 
 router.post("/register", authRateLimiter, async (req: Request, res: Response) => {
     try {
@@ -96,6 +124,7 @@ router.post("/register", authRateLimiter, async (req: Request, res: Response) =>
         });
 
         const token = generateToken(newUser.id);
+        rotateCsrfToken(res);
         res.cookie("token", token, cookieOptions);
 
         return res.status(201).json({
@@ -148,6 +177,7 @@ router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
         }
 
         const token = generateToken(user.id);
+        rotateCsrfToken(res);
         res.cookie("token", token, cookieOptions);
 
         return res.status(200).json({
@@ -168,28 +198,59 @@ router.get('/me', protect, async (req: any, res: Response) => {
 });
 
 router.post('/logout', (req: Request, res: Response) => {
+    rotateCsrfToken(res);
     res.cookie('token', '', { ...cookieOptions, maxAge: 1 });
     res.json({ message: 'Logged out successfully' });
 });
 
-router.get('/google', passport.authenticate("google", {
-    scope: ['profile', 'email']
-}));
+router.get('/google', (req: Request, res: Response, next) => {
+    const state = createOauthState();
+    setOauthState(res, state);
+
+    passport.authenticate("google", {
+        scope: ['profile', 'email'],
+        state,
+    })(req, res, next);
+});
 
 router.get('/google/redirect', passport.authenticate('google', { session: false }), (req, res) => {
+    const expectedState = readOauthState(req);
+    const receivedState = typeof req.query.state === "string" ? req.query.state : "";
+    clearOauthState(res);
+
+    if (!expectedState || !receivedState || expectedState !== receivedState) {
+        return res.status(403).json({ message: "Invalid OAuth state" });
+    }
+
     const user = req.user as { id: number };
     const token = generateToken(user.id);
+    rotateCsrfToken(res);
     res.cookie('token', token, cookieOptions);
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 });
 
-router.get('/github', passport.authenticate("github", {
-    scope: ['profile', 'email']
-}));
+router.get('/github', (req: Request, res: Response, next) => {
+    const state = createOauthState();
+    setOauthState(res, state);
+
+    passport.authenticate("github", {
+        scope: ['profile', 'email'],
+        state,
+    })(req, res, next);
+});
 
 router.get('/github/redirect', passport.authenticate('github', { session: false }), (req, res) => {
+    const expectedState = readOauthState(req);
+    const receivedState = typeof req.query.state === "string" ? req.query.state : "";
+    clearOauthState(res);
+
+    if (!expectedState || !receivedState || expectedState !== receivedState) {
+        return res.status(403).json({ message: "Invalid OAuth state" });
+    }
+
     const user = req.user as { id: number };
     const token = generateToken(user.id);
+    rotateCsrfToken(res);
     res.cookie('token', token, cookieOptions);
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 });
