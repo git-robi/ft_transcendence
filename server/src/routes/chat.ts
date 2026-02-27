@@ -40,7 +40,7 @@ router.get("/conversations", protect, async (req: any, res) => {
     try {
         const userId: number = req.user.id;
 
-        // Get all messages involving this user, grouped by the other party
+        
         const messages = await prisma.message.findMany({
             where: {
                 OR: [{ senderId: userId }, { receiverId: userId }],
@@ -52,7 +52,7 @@ router.get("/conversations", protect, async (req: any, res) => {
             },
         });
 
-        // Deduplicate: keep only the latest message per conversation partner
+       
         const seen = new Set<number>();
         const conversations: {
             friendId: number;
@@ -150,7 +150,7 @@ router.get("/:friendId", protect, async (req: any, res) => {
             take: limit,
         });
 
-        // Return in chronological order
+        
         return res.status(200).json(messages.reverse());
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
@@ -226,7 +226,7 @@ router.post("/:friendId", protect, async (req: any, res) => {
             },
         });
 
-        // Real-time delivery via socket.io
+        
         const io = getIO();
         if (io) {
             io.to(`user:${friendId}`).emit("message:receive", message);

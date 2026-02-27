@@ -49,6 +49,11 @@ export function initSocket(httpServer: HttpServer) {
 
         // notify browser that user is online
         const friendIds = await getFriendIds(userId);
+
+        // tell the connecting user which friends are already online
+        const onlineFriendIds = friendIds.filter(id => onlineUsers.has(id));
+        socket.emit("friends:online-list", onlineFriendIds);
+
         friendIds.forEach(friendId => {
             io.to(`user:${friendId}`).emit("friend:online", { userId });
         });
