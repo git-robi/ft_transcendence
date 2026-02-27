@@ -41,8 +41,10 @@ if [ ! -d "$(dirname "${VAULT_BACKEND_TOKEN_FILE}")" ]; then
 fi
 
 if [ ! -f "${VAULT_BACKEND_TOKEN_FILE}" ]; then
-    : > "${VAULT_BACKEND_TOKEN_FILE}"
+  : > "${VAULT_BACKEND_TOKEN_FILE}"
 fi
+
+chmod 600 "${VAULT_BACKEND_TOKEN_FILE}"
 
 if [ ! -w "${VAULT_BACKEND_TOKEN_FILE}" ]; then
     echo "ERROR: Backend token file is not writable: ${VAULT_BACKEND_TOKEN_FILE}"
@@ -81,7 +83,6 @@ if [ -z "${BACKEND_TOKEN}" ]; then
   BACKEND_TOKEN="$(vault token create -policy=transcendence-backend -period=720h -orphan -format=json | \
     awk -F'"' '/client_token/ {print $4}' | head -n 1)"
   printf '%s' "${BACKEND_TOKEN}" > "${VAULT_BACKEND_TOKEN_FILE}"
-  chmod 600 "${VAULT_BACKEND_TOKEN_FILE}"
 fi
 
 # Generate JWT secret (use /dev/urandom; openssl is not in the Vault image)

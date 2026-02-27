@@ -64,6 +64,19 @@ const readOauthState = (req: Request): string => {
     return typeof state === "string" ? state : "";
 };
 
+const verifyOauthState = (req: Request, res: Response, next: express.NextFunction): void => {
+    const expectedState = readOauthState(req);
+    const receivedState = typeof req.query.state === "string" ? req.query.state : "";
+    clearOauthState(res);
+
+    if (!expectedState || !receivedState || expectedState !== receivedState) {
+        res.status(403).json({ message: "Invalid OAuth state" });
+        return;
+    }
+
+    next();
+};
+
 router.get("/health", protectApiKey, (req, res) => {
     res.json({ message: "API key is valid" });
 });
@@ -213,15 +226,7 @@ router.get('/google', (req: Request, res: Response, next) => {
     })(req, res, next);
 });
 
-router.get('/google/redirect', passport.authenticate('google', { session: false }), (req, res) => {
-    const expectedState = readOauthState(req);
-    const receivedState = typeof req.query.state === "string" ? req.query.state : "";
-    clearOauthState(res);
-
-    if (!expectedState || !receivedState || expectedState !== receivedState) {
-        return res.status(403).json({ message: "Invalid OAuth state" });
-    }
-
+router.get('/google/redirect', verifyOauthState, passport.authenticate('google', { session: false }), (req: any, res: Response) => {
     const user = req.user as { id: number };
     const token = generateToken(user.id);
     rotateCsrfToken(res);
@@ -239,15 +244,7 @@ router.get('/github', (req: Request, res: Response, next) => {
     })(req, res, next);
 });
 
-router.get('/github/redirect', passport.authenticate('github', { session: false }), (req, res) => {
-    const expectedState = readOauthState(req);
-    const receivedState = typeof req.query.state === "string" ? req.query.state : "";
-    clearOauthState(res);
-
-    if (!expectedState || !receivedState || expectedState !== receivedState) {
-        return res.status(403).json({ message: "Invalid OAuth state" });
-    }
-
+router.get('/github/redirect', verifyOauthState, passport.authenticate('github', { session: false }), (req: any, res: Response) => {
     const user = req.user as { id: number };
     const token = generateToken(user.id);
     rotateCsrfToken(res);

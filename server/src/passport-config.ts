@@ -29,7 +29,7 @@ if (process.env.GOOGLE_ID_CLIENT && googleClientSecret) {
             clientID: process.env.GOOGLE_ID_CLIENT,
             clientSecret: googleClientSecret,
             callbackURL: `${apiBase}/google/redirect`,
-        }, async (_accessToken, _refreshToken, profile, done) => {
+        }, async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
             try {
                 let user = await prisma.user.findFirst({
                     where: { googleId: profile.id },

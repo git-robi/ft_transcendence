@@ -22,7 +22,7 @@ interface VaultSecrets {
 }
 
 class VaultClient {
-    private client: vault.client;
+    private client: any;
     private secrets: VaultSecrets | null = null;
     private initialized: boolean = false;
 

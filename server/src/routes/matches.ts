@@ -28,9 +28,9 @@ const getRankedUsers = async () => {
     });
 
     return allUsers
-        .map(u => {
+        .map((u: any) => {
             const wins = u.matches.filter(
-                m => m.userScore > m.opponentScore
+                (m: any) => m.userScore > m.opponentScore
             ).length;
 
             const gamesPlayed = u.matches.length;
@@ -49,7 +49,7 @@ const getRankedUsers = async () => {
                 winRate: Number(winRate.toFixed(2))
             };
         })
-        .sort((a, b) => {
+        .sort((a: any, b: any) => {
 
             if (b.wins !== a.wins) {
                 return b.wins - a.wins;
@@ -341,7 +341,7 @@ router.patch("/:id", protect, async (req: any, res) => {
             const closedWonMatches = await prisma.match.findMany({
                 where: { userId, status: "closed" }
             });
-            const totalWins = closedWonMatches.filter(m => m.userScore > m.opponentScore).length;
+            const totalWins = closedWonMatches.filter((m: any) => m.userScore > m.opponentScore).length;
             if (totalWins === 1) newAchievements.push("first_win");
         }
 
@@ -437,10 +437,10 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
         });
 
         const gamesPlayed = matches.length;
-        const wins = matches.filter(m => m.userScore > m.opponentScore).length;
-        const losses = matches.filter(m => m.userScore < m.opponentScore).length;
+        const wins = matches.filter((m: any) => m.userScore > m.opponentScore).length;
+        const losses = matches.filter((m: any) => m.userScore < m.opponentScore).length;
         const ranked = await getRankedUsers();
-        const rank = ranked.findIndex(r => r.userId === userId) + 1;
+        const rank = ranked.findIndex((r: any) => r.userId === userId) + 1;
         const achievements = await prisma.achievement.findMany({
             where: {
                 userId : userId

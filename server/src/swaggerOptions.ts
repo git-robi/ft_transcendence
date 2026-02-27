@@ -1,7 +1,5 @@
 // src/swaggerOptions.ts
-import { Options } from 'swagger-jsdoc';
-
-const options: Options = {
+const options: any = {
   definition: {
     openapi: '3.0.0', 
     info: {

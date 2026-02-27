@@ -61,7 +61,7 @@ catch(error) {
     }
 });
 
-router.get("/", protect, async (req, res) => {
+router.get("/", protect, async (req: any, res) => {
 
     //put inside try catch 
 
@@ -79,7 +79,7 @@ router.get("/", protect, async (req, res) => {
 });
 
 //endpoint to delete api key
-router.delete("/:id", protect,  async (req, res) => {
+router.delete("/:id", protect,  async (req: any, res) => {
 
     try {
 
