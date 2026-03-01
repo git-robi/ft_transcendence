@@ -2,16 +2,16 @@ import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
 import { PlayMode, AiLevel, Paddle } from "../prisma/generated/prisma/enums";
-import { calculateXp } from "../services/xp";
+import { calculateXp, displayXpFromUnits, XP_SCALE } from "../services/xp";
 
 const router = express.Router();
 
 const calculateLevel = (xp: number) => {
     let level = 1;
-    let threshold = 200;
-    while (xp >= threshold) {
+    let thresholdUnits = 200 * XP_SCALE;
+    while (xp >= thresholdUnits) {
         level++;
-        threshold += (level + 1) * 100;
+        thresholdUnits += (level + 1) * 100 * XP_SCALE;
     }
     return level;
 };
@@ -28,9 +28,9 @@ const getRankedUsers = async () => {
     });
 
     return allUsers
-        .map(u => {
+        .map((u: any) => {
             const wins = u.matches.filter(
-                m => m.userScore > m.opponentScore
+                (m: any) => m.userScore > m.opponentScore
             ).length;
 
             const gamesPlayed = u.matches.length;
@@ -49,7 +49,7 @@ const getRankedUsers = async () => {
                 winRate: Number(winRate.toFixed(2))
             };
         })
-        .sort((a, b) => {
+        .sort((a: any, b: any) => {
 
             if (b.wins !== a.wins) {
                 return b.wins - a.wins;
@@ -247,7 +247,7 @@ router.post("/", protect, async (req: any, res) => {
  *                     level:
  *                       type: integer
  *                     xp:
- *                       type: integer
+ *                       type: number
  *                 achievements:
  *                   type: array
  *                   description: Newly unlocked achievements (empty if none)
@@ -290,7 +290,12 @@ router.patch("/:id", protect, async (req: any, res) => {
         }
         const userId = match.userId;
 
-        const gainedXp = calculateXp({ userScore, opponentScore });
+        const gainedXp = calculateXp({
+            userScore,
+            opponentScore,
+            playMode: match.playMode,
+            aiLevel: match.aiLevel,
+        });
         const profile = await prisma.profile.findFirst({
             where: { userId }
         });
@@ -336,7 +341,7 @@ router.patch("/:id", protect, async (req: any, res) => {
             const closedWonMatches = await prisma.match.findMany({
                 where: { userId, status: "closed" }
             });
-            const totalWins = closedWonMatches.filter(m => m.userScore > m.opponentScore).length;
+            const totalWins = closedWonMatches.filter((m: any) => m.userScore > m.opponentScore).length;
             if (totalWins === 1) newAchievements.push("first_win");
         }
 
@@ -355,7 +360,14 @@ router.patch("/:id", protect, async (req: any, res) => {
             });
         }
 
-        return res.status(200).json({ match: updatedMatch, profile: updatedProfile, achievements: unlockedAchievements });
+        return res.status(200).json({
+            match: updatedMatch,
+            profile: {
+                ...updatedProfile,
+                xp: displayXpFromUnits(updatedProfile.xp),
+            },
+            achievements: unlockedAchievements
+        });
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
@@ -425,10 +437,10 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
         });
 
         const gamesPlayed = matches.length;
-        const wins = matches.filter(m => m.userScore > m.opponentScore).length;
-        const losses = matches.filter(m => m.userScore < m.opponentScore).length;
+        const wins = matches.filter((m: any) => m.userScore > m.opponentScore).length;
+        const losses = matches.filter((m: any) => m.userScore < m.opponentScore).length;
         const ranked = await getRankedUsers();
-        const rank = ranked.findIndex(r => r.userId === userId) + 1;
+        const rank = ranked.findIndex((r: any) => r.userId === userId) + 1;
         const achievements = await prisma.achievement.findMany({
             where: {
                 userId : userId
