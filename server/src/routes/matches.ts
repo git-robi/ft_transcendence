@@ -2,16 +2,15 @@ import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { protect } from "../middleware/auth";
 import { PlayMode, AiLevel, Paddle } from "../prisma/generated/prisma/enums";
-import { calculateXp, displayXpFromUnits, XP_SCALE } from "../services/xp";
 
 const router = express.Router();
 
 const calculateLevel = (xp: number) => {
     let level = 1;
-    let thresholdUnits = 200 * XP_SCALE;
-    while (xp >= thresholdUnits) {
+    let threshold = 200;
+    while (xp >= threshold) {
         level++;
-        thresholdUnits += (level + 1) * 100 * XP_SCALE;
+        threshold += (level + 1) * 100;
     }
     return level;
 };
@@ -19,7 +18,7 @@ const calculateLevel = (xp: number) => {
 // Users are ranked by total wins
 // If two users have the same number of wins, 
 // we break the tie using win rate
-const getRankedUsers = async () => {
+export const getRankedUsers = async () => {
     const allUsers = await prisma.user.findMany({
         include: {
             profile: true,
@@ -28,9 +27,9 @@ const getRankedUsers = async () => {
     });
 
     return allUsers
-        .map((u: any) => {
+        .map(u => {
             const wins = u.matches.filter(
-                (m: any) => m.userScore > m.opponentScore
+                m => m.userScore > m.opponentScore
             ).length;
 
             const gamesPlayed = u.matches.length;
@@ -49,7 +48,7 @@ const getRankedUsers = async () => {
                 winRate: Number(winRate.toFixed(2))
             };
         })
-        .sort((a: any, b: any) => {
+        .sort((a, b) => {
 
             if (b.wins !== a.wins) {
                 return b.wins - a.wins;
@@ -162,7 +161,7 @@ router.post("/", protect, async (req: any, res) => {
                 paddle
             }
         });
-
+        
         return res.status(201).json(match);
 
 
@@ -247,7 +246,7 @@ router.post("/", protect, async (req: any, res) => {
  *                     level:
  *                       type: integer
  *                     xp:
- *                       type: number
+ *                       type: integer
  *                 achievements:
  *                   type: array
  *                   description: Newly unlocked achievements (empty if none)
@@ -278,6 +277,15 @@ router.patch("/:id", protect, async (req: any, res) => {
         const { userScore, opponentScore } = req.body;
         const matchId = Number(req.params.id);
 
+        if (isNaN(matchId)) {
+            return res.status(400).json({ message: "Invalid match ID" });
+        }
+        if (typeof userScore !== "number" || typeof opponentScore !== "number" ||
+            !Number.isInteger(userScore) || !Number.isInteger(opponentScore) ||
+            userScore < 0 || opponentScore < 0) {
+            return res.status(400).json({ message: "Scores must be non-negative integers" });
+        }
+
         const match = await prisma.match.findUnique({ where: { id: matchId } });
         if (!match) {
             return res.status(404).json({ message: "Match not found" });
@@ -290,12 +298,7 @@ router.patch("/:id", protect, async (req: any, res) => {
         }
         const userId = match.userId;
 
-        const gainedXp = calculateXp({
-            userScore,
-            opponentScore,
-            playMode: match.playMode,
-            aiLevel: match.aiLevel,
-        });
+        const gainedXp = userScore > opponentScore ? 50 : 10;
         const profile = await prisma.profile.findFirst({
             where: { userId }
         });
@@ -341,7 +344,7 @@ router.patch("/:id", protect, async (req: any, res) => {
             const closedWonMatches = await prisma.match.findMany({
                 where: { userId, status: "closed" }
             });
-            const totalWins = closedWonMatches.filter((m: any) => m.userScore > m.opponentScore).length;
+            const totalWins = closedWonMatches.filter(m => m.userScore > m.opponentScore).length;
             if (totalWins === 1) newAchievements.push("first_win");
         }
 
@@ -360,14 +363,7 @@ router.patch("/:id", protect, async (req: any, res) => {
             });
         }
 
-        return res.status(200).json({
-            match: updatedMatch,
-            profile: {
-                ...updatedProfile,
-                xp: displayXpFromUnits(updatedProfile.xp),
-            },
-            achievements: unlockedAchievements
-        });
+        return res.status(200).json({ match: updatedMatch, profile: updatedProfile, achievements: unlockedAchievements });
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" });
@@ -429,6 +425,10 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
 
         const userId = req.params.id ? Number(req.params.id) : req.user.id;
 
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+        
         const matches = await prisma.match.findMany({
             where: {
                 userId: userId,
@@ -437,10 +437,10 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
         });
 
         const gamesPlayed = matches.length;
-        const wins = matches.filter((m: any) => m.userScore > m.opponentScore).length;
-        const losses = matches.filter((m: any) => m.userScore < m.opponentScore).length;
+        const wins = matches.filter(m => m.userScore > m.opponentScore).length;
+        const losses = matches.filter(m => m.userScore < m.opponentScore).length;
         const ranked = await getRankedUsers();
-        const rank = ranked.findIndex((r: any) => r.userId === userId) + 1;
+        const rank = ranked.findIndex(r => r.userId === userId) + 1;
         const achievements = await prisma.achievement.findMany({
             where: {
                 userId : userId
@@ -495,6 +495,24 @@ router.get("/stats/:id{0,1}", protect, async (req: any, res) => {
  *       500:
  *         description: Internal server error
  */
+router.get("/history/:id", protect, async (req: any, res) => {
+    try {
+        const userId = Number(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const matches = await prisma.match.findMany({
+            where: { userId, status: "closed" },
+            orderBy: { completedAt: "desc" },
+        });
+
+        return res.status(200).json(matches);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 router.get("/leaderboard", protect, async (req, res) => {
     try {
         const ranked = await getRankedUsers();

@@ -1,4 +1,4 @@
-import type { user } from '../prisma/generated/prisma/client';
+import { user } from '../prisma/generated/prisma/client';
 
 // Export the full Prisma user type
 export type User = user;
@@ -7,4 +7,4 @@ export type User = user;
 export type UserResponse = Omit<User, 'password'>;
 
 // Export a public user type (only what frontend needs)
-export type PublicUser = Pick<User, 'id' | 'email'>;
+export type PublicUser = Pick<User, 'id' | 'email' | 'googleId' | 'githubId' | 'password' | 'createdAt'>;

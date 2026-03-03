@@ -1,53 +1,26 @@
-import React from 'react';
-import OctocatIcon from './icons/OctocatIcon';
+import { Link } from 'react-router-dom';
+import type { ReactNode, ButtonHTMLAttributes } from 'react';
 
-interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: (e: React.FormEvent) => void;
-  type?: 'button' | 'submit';
-  variant?: 'primary' | 'secondary' | 'oauth' | 'github';
+const styles = {
+  primary: 'bg-gradient-to-r from-accent-purple to-accent-blue text-bg-primary hover:opacity-90 disabled:opacity-50',
+  secondary: 'border border-white/10 text-text-secondary hover:bg-white/10',
+  outline: 'border border-accent-purple/30 text-accent-purple hover:bg-accent-purple/10',
+  danger: 'text-red-400 border border-red-400/20 hover:bg-red-400/10',
+  ghost: 'bg-accent-purple/20 text-accent-purple hover:bg-accent-purple/30',
+};
+
+type Props = {
+  variant?: keyof typeof styles;
+  to?: string;
   className?: string;
-}
+  children: ReactNode;
+} & ButtonHTMLAttributes<HTMLButtonElement>;
 
-const Button = ({ 
-  children, 
-  onClick, 
-  type = 'button', 
-  variant = 'primary',
-  className = '' 
-}: ButtonProps) => {
+const Button = ({ variant = 'primary', to, className = '', children, ...rest }: Props) => {
+  const cls = `px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors ${styles[variant]} ${className}`;
 
-  const baseStyles = "w-full py-3 rounded font-medium transition hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] active:shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]";
-  
-  const variants = {
-    primary: "bg-neutral-800 px-6 py-3",
-    secondary: "bg-neutral-600 px-6 py-3",
-    oauth: "bg-neutral-800 flex items-center justify-center gap-2 px-6 py-3",
-    github: "bg-neutral-800 flex items-center justify-center gap-2 px-6 py-3",
-    google: "bg-neutral-800 flex items-center justify-center gap-2 px-6 py-3",
-  };
-
-  const renderContent = () => {
-    if (variant === 'github') {
-      return (
-        <>
-          <OctocatIcon />
-          {children}
-        </>
-      )
-    };
-    return children;
-  };
-
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      className={`${baseStyles} ${variants[variant]} ${className}`}
-    >
-      {renderContent()}
-    </button>
-  );
+  if (to) return <Link to={to} className={cls}>{children}</Link>;
+  return <button className={cls} {...rest}>{children}</button>;
 };
 
 export default Button;

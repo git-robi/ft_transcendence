@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --font-pixel: 'VT323', monospace;
+  --font-mono: 'Space Mono', monospace;
+
   --color-neutral-50: #fafafa;
   --color-neutral-100: #f5f5f5;
   --color-neutral-200: #e5e5e5;
@@ -14,4 +17,29 @@
   --color-neutral-950: #0a0a0a;
   --color-light: #eeeeee;
   --color-dark: #2d2d2d;
+
+  --color-bg-primary: #050505;
+  --color-bg-secondary: #0e0e0e;
+  --color-accent-purple: #ffcc00;
+  --color-accent-blue: #33ff33;
+  --color-accent-cyan: #66ff66;
+  --color-accent-pink: #ffcc00;
+  --color-text-primary: #e0e0d0;
+  --color-text-secondary: #88aa77;
+  --color-text-muted: #556644;
 }
+
+body {
+  font-family: 'Space Mono', monospace;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'VT323', monospace;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+a, button, [role="button"], select, summary {
+  cursor: pointer;
+}
+
