@@ -42,8 +42,15 @@ export const protectApiKey = async (req: any, res: Response, next: NextFunction)
             return res.status(401).json({ message: "Not Authorized: API key expired" });
         }
 
+        // If a JWT-authenticated user is already present, require key ownership match.
+        if (req.user?.id && req.user.id !== keyRecord.userId) {
+            return res.status(403).json({ message: "Forbidden: API key does not belong to authenticated user" });
+        }
+
         req.apiKey = keyRecord;
-        req.user = keyRecord.user;
+        if (!req.user) {
+            req.user = keyRecord.user;
+        }
 
         next();
 

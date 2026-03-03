@@ -121,3 +121,6 @@ echo "Database credentials stored."
 echo "Backend token available at ${VAULT_BACKEND_TOKEN_FILE}"
 echo ""
 echo "IMPORTANT: Update OAuth secrets with real values."
+
+# Marker used by docker-compose healthcheck.
+touch /tmp/vault-init-done
