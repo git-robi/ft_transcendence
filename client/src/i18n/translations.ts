@@ -1,3 +1,5 @@
+import ApiTest from "../routes/ApiTest";
+
 export const translations = {
   en: {
     header: {
@@ -12,6 +14,7 @@ export const translations = {
       privacyPolicy: 'Privacy Policy',
       settings: 'Settings',
       social: 'Social',
+      apiTest: 'API test',
     },
     social: {
       title: 'Social',
@@ -164,6 +167,7 @@ export const translations = {
       privacyPolicy: 'Política de privacidad',
       settings: 'Ajustes',
       social: 'Social',
+      apiTest: 'Prueba de API',
     },
     social: {
       title: 'Social',
@@ -316,6 +320,7 @@ export const translations = {
       privacyPolicy: 'Política de privadesa',
       settings: 'Configuració',
       social: 'Social',
+      apiTest: 'Prova API',
     },
     social: {
       title: 'Social',
@@ -468,6 +473,7 @@ export const translations = {
       privacyPolicy: 'Politique de confidentialité',
       settings: 'Paramètres',
       social: 'Social',
+      apiTest: 'Test API',
     },
     social: {
       title: 'Social',
@@ -620,6 +626,7 @@ export const translations = {
       privacyPolicy: 'Informativa sulla privacy',
       settings: 'Impostazioni',
       social: 'Social',
+      apiTest: 'Test API',
     },
     social: {
       title: 'Social',
@@ -772,6 +779,7 @@ export const translations = {
       privacyPolicy: 'Polityka prywatności',
       settings: 'Ustawienia',
       social: 'Social',
+      apiTest: 'Test API',
     },
     social: {
       title: 'Social',
