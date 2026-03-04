@@ -6,8 +6,6 @@ Use the helper script: ./scripts/setup-secrets.sh
 
 Required files for production-like usage:
 - secrets/postgres_password
-- secrets/vault_root_token
-- secrets/vault_backend_token
 
 Optional files (only if OAuth is enabled):
 - secrets/google_client_secret
