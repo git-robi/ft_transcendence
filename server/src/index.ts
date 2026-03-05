@@ -83,11 +83,14 @@ async function initializeApp() {
     // Initialize auth strategies after secrets are ready
     await import("./passport-config");
 
-    const [{ default: auth }, { default: profile }, { default: matches }, { default: apiKeys }] = await Promise.all([
+    const [{ default: auth }, { default: profile }, { default: matches }, { default: apiKeys }, { default: publicAPI }, { default: friends }, { default: chat }] = await Promise.all([
         import("./routes/auth"),
         import("./routes/profile"),
         import("./routes/matches"),
         import("./routes/api-keys"),
+        import("./routes/public"),
+        import("./routes/friends"),
+        import("./routes/chat"),
     ]);
 
     // General API rate limiting (auth has its own stricter limiter)
@@ -97,6 +100,9 @@ async function initializeApp() {
     app.use("/api/v1/profile", profile);
     app.use("/api/v1/matches", matches);
     app.use("/api/v1/api-keys", apiKeys);
+    app.use("/api/v1/public", publicApi);
+    app.use("/api/v1/friends", friends);
+    app.use("/api/v1/chat", chat);
 
     // Health check endpoint
     app.get("/health", (req: Request, res: Response) => {
