@@ -100,7 +100,7 @@ async function initializeApp() {
     app.use("/api/v1/profile", profile);
     app.use("/api/v1/matches", matches);
     app.use("/api/v1/api-keys", apiKeys);
-    app.use("/api/v1/public", publicApi);
+    app.use("/api/v1/public", publicAPI);
     app.use("/api/v1/friends", friends);
     app.use("/api/v1/chat", chat);
 

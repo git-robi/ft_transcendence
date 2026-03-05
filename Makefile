@@ -23,6 +23,7 @@ dev:
 
 prod:
 	@echo "Starting prod environment..." && \
+	docker compose -p $(PROJECT_NAME) -f $(DOCKER) --env-file .env down --remove-orphans 2>/dev/null || true && \
 	docker compose -p $(PROJECT_NAME) -f $(DOCKER) --env-file .env up -d --build
 
 re:
