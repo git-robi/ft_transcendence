@@ -71,7 +71,6 @@ export const translations = {
       passwordComment: 'Alphanumeric + symbols (without \' and ")',
       showPassword: 'Show password',
       keepLoggedIn: 'Keep me logged in',
-      submit: 'Submit',
       allFieldsRequired: 'All fields are required',
       passwordMinLength: 'Password must be at least 12 characters',
       registrationFailed: 'Registration failed. Please try again.',
@@ -152,6 +151,7 @@ export const translations = {
     },
     common: {
       loading: 'Loading...',
+      submit: 'Submit',
     },
   },
   es: {
@@ -224,7 +224,6 @@ export const translations = {
       passwordComment: 'Alfanumérico + símbolos (sin \' y ")',
       showPassword: 'Mostrar contraseña',
       keepLoggedIn: 'Mantenerme conectado',
-      submit: 'Enviar',
       allFieldsRequired: 'Todos los campos son obligatorios',
       passwordMinLength: 'La contraseña debe tener al menos 12 caracteres',
       registrationFailed: 'Error en el registro. Inténtalo de nuevo.',
@@ -305,6 +304,7 @@ export const translations = {
     },
     common: {
       loading: 'Cargando...',
+      submit: 'Enviar',
     },
   },
   ca: {
@@ -377,7 +377,6 @@ export const translations = {
       passwordComment: 'Alfanumèric + símbols (sense \' i ")',
       showPassword: 'Mostrar contrasenya',
       keepLoggedIn: 'Mantenir-me connectat',
-      submit: 'Enviar',
       allFieldsRequired: 'Tots els camps són obligatoris',
       passwordMinLength: 'La contrasenya ha de tenir almenys 12 caràcters',
       registrationFailed: 'Error en el registre. Torna-ho a provar.',
@@ -458,6 +457,7 @@ export const translations = {
     },
     common: {
       loading: 'Carregant...',
+      submit: 'Enviar',
     },
   },
   fr: {
@@ -530,7 +530,6 @@ export const translations = {
       passwordComment: 'Alphanumérique + symboles (sans \' et ")',
       showPassword: 'Afficher le mot de passe',
       keepLoggedIn: 'Rester connecté',
-      submit: 'Soumettre',
       allFieldsRequired: 'Tous les champs sont requis',
       passwordMinLength: 'Le mot de passe doit contenir au moins 12 caractères',
       registrationFailed: 'Échec de l\'inscription. Veuillez réessayer.',
@@ -611,6 +610,7 @@ export const translations = {
     },
     common: {
       loading: 'Chargement...',
+      submit: 'Soumettre',
     },
   },
   it: {
@@ -683,7 +683,6 @@ export const translations = {
       passwordComment: 'Alfanumerico + simboli (senza \' e ")',
       showPassword: 'Mostra password',
       keepLoggedIn: 'Resta connesso',
-      submit: 'Invia',
       allFieldsRequired: 'Tutti i campi sono obbligatori',
       passwordMinLength: 'La password deve avere almeno 12 caratteri',
       registrationFailed: 'Registrazione fallita. Riprova.',
@@ -764,6 +763,7 @@ export const translations = {
     },
     common: {
       loading: 'Caricamento...',
+      submit: 'Invia',
     },
   },
   pl: {
@@ -836,7 +836,6 @@ export const translations = {
       passwordComment: 'Alfanumeryczne + symbole (bez \' i ")',
       showPassword: 'Pokaż hasło',
       keepLoggedIn: 'Pozostań zalogowany',
-      submit: 'Wyślij',
       allFieldsRequired: 'Wszystkie pola są wymagane',
       passwordMinLength: 'Hasło musi mieć co najmniej 12 znaków',
       registrationFailed: 'Rejestracja nie powiodła się. Spróbuj ponownie.',
@@ -917,6 +916,7 @@ export const translations = {
     },
     common: {
       loading: 'Ładowanie...',
+      submit: 'Wyślij',
     },
   },
 };
