@@ -147,6 +147,14 @@ export const translations = {
       newGame: 'New Game',
       goHome: 'Go Home',
     },
+    chat: {
+      title: 'Messages',
+      noConversations: 'No conversations yet. Add friends to start chatting!',
+      selectConversation: 'Select a conversation',
+      typeMessage: 'Type your message',
+      you: 'You',
+      back: 'Back',
+    },
     common: {
       loading: 'Loading...',
     },
@@ -298,6 +306,14 @@ export const translations = {
       rematch: 'Revancha',
       newGame: 'Nueva Partida',
       goHome: 'Ir al Inicio',
+    },
+    chat: {
+      title: 'Mensajes',
+      noConversations: 'Sin conversaciones. ¡Añade amigos para empezar a chatear!',
+      selectConversation: 'Selecciona una conversación',
+      typeMessage: 'Escribe tu mensaje',
+      you: 'Tú',
+      back: 'Volver',
     },
     common: {
       loading: 'Cargando...',
@@ -451,6 +467,14 @@ export const translations = {
       newGame: 'Nova Partida',
       goHome: 'Anar a l\'Inici',
     },
+    chat: {
+      title: 'Missatges',
+      noConversations: 'Sense converses. Afegeix amics per començar a xatejar!',
+      selectConversation: 'Selecciona una conversa',
+      typeMessage: 'Escriu el teu missatge',
+      you: 'Tu',
+      back: 'Enrere',
+    },
     common: {
       loading: 'Carregant...',
     },
@@ -602,6 +626,14 @@ export const translations = {
       rematch: 'Revanche',
       newGame: 'Nouvelle Partie',
       goHome: 'Retour à l\'Accueil',
+    },
+    chat: {
+      title: 'Messages',
+      noConversations: 'Pas encore de conversations. Ajoutez des amis pour commencer à discuter !',
+      selectConversation: 'Sélectionnez une conversation',
+      typeMessage: 'Écrivez votre message',
+      you: 'Vous',
+      back: 'Retour',
     },
     common: {
       loading: 'Chargement...',
@@ -755,6 +787,14 @@ export const translations = {
       newGame: 'Nuova Partita',
       goHome: 'Torna alla Home',
     },
+    chat: {
+      title: 'Messaggi',
+      noConversations: 'Nessuna conversazione. Aggiungi amici per iniziare a chattare!',
+      selectConversation: 'Seleziona una conversazione',
+      typeMessage: 'Scrivi il tuo messaggio',
+      you: 'Tu',
+      back: 'Indietro',
+    },
     common: {
       loading: 'Caricamento...',
     },
@@ -906,6 +946,14 @@ export const translations = {
       rematch: 'Rewanż',
       newGame: 'Nowa Gra',
       goHome: 'Strona Główna',
+    },
+    chat: {
+      title: 'Wiadomości',
+      noConversations: 'Brak rozmów. Dodaj znajomych, żeby zacząć czatować!',
+      selectConversation: 'Wybierz rozmowę',
+      typeMessage: 'Napisz wiadomość',
+      you: 'Ty',
+      back: 'Wróć',
     },
     common: {
       loading: 'Ładowanie...',
