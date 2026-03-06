@@ -1,6 +1,7 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/Button";
+import ServerKeyGenerator from "../components/ServerKeyGenerator";
 import { useLanguage } from "../i18n/useLanguage";
 import { useState } from "react";
 
@@ -8,6 +9,7 @@ type ApiChoice = '' | 'leaderboard' | 'stats' | 'feedback' | 'profile' | 'accoun
 
 const ApiTest = () => {
   const { t } = useLanguage();
+  const [apiKey, setApiKey] = useState('');
   const [whichAPI, setWhichAPI] = useState<ApiChoice>('');
   const [feedback, setFeedback] = useState('');
   const [profilePayload, setProfilePayload] = useState(
@@ -29,34 +31,37 @@ const ApiTest = () => {
 
     let url = "";
     let opts: RequestInit = { method: "GET", credentials: "include"};
+    const API_BASE = "/api/v1/public"
+    const headers: Record<string,string> = { "Content-Type": "application/json"}
+    if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
     switch (whichAPI) {
       case "leaderboard":
-        url = "/api/leaderboard";//have to check it!!!!!!!
+        url = `${API_BASE}/leaderboard`;
         break;
       case "stats":
-        url = "/api/stats";//have to check it!!!!!!!
+        url = `${API_BASE}/stats`;
         break;
       case "feedback":
-        url = "/api/feedback";//have to check it!!!!!!!
+        url = `${API_BASE}/feedback`;
         opts = {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({ feedback }),
           credentials: "include",
         };
         break;
       case "profile":
-        url = "/api/profile"//have to check it!!!!!!!
+        url = `${API_BASE}/api/profile`
         opts = {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: profilePayload,
           credentials: "include"
         };
         break;
       case "account":
-        url = "/api/account";
+        url = `${API_BASE}/account`;
         opts = { method: "DELETE", credentials: "include" };
         break;
     }
@@ -80,7 +85,19 @@ const ApiTest = () => {
           {/* KEY SECTION*/}
           <div className={sectionClass}>
             <p className={labelClass}>API public key</p>
-            <p className={inputClass}>PUBLIC_KEY_PLACEHOLDER</p>
+            <ServerKeyGenerator />
+            <div>
+              Key generation section
+            </div>
+            <textarea
+              onChange={(e) => setProfilePayload(e.target.value)}
+              placeholder={
+                "paste public key here"
+              }
+              maxLength={300}
+              rows={6}
+              className={`${inputClass} resize-none`}
+            />
           </div>
 
           {/* FORM SECTION */}

@@ -71,6 +71,7 @@ export const translations = {
       passwordComment: 'Alphanumeric + symbols (without \' and ")',
       showPassword: 'Show password',
       keepLoggedIn: 'Keep me logged in',
+      
       allFieldsRequired: 'All fields are required',
       passwordMinLength: 'Password must be at least 12 characters',
       registrationFailed: 'Registration failed. Please try again.',
@@ -224,6 +225,7 @@ export const translations = {
       passwordComment: 'Alfanumérico + símbolos (sin \' y ")',
       showPassword: 'Mostrar contraseña',
       keepLoggedIn: 'Mantenerme conectado',
+      
       allFieldsRequired: 'Todos los campos son obligatorios',
       passwordMinLength: 'La contraseña debe tener al menos 12 caracteres',
       registrationFailed: 'Error en el registro. Inténtalo de nuevo.',
@@ -377,6 +379,7 @@ export const translations = {
       passwordComment: 'Alfanumèric + símbols (sense \' i ")',
       showPassword: 'Mostrar contrasenya',
       keepLoggedIn: 'Mantenir-me connectat',
+      
       allFieldsRequired: 'Tots els camps són obligatoris',
       passwordMinLength: 'La contrasenya ha de tenir almenys 12 caràcters',
       registrationFailed: 'Error en el registre. Torna-ho a provar.',
@@ -530,6 +533,7 @@ export const translations = {
       passwordComment: 'Alphanumérique + symboles (sans \' et ")',
       showPassword: 'Afficher le mot de passe',
       keepLoggedIn: 'Rester connecté',
+      
       allFieldsRequired: 'Tous les champs sont requis',
       passwordMinLength: 'Le mot de passe doit contenir au moins 12 caractères',
       registrationFailed: 'Échec de l\'inscription. Veuillez réessayer.',
@@ -683,6 +687,7 @@ export const translations = {
       passwordComment: 'Alfanumerico + simboli (senza \' e ")',
       showPassword: 'Mostra password',
       keepLoggedIn: 'Resta connesso',
+      
       allFieldsRequired: 'Tutti i campi sono obbligatori',
       passwordMinLength: 'La password deve avere almeno 12 caratteri',
       registrationFailed: 'Registrazione fallita. Riprova.',
@@ -836,6 +841,7 @@ export const translations = {
       passwordComment: 'Alfanumeryczne + symbole (bez \' i ")',
       showPassword: 'Pokaż hasło',
       keepLoggedIn: 'Pozostań zalogowany',
+      
       allFieldsRequired: 'Wszystkie pola są wymagane',
       passwordMinLength: 'Hasło musi mieć co najmniej 12 znaków',
       registrationFailed: 'Rejestracja nie powiodła się. Spróbuj ponownie.',
