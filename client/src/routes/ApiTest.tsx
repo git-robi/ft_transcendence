@@ -9,7 +9,7 @@ type ApiChoice = '' | 'leaderboard' | 'stats' | 'feedback' | 'profile' | 'accoun
 
 const ApiTest = () => {
   const { t } = useLanguage();
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const [whichAPI, setWhichAPI] = useState<ApiChoice>('');
   const [feedback, setFeedback] = useState('');
   const [profilePayload, setProfilePayload] = useState(
@@ -22,10 +22,10 @@ const ApiTest = () => {
   const labelClass = 'text-sm font-medium text-text-secondary';
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // don’t let the form reload the page
+    e.preventDefault(); 
 
     if (!whichAPI) {
-      setServerResponse("no operation selected!");
+      setServerResponse(t.apiTest.noOperationErr);
       return;
     }
 
@@ -52,7 +52,7 @@ const ApiTest = () => {
         };
         break;
       case "profile":
-        url = `${API_BASE}/api/profile`
+        url = `${API_BASE}/profile`
         opts = {
           method: "PATCH",
           headers,
@@ -76,34 +76,27 @@ const ApiTest = () => {
     }
   };
   
-
-
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
       <Header />
         <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 md:py-8">
           {/* KEY SECTION*/}
           <div className={sectionClass}>
-            <p className={labelClass}>API public key</p>
-            <ServerKeyGenerator />
-            <div>
-              Key generation section
-            </div>
-            <textarea
-              onChange={(e) => setProfilePayload(e.target.value)}
-              placeholder={
-                "paste public key here"
-              }
-              maxLength={300}
-              rows={6}
-              className={`${inputClass} resize-none`}
+            <div>{t.apiTest.apiKeySection}</div>
+            <ServerKeyGenerator setApiKey={setApiKey} />
+            <input 
+              className={inputClass} 
+              placeholder={t.apiTest.pastePublicKeyHere}
+              value={apiKey ?? ""}
+              onChange={e => setApiKey(e.currentTarget.value)}
             />
           </div>
 
           {/* FORM SECTION */}
+          
           <form onSubmit={handleSubmit}>
             <div className={sectionClass}>
-
+              <div>{t.apiTest.selectApiAction}</div>
               {/* GET THE GAME LEADERBOARD*/}
               <div>
                 <Button
@@ -111,7 +104,7 @@ const ApiTest = () => {
                   variant={whichAPI === 'leaderboard' ? 'primary' : 'secondary'}
                   onClick={() => setWhichAPI('leaderboard')}
                 >
-                  Get the game leaderboard
+                  {t.apiTest.getLeaderboard}
                 </Button>                
               </div>
 
@@ -122,7 +115,7 @@ const ApiTest = () => {
                   variant={whichAPI === 'stats' ? 'primary' : 'secondary'}
                   onClick={() => setWhichAPI('stats')}
                 >
-                  Get player statistics
+                  {t.apiTest.getStatistics}
                 </Button>                
               </div>
 
@@ -133,13 +126,13 @@ const ApiTest = () => {
                   variant={whichAPI === 'feedback' ? 'primary' : 'secondary'}
                   onClick={() => setWhichAPI('feedback')}
                 >
-                  Submit feedback
+                  {t.apiTest.submitFeedback}
                 </Button>
                 {whichAPI === 'feedback' && (
                   <textarea
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Please type your feedback here"
+                    placeholder={t.apiTest.feedbackPlaceholder}
                     maxLength={300}
                     rows={7}
                     className={`${inputClass} resize-none`}
@@ -154,15 +147,13 @@ const ApiTest = () => {
                   variant={whichAPI === 'profile' ? 'primary' : 'secondary'}
                   onClick={() => setWhichAPI('profile')}
                 >
-                  Update user profile
+                  {t.apiTest.updateProfile}
                 </Button>
                 {whichAPI === 'profile' && (
                   <textarea
                     value={profilePayload}
                     onChange={(e) => setProfilePayload(e.target.value)}
-                    placeholder={
-                      "JSON WITH NAME AND BIO HERE:\n{\n  \"name\": \"new name\"\n  \"bio\": \"new bio\"\n}"
-                    }
+                    placeholder={t.apiTest.nameAndBioPlaceholder}
                     maxLength={300}
                     rows={10}
                     className={`${inputClass} resize-none`}
@@ -176,7 +167,7 @@ const ApiTest = () => {
                   variant={whichAPI === 'account' ? 'primary' : 'secondary'}
                   onClick={() => setWhichAPI('account')}
                 >
-                  Delete user account
+                  {t.apiTest.deleteAccount}
                 </Button>                
               </div>
               
@@ -193,7 +184,7 @@ const ApiTest = () => {
 
           {/* SERVER RESPONSE */}
           <div className={sectionClass}>
-            <p className={labelClass}>SERVER RESPONSE</p>
+              <div>{t.apiTest.serverResponse}</div>
             <p className={inputClass}>{serverResponse}</p>
           </div>
         </main>

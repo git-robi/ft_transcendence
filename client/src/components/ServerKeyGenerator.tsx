@@ -1,9 +1,18 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useLanguage } from "../i18n/useLanguage";
 import Button from "./Button";
 
-const ServerKeyGenerator = () => {
+type Props = {
+  setApiKey?: Dispatch<SetStateAction<string | null>>;
+};
+
+const ServerKeyGenerator = ({ setApiKey }: Props) => {
+  const { t } = useLanguage();
   const [name, setName] = useState("");
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [plainKey, setPlainKey] = useState<string | null >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -13,8 +22,8 @@ const ServerKeyGenerator = () => {
     setError(null);
     try {
       const body: any = { name };
-      if (expiresAt) 
-        body.expiresAt = expiresAt;
+      if (expiresAt)
+        body.expiresAt = expiresAt.toISOString();
       const res = await fetch("/api/keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -23,12 +32,14 @@ const ServerKeyGenerator = () => {
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        throw new Error(json?.message ?? "Failed to create key")
+        throw new Error(json?.message ?? 'Failed to create key!')
       }
       const data = await res.json();
-      setPlainKey(data?.apiKey?.plainKey ?? null);
+      const key = data?.apiKey?.plainKey ?? null;
+      setPlainKey(key);
+      if (setApiKey) setApiKey(key);
     } catch (err: any) {
-      setError(err.message || "Failed");
+      setError(err.message || 'Failed');
     } finally {
       setLoading(false);
     }
@@ -36,16 +47,17 @@ const ServerKeyGenerator = () => {
 
   const copy = async () => {
     if (!plainKey) return;
-    try {
-      await navigator.clipboard.writeText(plainKey);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value= plainKey;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
+
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(plainKey);
+        return;
+      } catch (err) {
+        console.warn("Clipboard write failed:", err);
+        setError("Automatic copy failed — please copy the key manually from the prompt.");
+      }
     }
+    window.prompt(t.apiTest.windowPromptCopyErr, plainKey);
   };
 
   const inputClass = 'w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple focus:ring-1 focus:ring-accent-purple/50 transition-colors';
@@ -57,25 +69,32 @@ const ServerKeyGenerator = () => {
       {!plainKey ? (
         <div>
           <div className={sectionClass}>
+            <p className={labelClass}>{t.apiTest.keyGenSection}</p>
             <input 
-              placeholder="key name (optional)"
+              className={inputClass}
+              placeholder={t.apiTest.keyNamePlaceholder}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-            <input
-              type="date"
-              onChange={(e) =>
-                setExpiresAt(e.target.value ?
-                  new Date(e.target.value).toISOString() : null)
-              }
+            <span className={labelClass}>{t.apiTest.expiresAt}</span>
+            <DatePicker
+              selected={expiresAt}
+              onChange={(d: Date | null) => setExpiresAt(d)}
+              dateFormat="dd/MM/yyyy"
+              placeholderText={t.apiTest.expiresAtPlaceholder}
+              className={inputClass}
+              isClearable
             />
-            <Button
-              variant="primary"
-              onClick={createKey}
-              type="submit"
-            >
-              {loading ? "Generating..." : "Generate server key"}
-            </Button>
+            <div>
+              <Button
+                variant="primary"
+                onClick={createKey}
+                type="submit"
+              >
+                {loading ? t.common.generating : t.apiTest.generateServKeyButton}
+              </Button> 
+              </div>
+
           </div>
           {error && 
             <div className="text-red-500">
@@ -84,29 +103,24 @@ const ServerKeyGenerator = () => {
         </div>
       ) : (
         <div>
-          <div>
-            Copy this API key now as is shown only temporary!
-          </div>
-          <div className="inputClass">
+          <div>{t.apiTest.copyWarning}</div>
+          <div className={inputClass}>
             {plainKey}
           </div>
           <Button 
             onClick={copy}
             type="button"
           >
-            Copy to clipboard
+            {t.common.copyToClipboard}
           </Button>
           <Button 
-            onClick={() => setPlainKey(null)}
+            onClick={() => { setPlainKey(null); if (setApiKey) setApiKey(null); }}
             type="button"
           >
-            Hide the key
+            {t.apiTest.hideKey}
           </Button>
-          <div>
-            This key is shown only in-memory and will disappear when you refresh the page!
-          </div>
+          <div>{t.apiTest.warningAboutDisappearing}</div>
         </div>
-
       )}
     </div>
   )
