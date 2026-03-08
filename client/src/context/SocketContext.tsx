@@ -3,7 +3,10 @@ import type { ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
-const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api\/v1$/, '');
+function getSocketUrl() {
+  const raw = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api\/v1$/, '');
+  return raw || window.location.origin;
+}
 
 interface SocketContextType {
   onlineUsers: Set<number>;
@@ -19,7 +22,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!user) return;
 
-    const socket: Socket = io(SOCKET_URL, { withCredentials: true });
+    const socket: Socket = io(getSocketUrl(), {
+      withCredentials: true,
+      transports: ['websocket'],
+    });
 
     socket.on('friend:online', ({ userId }: { userId: number }) => {
       setOnlineUsers(prev => new Set(prev).add(userId));

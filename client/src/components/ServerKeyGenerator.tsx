@@ -24,7 +24,7 @@ const ServerKeyGenerator = ({ setApiKey }: Props) => {
       const body: any = { name };
       if (expiresAt)
         body.expiresAt = expiresAt.toISOString();
-      const res = await fetch("/api/keys", {
+      const res = await fetch("/api/v1/api-keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
