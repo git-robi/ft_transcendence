@@ -29,6 +29,8 @@ services:
       VAULT_ADDR: http://127.0.0.1:8200
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-transcendence}
+      GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
+      GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
     volumes:
       - vault_data:/vault/data
       - ./vault/config:/vault/config
@@ -39,6 +41,8 @@ services:
       - transcendence_network
     secrets:
       - postgres_password
+      - google_client_secret
+      - github_client_secret
     entrypoint: ["/bin/sh", "/usr/local/bin/vault-entrypoint.sh"]
     healthcheck:
       test: ["CMD-SHELL", "vault status > /dev/null 2>&1 && [ -s /vault/data/vault_backend_token ]"]

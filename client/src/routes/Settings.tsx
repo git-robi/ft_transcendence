@@ -9,6 +9,13 @@ import { useAuth } from '../context/AuthContext';
 import ProfileAPI from '../APIs/profile';
 import Auth from '../APIs/auth';
 
+interface ApiKey {
+  id: number;
+  name: string;
+  createdAt: string;
+  expiresAt: string | null;
+}
+
 const Settings = () => {
   const { t } = useLanguage();
   const { user, setUser } = useAuth();
@@ -28,6 +35,15 @@ const Settings = () => {
   const [pwMsg, setPwMsg] = useState('');
   const [pwError, setPwError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+
+  const fetchApiKeys = async () => {
+    try {
+      const res = await fetch('/api/v1/api-keys', { credentials: 'include' });
+      const data = await res.json();
+      setApiKeys(data.apiKeys || []);
+    } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     ProfileAPI.get('/me').then(res => {
@@ -35,6 +51,7 @@ const Settings = () => {
       setName(res.data.name);
       setBio(res.data.bio || '');
     }).finally(() => setLoading(false));
+    fetchApiKeys();
   }, []);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +116,14 @@ const Settings = () => {
         setPwMsg('Error');
       }
     }
+  };
+
+  const handleDeleteKey = async (id: number) => {
+    if (!confirm(t.settings.confirmDelete)) return;
+    try {
+      await fetch(`/api/v1/api-keys/${id}`, { method: 'DELETE', credentials: 'include' });
+      setApiKeys(prev => prev.filter(k => k.id !== id));
+    } catch { /* ignore */ }
   };
 
   const inputClass = 'w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple focus:ring-1 focus:ring-accent-purple/50 transition-colors';
@@ -206,6 +231,32 @@ const Settings = () => {
               </div>
             </div>
           )}
+
+          {/* API Keys */}
+          <div className={sectionClass}>
+            <p className={labelClass}>{t.settings.apiKeys}</p>
+            {apiKeys.length === 0 ? (
+              <p className="text-sm text-text-muted">{t.settings.noKeys}</p>
+            ) : (
+              <div className="space-y-3">
+                {apiKeys.map(key => (
+                  <div key={key.id} className="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3">
+                    <div>
+                      <p className="text-sm font-medium text-text-primary">{key.name || `Key #${key.id}`}</p>
+                      <p className="text-xs text-text-muted">
+                        {t.settings.created}: {new Date(key.createdAt).toLocaleDateString()}
+                        {' · '}
+                        {t.settings.expires}: {key.expiresAt ? new Date(key.expiresAt).toLocaleDateString() : t.settings.never}
+                      </p>
+                    </div>
+                    <Button variant="danger" onClick={() => handleDeleteKey(key.id)}>
+                      {t.settings.deleteKey}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
