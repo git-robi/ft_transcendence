@@ -13,6 +13,16 @@ interface VaultSecrets {
         database: string;
     };
     oauth?: {
+        google?: {
+            client_id: string;
+            client_secret: string;
+            redirect_uri: string;
+        };
+        github?: {
+            client_id: string;
+            client_secret: string;
+            redirect_uri: string;
+        };
         '42'?: {
             client_id: string;
             client_secret: string;
@@ -22,7 +32,7 @@ interface VaultSecrets {
 }
 
 class VaultClient {
-    private client: vault.client;
+    private client: any;
     private secrets: VaultSecrets | null = null;
     private initialized: boolean = false;
 
@@ -37,7 +47,10 @@ class VaultClient {
             }
         }
         if (!vaultToken) {
-            vaultToken = 'dev-root-token-change-in-production';
+            if (process.env.NODE_ENV === 'production') {
+                throw new Error('VAULT_TOKEN or VAULT_TOKEN_FILE must be configured in production');
+            }
+            console.warn('Vault token is not configured; falling back to environment-based secrets when Vault is unavailable');
         }
 
         this.client = vault({
@@ -60,9 +73,11 @@ class VaultClient {
             await this.client.health();
 
             // Load secrets from Vault
-            const [jwtSecret, dbSecret, oauthSecret] = await Promise.all([
+            const [jwtSecret, dbSecret, oauthGoogleSecret, oauthGithubSecret, oauthLegacy42Secret] = await Promise.all([
                 this.client.read('transcendence/data/jwt').catch(() => null),
                 this.client.read('transcendence/data/database').catch(() => null),
+                this.client.read('transcendence/data/oauth/google').catch(() => null),
+                this.client.read('transcendence/data/oauth/github').catch(() => null),
                 this.client.read('transcendence/data/oauth/42').catch(() => null),
             ]);
 
@@ -72,20 +87,33 @@ class VaultClient {
                 },
                 database: {
                     user: dbSecret?.data?.data?.user || process.env.PGUSER || 'postgres',
-                    password: dbSecret?.data?.data?.password || process.env.PGPASSWORD || '',
+                    password: dbSecret?.data?.data?.password || this.resolveDatabasePassword(),
                     host: dbSecret?.data?.data?.host || process.env.PGHOST || 'localhost',
                     port: dbSecret?.data?.data?.port || process.env.PGPORT || '5432',
                     database: dbSecret?.data?.data?.database || process.env.PGDATABASE || 'transcendence',
                 },
             };
 
-            if (oauthSecret?.data?.data) {
-                this.secrets.oauth = {
-                    '42': {
-                        client_id: oauthSecret.data.data.client_id || '',
-                        client_secret: oauthSecret.data.data.client_secret || '',
-                        redirect_uri: oauthSecret.data.data.redirect_uri || '',
-                    },
+            this.secrets.oauth = {};
+            if (oauthGoogleSecret?.data?.data) {
+                this.secrets.oauth.google = {
+                    client_id: oauthGoogleSecret.data.data.client_id || '',
+                    client_secret: oauthGoogleSecret.data.data.client_secret || '',
+                    redirect_uri: oauthGoogleSecret.data.data.redirect_uri || '',
+                };
+            }
+            if (oauthGithubSecret?.data?.data) {
+                this.secrets.oauth.github = {
+                    client_id: oauthGithubSecret.data.data.client_id || '',
+                    client_secret: oauthGithubSecret.data.data.client_secret || '',
+                    redirect_uri: oauthGithubSecret.data.data.redirect_uri || '',
+                };
+            }
+            if (oauthLegacy42Secret?.data?.data) {
+                this.secrets.oauth['42'] = {
+                    client_id: oauthLegacy42Secret.data.data.client_id || '',
+                    client_secret: oauthLegacy42Secret.data.data.client_secret || '',
+                    redirect_uri: oauthLegacy42Secret.data.data.redirect_uri || '',
                 };
             }
 
@@ -107,6 +135,33 @@ class VaultClient {
                 throw error;
             }
             console.warn('Falling back to environment variables');
+            const fallbackDb = {
+                user: process.env.PGUSER || 'postgres',
+                password: process.env.PGPASSWORD || '',
+                host: process.env.PGHOST || 'localhost',
+                port: process.env.PGPORT || '5432',
+                database: process.env.PGDATABASE || 'transcendence',
+            };
+
+            if (process.env.DATABASE_URL) {
+                try {
+                    const parsed = new URL(process.env.DATABASE_URL);
+                    fallbackDb.user = decodeURIComponent(parsed.username || fallbackDb.user);
+                    fallbackDb.password = decodeURIComponent(parsed.password || fallbackDb.password);
+                    fallbackDb.host = parsed.hostname || fallbackDb.host;
+                    fallbackDb.port = parsed.port || fallbackDb.port;
+                    fallbackDb.database = parsed.pathname.replace(/^\//, '') || fallbackDb.database;
+                } catch {
+                    // Keep default fallback values when DATABASE_URL parsing fails.
+                }
+            }
+
+            this.secrets = {
+                jwt: {
+                    secret: process.env.JWT_SECRET || '',
+                },
+                database: fallbackDb,
+            };
             this.initialized = true;
         }
     }
@@ -145,7 +200,7 @@ class VaultClient {
     /**
      * Returns OAuth config for the specified provider.
      */
-    getOAuthConfig(provider: '42') {
+    getOAuthConfig(provider: 'google' | 'github' | '42') {
         if (!this.initialized) {
             throw new Error('Vault is not initialized. Call initialize() first.');
         }
@@ -158,6 +213,31 @@ class VaultClient {
     async refresh(): Promise<void> {
         this.initialized = false;
         await this.initialize();
+    }
+
+    private resolveDatabasePassword(): string {
+        const fromFile = process.env.PGPASSWORD_FILE;
+        if (fromFile) {
+            try {
+                return fs.readFileSync(fromFile, 'utf8').trim();
+            } catch {
+                // Fall back below.
+            }
+        }
+
+        const raw = process.env.PGPASSWORD || '';
+        if (!raw) return '';
+
+        // Support legacy config where PGPASSWORD contains a secret file path.
+        if (raw.startsWith('/') && fs.existsSync(raw)) {
+            try {
+                return fs.readFileSync(raw, 'utf8').trim();
+            } catch {
+                return '';
+            }
+        }
+
+        return raw;
     }
 }
 

@@ -1,40 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../i18n/useLanguage';
 import type { Language } from '../i18n/translations';
 
 const LanguageSelector = () => {
   const { language, setLanguage } = useLanguage();
-  const [showLanguages, setShowLanguages] = useState(false);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   const languages: { code: Language; name: string }[] = [
     { code: 'es', name: 'Castellano' },
-    { code: 'ca', name: 'Català' },
+    { code: 'ca', name: 'Catala' },
     { code: 'en', name: 'English' },
-    { code: 'fr', name: 'Français' },
+    { code: 'fr', name: 'Francais' },
     { code: 'it', name: 'Italiano' },
     { code: 'pl', name: 'Polski' },
   ];
 
-  const currentLanguageName = languages.find(lang => lang.code === language)?.name || 'English';
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const current = languages.find(l => l.code === language)?.name || 'English';
 
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <button
-        onClick={() => setShowLanguages(!showLanguages)}
-        className="text-sm hover:text-neutral-600 px-4 py-2 bg-white text-dark rounded transition hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] active:shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]"
+        onClick={() => setOpen(!open)}
+        className="text-sm px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-text-secondary hover:text-text-primary hover:bg-white/10 transition-colors"
       >
-        {currentLanguageName}
+        {current}
       </button>
-      {showLanguages && (
-        <div className="absolute right-0 mt-2 w-40 bg-white text-dark rounded shadow-lg z-10 border border-neutral-700">
+      {open && (
+        <div className="absolute right-0 bottom-full mb-2 w-40 bg-white/5 border border-white/10 rounded-xl py-1 z-50">
           {languages.map((lang) => (
             <button
               key={lang.code}
               onClick={() => {
                 setLanguage(lang.code);
-                setShowLanguages(false);
+                setOpen(false);
               }}
-              className="block w-full text-left px-4 py-2 hover:bg-neutral-600 hover:text-white text-sm"
+              className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
+                lang.code === language
+                  ? 'text-accent-purple bg-accent-purple/10'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-white/10'
+              }`}
             >
               {lang.name}
             </button>

@@ -38,30 +38,22 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --no-audit --no-fund && \
     npm cache clean --force
 
+# Create necessary directories and set permissions
+RUN mkdir -p /app/node_modules/.vite && \
+    chown -R nodejs:nodejs /app/node_modules/.vite
+
 # ========================================
 # Build Stage
 # ========================================
 FROM build-deps AS build
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 # Copy only necessary files for building (respects .dockerignore)
-COPY --chown=nodejs:nodejs ./ /app
+COPY --chown=nodejs:nodejs . /app
 
-# Generate the application
-RUN npx prisma generate
+# Build the application
 RUN npm run build
-
-# ========================================
-# Migration Stage
-# ========================================
-FROM build-deps AS migration
-
-# Copy only necessary files for building (respects .dockerignore)
-COPY ./ /app
-COPY ./entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# Execute the migration
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 
 # ========================================
 # Development Stage
@@ -76,18 +68,22 @@ ARG NODE_ENV \
 ENV NODE_ENV=${NODE_ENV} \
     NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL}
 
-COPY --chown=nodejs:nodejs ./ /app
-COPY --chown=nodejs:nodejs ./entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Copy source files
+COPY --chown=nodejs:nodejs . /app
+
+# Ensure all directories have proper permissions
+RUN mkdir -p /app/node_modules/.vite && \
+    chown -R nodejs:nodejs /app/node_modules/.vite
 
 # Switch to non-root user
-#USER nodejs //removed as preventing entryscript commands to run properly
+USER nodejs
 
 # Expose ports
 EXPOSE ${PORT}
 
 # Start development server
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+#ENTRYPOINT ["tail", "-f"]
+CMD ["npm", "run", "dev", "--", "--host"]
 
 # ========================================
 # Production Stage
@@ -108,16 +104,12 @@ ENV NODE_ENV=production \
     NPM_CONFIG_LOGLEVEL=silent
 
 # Copy production dependencies from deps stage
-COPY --chown=nodejs:nodejs ./entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
 COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=deps --chown=nodejs:nodejs /app/package*.json ./
+# Copy built application from build stage
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
-COPY --chown=nodejs:nodejs ./prisma ./prisma
-COPY --chown=nodejs:nodejs ./prisma.config.ts .
 
-# Switch to non-root user for security
+# Switch to non-root user
 USER nodejs
 
-# Start production server
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+CMD ["/bin/sh", "-c", "echo 'Build complete' && exit 0"]

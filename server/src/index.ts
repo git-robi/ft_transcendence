@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import { spawnSync } from "node:child_process";
 import vaultClient from "./config/vault";
-import { configureSecurityHeaders, errorHandler } from "./config/security";
-import { apiRateLimiter } from "./middleware/rateLimiter";
+import { configureSecurityHeaders, errorHandler, notFoundHandler } from "./config/security";
+import { apiRateLimiter, docsRateLimiter } from "./middleware/rateLimiter";
+import { verifyCsrfToken } from "./middleware/csrf";
 
 // swagger (for API documentation)
 import swaggerUi from "swagger-ui-express";
@@ -25,6 +27,16 @@ async function initializeApp() {
         // Update Prisma DATABASE_URL when available
         if (process.env.NODE_ENV !== 'production' || vaultClient.getDatabaseUrl()) {
             process.env.DATABASE_URL = vaultClient.getDatabaseUrl();
+        }
+
+        if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+            const migrate = spawnSync("npx", ["prisma", "migrate", "deploy"], {
+                stdio: "inherit",
+                env: process.env as NodeJS.ProcessEnv,
+            });
+            if (migrate.status !== 0) {
+                throw new Error("Prisma migrate deploy failed");
+            }
         }
     } catch (error) {
         console.error("Error initializing Vault:", error);
@@ -54,10 +66,16 @@ async function initializeApp() {
 
     const specs = swaggerJsdoc(swaggerOptions);
 
-    // Swagger only in non-production
-    if (process.env.NODE_ENV !== 'production') {
-        app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-    }
+    // Swagger docs (public) with protections
+    app.use("/api-docs", docsRateLimiter, (req, res, next) => {
+        console.info(`API docs access from IP: ${req.ip} UA: ${req.headers['user-agent'] || 'unknown'}`);
+        next();
+    });
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
+        swaggerOptions: {
+            supportedSubmitMethods: [], // disable "Try it out" in public docs
+        },
+    }));
 
     // Static assets
     app.use("/avatars", express.static("uploads/avatars"));
@@ -65,24 +83,34 @@ async function initializeApp() {
     // Initialize auth strategies after secrets are ready
     await import("./passport-config");
 
-    const [{ default: auth }, { default: profile }, { default: matches }, { default: apiKeys }] = await Promise.all([
+    const [{ default: auth }, { default: profile }, { default: matches }, { default: apiKeys }, { default: publicAPI }, { default: friends }, { default: chat }] = await Promise.all([
         import("./routes/auth"),
         import("./routes/profile"),
         import("./routes/matches"),
         import("./routes/api-keys"),
+        import("./routes/public"),
+        import("./routes/friends"),
+        import("./routes/chat"),
     ]);
 
     // General API rate limiting (auth has its own stricter limiter)
     app.use("/api/v1", apiRateLimiter);
+    app.use("/api/v1", verifyCsrfToken);
     app.use("/api/v1/auth", auth);
     app.use("/api/v1/profile", profile);
     app.use("/api/v1/matches", matches);
     app.use("/api/v1/api-keys", apiKeys);
+    app.use("/api/v1/public", publicAPI);
+    app.use("/api/v1/friends", friends);
+    app.use("/api/v1/chat", chat);
 
     // Health check endpoint
     app.get("/health", (req: Request, res: Response) => {
         res.status(200).json({ status: "ok" });
     });
+
+    // 404 handler (before error handler)
+    app.use(notFoundHandler);
 
     // Error handling (must be the last middleware)
     app.use(errorHandler);
