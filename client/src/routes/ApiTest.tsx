@@ -4,13 +4,16 @@ import Button from "../components/Button";
 import ServerKeyGenerator from "../components/ServerKeyGenerator";
 import { useLanguage } from "../i18n/useLanguage";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 type ApiChoice = '' | 'leaderboard' | 'stats' | 'feedback' | 'profile' | 'account'
 
 const ApiTest = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [whichAPI, setWhichAPI] = useState<ApiChoice>('');
+  const [statsUserId, setStatsUserId] = useState<string>('');
   const [feedback, setFeedback] = useState('');
   const [profilePayload, setProfilePayload] = useState(
     '{\n  "name": "",\n "bio": ""\n}'
@@ -38,22 +41,32 @@ const ApiTest = () => {
       case "leaderboard":
         url = `${API_BASE}/leaderboard`;
         break;
-      case "stats":
-        url = `${API_BASE}/stats`;
+      case "stats": {
+        const id = statsUserId.trim() || user?.id;
+        if (!id) {
+          setServerResponse(t.apiTest.statsIdRequired);
+          return;
+        }
+        url = `${API_BASE}/stats/${id}`;
         break;
+      }
       case "feedback":
+        if (!feedback.trim()) {
+          setServerResponse(t.apiTest.feedbackRequired);
+          return;
+        }
         url = `${API_BASE}/feedback`;
         opts = {
           method: "POST",
           headers,
-          body: JSON.stringify({ feedback }),
+          body: JSON.stringify({ text: feedback }),
           credentials: "include",
         };
         break;
       case "profile":
         url = `${API_BASE}/profile`
         opts = {
-          method: "PATCH",
+          method: "PUT",
           headers,
           body: profilePayload,
           credentials: "include"
@@ -61,7 +74,10 @@ const ApiTest = () => {
         break;
       case "account":
         url = `${API_BASE}/account`;
-        opts = { method: "DELETE", headers, credentials: "include" };
+        opts = { 
+          method: "DELETE", 
+          headers, 
+          credentials: "include" };
         break;
     }
 
@@ -122,6 +138,14 @@ const ApiTest = () => {
                 >
                   {t.apiTest.getStatistics}
                 </Button>                
+                {whichAPI === 'stats' && (
+                  <input
+                    className={inputClass}
+                    placeholder={t.apiTest.statsUserIdPlaceholder}
+                    value={statsUserId}
+                    onChange={(e) => setStatsUserId(e.currentTarget.value)}
+                  />
+                )}
               </div>
 
               {/* SUBMIT FEEDBACK*/}
@@ -169,6 +193,7 @@ const ApiTest = () => {
               {/* DELETE ACCOUNT */}
               <div>
                 <Button
+                  type="button"
                   variant={whichAPI === 'account' ? 'primary' : 'secondary'}
                   onClick={() => setWhichAPI('account')}
                 >

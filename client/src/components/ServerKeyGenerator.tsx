@@ -18,6 +18,10 @@ const ServerKeyGenerator = ({ setApiKey }: Props) => {
   const [error, setError] = useState<string | null>(null);
 
   const createKey = async () => {
+    if (!name.trim()) {
+      setError(t.apiTest.keyNameRequired);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -110,12 +114,15 @@ const ServerKeyGenerator = ({ setApiKey }: Props) => {
           <Button 
             onClick={copy}
             type="button"
+            variant="secondary"
+            className="mr-3"
           >
             {t.common.copyToClipboard}
           </Button>
           <Button 
             onClick={() => { setPlainKey(null); if (setApiKey) setApiKey(null); }}
             type="button"
+            variant="secondary"
           >
             {t.apiTest.hideKey}
           </Button>

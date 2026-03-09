@@ -141,6 +141,12 @@ const Settings = () => {
             </div>
           </div>
 
+          {/* Id */}
+          <div className={sectionClass}>
+            <p className={labelClass}>{t.settings.userId}</p>
+            <div>{user?.id ?? '-'}</div>
+          </div>
+
           {/* Name */}
           <div className={sectionClass}>
             <p className={labelClass}>{t.settings.name}</p>
