@@ -9,6 +9,7 @@ import PrivacyPolicy from './routes/PrivacyPolicy';
 import Profile from './routes/Profile';
 import Settings from './routes/Settings';
 import Social from './routes/Social';
+import ApiTest from './routes/ApiTest';
 import { LanguageProvider } from './i18n/LanguageProvider';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -40,6 +41,7 @@ const AppRoutes = () => {
       <Route path="/social" element={user ? <Social /> : <Navigate to="/login" />} />
       <Route path="/tos" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/apiTest" element={<ApiTest />} />
     </Routes>
   );
 };

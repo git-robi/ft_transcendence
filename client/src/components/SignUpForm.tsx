@@ -110,7 +110,7 @@ const SignUpForm = () => {
       </div>
 
       <Button type="submit" className="w-full py-3" disabled={loading}>
-        {loading ? '...' : t.signUp.submit}
+        {loading ? '...' : t.common.submit}
       </Button>
 
       <div className="flex items-center gap-4">
