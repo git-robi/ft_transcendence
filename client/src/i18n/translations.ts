@@ -186,6 +186,7 @@ export const translations = {
       statsUserIdPlaceholder: 'User ID (leave empty for your stats)',
       statsIdRequired: 'User ID is required for statistics',
       serverResponse: 'Server response',
+    },
     chat: {
       title: 'Messages',
       noConversations: 'No conversations yet. Add friends to start chatting!',
@@ -389,6 +390,7 @@ export const translations = {
       statsUserIdPlaceholder: 'ID de usuario (dejar vacío para tus estadísticas)',
       statsIdRequired: 'Se requiere ID de usuario para estadísticas',
       serverResponse: 'Respuesta del servidor',
+    },
     chat: {
       title: 'Mensajes',
       noConversations: 'Sin conversaciones. ¡Añade amigos para empezar a chatear!',
@@ -590,6 +592,7 @@ export const translations = {
       statsUserIdPlaceholder: 'ID d\'usuari (deixa buit per a les teves estadístiques)',
       statsIdRequired: 'Es requereix ID d\'usuari per a estadístiques',
       serverResponse: 'Resposta del servidor',
+    },
     chat: {
       title: 'Missatges',
       noConversations: 'Sense converses. Afegeix amics per començar a xatejar!',
@@ -791,6 +794,7 @@ export const translations = {
       statsUserIdPlaceholder: 'Identifiant utilisateur (laisser vide pour vos statistiques)',
       statsIdRequired: 'L\'ID utilisateur est requis pour les statistiques',
       serverResponse: 'Réponse du serveur',
+    },
     chat: {
       title: 'Messages',
       noConversations: 'Pas encore de conversations. Ajoutez des amis pour commencer à discuter !',
@@ -992,6 +996,7 @@ export const translations = {
       statsUserIdPlaceholder: 'ID utente (lascia vuoto per le tue statistiche)',
       statsIdRequired: 'ID utente necessario per le statistiche',
       serverResponse: 'Risposta del server',
+    },
     chat: {
       title: 'Messaggi',
       noConversations: 'Nessuna conversazione. Aggiungi amici per iniziare a chattare!',
@@ -1193,6 +1198,7 @@ export const translations = {
       statsUserIdPlaceholder: 'ID użytkownika (pozostaw puste, aby zobaczyć swoje statystyki)',
       statsIdRequired: 'ID użytkownika wymagane do statystyk',
       serverResponse: 'Odpowiedź serwera',
+    },
     chat: {
       title: 'Wiadomości',
       noConversations: 'Brak rozmów. Dodaj znajomych, żeby zacząć czatować!',
