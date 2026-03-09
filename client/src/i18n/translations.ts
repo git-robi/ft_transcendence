@@ -155,7 +155,7 @@ export const translations = {
       windowPromptCopyErr: 'Copy the API key (select + Ctrl/Cmd+C):',
       apiKeySection: 'API key section',
       keyGenSection: "Generate the key if you haven't already",
-      keyNamePlaceholder: 'key name (optional)',
+      keyNamePlaceholder: 'key name',
       expiresAt: 'Expiration date (dd/mm/yyyy) (optional):',
       expiresAtPlaceholder: 'dd/mm/yyyy',
       expiresAtInvalid: 'Invalid date format — use dd/mm/yyyy',
@@ -335,7 +335,7 @@ export const translations = {
     apiTest: {
       apiKeySection: 'Sección de clave API',
       keyGenSection: 'Genera la clave si aún no lo has hecho',
-      keyNamePlaceholder: 'nombre de clave (opcional)',
+      keyNamePlaceholder: 'nombre de clave',
       expiresAt: 'Fecha de expiración (dd/mm/aaaa) (opcional):',
       expiresAtPlaceholder: 'dd/mm/aaaa',
       expiresAtInvalid: 'Formato de fecha inválido — usa dd/mm/aaaa',
@@ -518,7 +518,7 @@ export const translations = {
     apiTest: {
       apiKeySection: 'Secció de clau API',
       keyGenSection: 'Genera la clau si encara no ho has fet',
-      keyNamePlaceholder: 'nom de la clau (opcional)',
+      keyNamePlaceholder: 'nom de la clau',
       expiresAt: 'Data de caducitat (dd/mm/aaaa) (opcional):',
       expiresAtPlaceholder: 'dd/mm/aaaa',
       expiresAtInvalid: 'Format de data invàlid — utilitza dd/mm/aaaa',
@@ -700,7 +700,7 @@ export const translations = {
     apiTest: {
       apiKeySection: 'Section de clé API',
       keyGenSection: "Générez la clé si vous ne l'avez pas encore",
-      keyNamePlaceholder: 'nom de clé (optionnel)',
+      keyNamePlaceholder: 'nom de clé',
       expiresAt: 'Date d\'expiration (jj/mm/aaaa) (optionnel) :',
       expiresAtPlaceholder: 'jj/mm/aaaa',
       expiresAtInvalid: 'Format de date invalide — utilisez jj/mm/aaaa',
@@ -882,7 +882,7 @@ export const translations = {
     apiTest: {
       apiKeySection: 'Sezione chiave API',
       keyGenSection: 'Genera la chiave se non l\'hai già fatto',
-      keyNamePlaceholder: 'nome chiave (opzionale)',
+      keyNamePlaceholder: 'nome chiave',
       expiresAt: 'Data di scadenza (gg/mm/aaaa) (opzionale):',
       expiresAtPlaceholder: 'gg/mm/aaaa',
       expiresAtInvalid: 'Formato data non valido — usa gg/mm/aaaa',
@@ -1064,7 +1064,7 @@ export const translations = {
     apiTest: {
       apiKeySection: 'Sekcja klucza API',
       keyGenSection: 'Wygeneruj klucz, jeśli jeszcze tego nie zrobiłeś',
-      keyNamePlaceholder: 'nazwa klucza (opcjonalnie)',
+      keyNamePlaceholder: 'nazwa klucza',
       expiresAt: 'Data wygaśnięcia (dd/mm/rrrr) (opcjonalnie):',
       expiresAtPlaceholder: 'dd/mm/rrrr',
       expiresAtInvalid: 'Nieprawidłowy format daty — użyj dd/mm/rrrr',

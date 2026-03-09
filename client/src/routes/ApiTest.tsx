@@ -30,11 +30,10 @@ const ApiTest = () => {
     }
 
     let url = "";
-    let opts: RequestInit = { method: "GET", credentials: "include"};
-    const API_BASE = "/api/v1/public"
-    const headers: Record<string,string> = { "Content-Type": "application/json"}
+    const API_BASE = "/api/v1/public";
+    const headers: Record<string,string> = { "Content-Type": "application/json" };
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
-
+    let opts: RequestInit = { method: "GET", credentials: "include", headers };
     switch (whichAPI) {
       case "leaderboard":
         url = `${API_BASE}/leaderboard`;
@@ -62,15 +61,21 @@ const ApiTest = () => {
         break;
       case "account":
         url = `${API_BASE}/account`;
-        opts = { method: "DELETE", credentials: "include" };
+        opts = { method: "DELETE", headers, credentials: "include" };
         break;
     }
 
     try {
       const res = await fetch(url, opts);
-      const text = await res.json();
-      setServerResponse(`${res.status} ${res.statusText}\n${text}`);
-      
+      let bodyText: string;
+      try {
+        const data = await res.json();
+        bodyText = JSON.stringify(data, null, 2);
+      } catch {
+        bodyText = await res.text();
+      }
+      setServerResponse(`${res.status} ${res.statusText}\n${bodyText}`);
+        
     } catch (err) {
       setServerResponse(`request failed: ${err}`);
     }
