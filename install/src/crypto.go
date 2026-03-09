@@ -19,7 +19,7 @@ func writeToFile(filename, content string) error {
 	return os.WriteFile(filename, []byte(content), 0600)
 }
 
-func GeneratePassword(filename string) {
+func GeneratePassword(path, filename string) {
 	randomHex, err := generateString(32)
 
 	if err != nil {
@@ -28,7 +28,7 @@ func GeneratePassword(filename string) {
 	}
 
 	// Write the random hex string to a file
-	if err := writeToFile(filename, randomHex); err != nil {
+	if err := writeToFile(path + "/" + filename, randomHex); err != nil {
 		fmt.Println("Error writing to file:", err)
 		return
 	}

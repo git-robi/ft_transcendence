@@ -1,6 +1,11 @@
 package main
 
 import (
+	"log"
+	"os"
+	"os/user"
+	"strconv"
+	"syscall"
 	"github.com/rivo/tview"
 )
 
@@ -17,6 +22,11 @@ type Data struct {
 	postgres_db		string
 }
 
+const (
+	OutputDir = "/app/output"
+	SecretDir = "/app/output/secrets"
+)
+
 func		initData(a *App, data *Data) {
 	//welcome page
 	a.prims[1] = tview.NewModal().	
@@ -31,9 +41,9 @@ func		initData(a *App, data *Data) {
 		})
 	//Form page
 	a.prims[2] = tview.NewForm().
-		AddInputField("NGINX PORT HTTP", "3000", 20, IsDigit, nil).
-		AddInputField("NGINX PORT HTTPS", "3001", 20, IsDigit, nil).
-		AddInputField("POSTRGRES_USER", data.postgres_user, 20, InvalidChar, nil).
+		AddInputField("NGINX PORT HTTP", strconv.Itoa(data.http_port), 20, IsDigit, nil).
+		AddInputField("NGINX PORT HTTPS", strconv.Itoa(data.https_port), 20, IsDigit, nil).
+		AddInputField("POSTGRES_USER", data.postgres_user, 20, InvalidChar, nil).
 		AddInputField("POSTGRES_DB", data.postgres_db, 5, InvalidChar, nil).
 		AddPasswordField("Github API Key", "", 30, '*', nil).
 		AddPasswordField("Google API Key", "", 30, '*', nil).
@@ -41,11 +51,16 @@ func		initData(a *App, data *Data) {
 			a.app.Stop()
 		}).
 		AddButton("save", func() {
-			a.page.ShowPage("error")
+			SaveData(a, data)
+			//a.page.ShowPage("error")
 		}).
 		AddButton("install", func() {
 			/*if err := env.Write("POSTGRES_USER",data.postgres_user, "test", false); err!= nil {
 				panic(err)}*/
+			GeneratePassword(SecretDir, "postgres_password")
+			GeneratePassword(SecretDir, "vault_backend_token")
+			GeneratePassword(SecretDir, "vault_root_token")
+			SaveData(a, data)
 			WriteEnv(data)
 			a.app.Stop()
 		})
@@ -66,6 +81,27 @@ func		initData(a *App, data *Data) {
 }
 
 func main() {
+	if os.Getuid() == 0 {
+        user, err := user.Lookup("appuser")
+        if err != nil {
+            log.Fatalf("Failed to lookup appuser: %v", err)
+        }
+        uid, err := strconv.Atoi(user.Uid)
+        if err != nil {
+            log.Fatalf("Failed to parse UID: %v", err)
+        }
+        gid, err := strconv.Atoi(user.Gid)
+        if err != nil {
+            log.Fatalf("Failed to parse GID: %v", err)
+        }
+        if err := syscall.Setgid(gid); err != nil {
+            log.Fatalf("Failed to set GID: %v", err)
+        }
+        if err := syscall.Setuid(uid); err != nil {
+            log.Fatalf("Failed to set UID: %v", err)
+        }
+    }
+	
 	window := &App {
 		app:  tview.NewApplication(),
 		page: tview.NewPages(),
