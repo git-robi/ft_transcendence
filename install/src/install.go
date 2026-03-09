@@ -12,14 +12,20 @@ import (
 type App struct {
 	app 	*tview.Application
 	page 	*tview.Pages
-	prims	[3]tview.Primitive
+	prims	[6]tview.Primitive
 }
 
 type Data struct {
-	http_port		int
-	https_port		int
-	postgres_user	string
-	postgres_db		string
+	postgres_user		string
+	postgres_db			string
+	http_port			int
+	https_port			int
+	nginx_domain		string	
+	client_url			string
+	google_api_id		string
+	google_api_key		string
+	github_api_id		string
+	github_api_key		string
 }
 
 const (
@@ -36,23 +42,68 @@ func		initData(a *App, data *Data) {
 			if (buttonLabel == "quit" || buttonLabel == "") {
 				a.app.Stop()
 			} else {
-				a.page.SwitchToPage("form")
+				a.page.SwitchToPage("ports")
 			}
 		})
-	//Form page
+		//AddInputField("POSTGRES_USER", data.postgres_user, 20, InvalidChar, nil).
+		//AddInputField("POSTGRES_DB", data.postgres_db, 5, InvalidChar, nil).
+		//AddPasswordField("Github API Key", "", 30, '*', nil).
+		//AddPasswordField("Google API Key", "", 30, '*', nil).
+		
+
+	//Database page
 	a.prims[2] = tview.NewForm().
-		AddInputField("NGINX PORT HTTP", strconv.Itoa(data.http_port), 20, IsDigit, nil).
-		AddInputField("NGINX PORT HTTPS", strconv.Itoa(data.https_port), 20, IsDigit, nil).
-		AddInputField("POSTGRES_USER", data.postgres_user, 20, InvalidChar, nil).
-		AddInputField("POSTGRES_DB", data.postgres_db, 5, InvalidChar, nil).
-		AddPasswordField("Github API Key", "", 30, '*', nil).
-		AddPasswordField("Google API Key", "", 30, '*', nil).
+		AddTextView("Network configuration", "Please select a port for the application.\nIt is recommended to select a port between 1024 and 49151", 0, 0, false, true).
+		AddInputField("Port HTTP", strconv.Itoa(data.http_port), 20, IsDigit, nil).
+		AddInputField("Port HTTPS", strconv.Itoa(data.https_port), 20, IsDigit, nil).
 		AddButton("quit", func() {
 			a.app.Stop()
 		}).
-		AddButton("save", func() {
-			SaveData(a, data)
-			//a.page.ShowPage("error")
+		AddButton("next", func() {
+			var tmp string
+			form := a.prims[2].(*tview.Form)
+			tmp  = form.GetFormItemByLabel("Port HTTP").(*tview.InputField).GetText()
+			data.http_port,_ = strconv.Atoi(tmp) 
+			tmp  = form.GetFormItemByLabel("Port HTTPS").(*tview.InputField).GetText()
+			data.https_port,_ = strconv.Atoi(tmp) 
+			a.page.SwitchToPage("google")
+		})
+	
+	//Google Page
+	a.prims[3] = tview.NewForm().
+		AddTextView("Google OAuth", "Please copy paste Google API ID and Google API Key that are provided to you", 0, 0, false, true).
+		AddInputField("Google API ID", data.google_api_id, 20, nil, nil).
+		AddPasswordField("Google API Key", "", 30, '*', nil).
+		AddButton("prev", func() {
+			a.page.SwitchToPage("ports")
+		}).
+		AddButton("next", func() {
+			form := a.prims[3].(*tview.Form)
+			data.google_api_id = form.GetFormItemByLabel("Google API ID").(*tview.InputField).GetText()
+			data.google_api_key = form.GetFormItemByLabel("Google API Key").(*tview.InputField).GetText()
+			a.page.SwitchToPage("github")
+		})
+	
+	//Github Page
+	a.prims[4] = tview.NewForm().
+		AddTextView("Github OAuth", "Please copy paste Github API ID and Github API Key that are provided to you", 0, 0, false, true).
+		AddInputField("Github API ID", data.github_api_id, 20, nil, nil).
+		AddPasswordField("Github API Key", "", 30, '*', nil).
+		AddButton("prev", func() {
+			a.page.SwitchToPage("google")
+		}).
+		AddButton("next", func() {
+			form := a.prims[4].(*tview.Form)
+			data.github_api_id = form.GetFormItemByLabel("Github API ID").(*tview.InputField).GetText()
+			data.github_api_key = form.GetFormItemByLabel("Github API Key").(*tview.InputField).GetText()
+			a.page.SwitchToPage("installation")
+		})
+	
+	//Installation Page
+	a.prims[5] = tview.NewForm().
+		AddTextView("Installation", "Click on Install to install the Pong Game", 0, 0, false, true).
+		AddButton("quit", func() {
+			a.app.Stop()
 		}).
 		AddButton("install", func() {
 			/*if err := env.Write("POSTGRES_USER",data.postgres_user, "test", false); err!= nil {
@@ -60,17 +111,12 @@ func		initData(a *App, data *Data) {
 			GeneratePassword(SecretDir, "postgres_password")
 			GeneratePassword(SecretDir, "vault_backend_token")
 			GeneratePassword(SecretDir, "vault_root_token")
-			SaveData(a, data)
+			WriteSecret(SecretDir, "google_client_secret", data.google_api_key)
+			WriteSecret(SecretDir, "github_client_secret", data.github_api_key)
 			WriteEnv(data)
 			a.app.Stop()
 		})
 	
-/*AddInputField adds an input field to the form. It has a label, 
-  an optional initial value, a field width (a value of 0 extends it as 
-  far as possible), an optional accept function to validate the item's 
-  value (set to nil to accept any text), and an (optional) callback 
-  function which is invoked when the input field's text has changed.*/
-
 	//Error pop-up
 	a.prims[0] = tview.NewModal().
 		SetText("Error!").
@@ -115,7 +161,10 @@ func main() {
 
 	initData(window, data)
 	window.page.AddAndSwitchToPage("welcome", window.prims[1], false)
-	window.page.AddPage("form", window.prims[2], true, false)
+	window.page.AddPage("ports", window.prims[2], true, false)
+	window.page.AddPage("google", window.prims[3], true, false)
+	window.page.AddPage("github", window.prims[4], true, false)
+	window.page.AddPage("installation", window.prims[5], true, false)
 	window.page.AddPage("error", window.prims[0], true, false)
 	if err := window.app.SetRoot(window.page, true).SetFocus(window.page).Run(); err != nil {
 		panic(err)
