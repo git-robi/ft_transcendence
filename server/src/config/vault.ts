@@ -63,11 +63,26 @@ class VaultClient {
      * Initializes the Vault client and loads all secrets.
      * Must be called before accessing any secret.
      */
-    async initialize(): Promise<void> {
+    async initialize(retries = 5, delayMs = 3000): Promise<void> {
         if (this.initialized) {
             return;
         }
 
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                return await this._tryInitialize();
+            } catch (error) {
+                if (attempt < retries) {
+                    console.warn(`Vault init attempt ${attempt}/${retries} failed, retrying in ${delayMs / 1000}s...`);
+                    await new Promise(r => setTimeout(r, delayMs));
+                } else {
+                    throw error;
+                }
+            }
+        }
+    }
+
+    private async _tryInitialize(): Promise<void> {
         try {
             // Check Vault health
             await this.client.health();
