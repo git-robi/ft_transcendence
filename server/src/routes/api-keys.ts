@@ -32,6 +32,10 @@ router.post("/", protect, async (req: any, res) => {
     try {
     const {name, expiresAt} = req.body;
 
+    if (!name || typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ message: "Name is required" });
+    }
+
     const {hashed, plain} =  generateApiKey();
 
     //store hashed in db

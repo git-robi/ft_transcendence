@@ -75,7 +75,7 @@ model achievement {
 model apiKeys {
   id        Int       @id @default(autoincrement())
   userId    Int
-  name      String?
+  name      String
   createdAt DateTime  @default(now())
   expiresAt DateTime?
   hashedKey String    @unique
