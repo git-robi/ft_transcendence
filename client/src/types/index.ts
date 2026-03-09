@@ -75,6 +75,20 @@ export interface Message {
   sender: 'user' | 'opponent';
 }
 
+export interface ChatMessage {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  content: string;
+  createdAt: string;
+}
+
+export interface Conversation {
+  friendId: number;
+  friend: { id: number; profile: { name: string; avatarUrl: string } | null };
+  lastMessage: { content: string; createdAt: string; senderId: number };
+}
+
 export interface UserListItem {
   id: number;
   email: string;

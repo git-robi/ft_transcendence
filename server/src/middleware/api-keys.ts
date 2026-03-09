@@ -6,12 +6,17 @@ export const protectApiKey = async (req: any, res: Response, next: NextFunction)
 
     try {
 
-        const authHeader = req.headers.authorization; //check capitalization for when doing it from frontend
+        const authHeader = req.headers.authorization;
         if (!authHeader){
             return res.status(401).json({message : "Not Authorized: missing API key header "});
         }
-        
-        const apiKey = authHeader.replace("Bearer ", ""); //extract only the key, no "bearer"
+
+        const [scheme, credentials] = authHeader.split(" ");
+        if (scheme !== "Bearer" || !credentials) {
+            return res.status(401).json({ message: "Not Authorized: invalid Authorization header format" });
+        }
+
+        const apiKey = credentials.trim();
 
         if (!apiKey) {
             return res.status(401).json({message : "Not Authorized: missing API key"});
@@ -37,8 +42,15 @@ export const protectApiKey = async (req: any, res: Response, next: NextFunction)
             return res.status(401).json({ message: "Not Authorized: API key expired" });
         }
 
-        req.apiKey = req.keyRecord;
-        req.user = keyRecord.user;
+        // If a JWT-authenticated user is already present, require key ownership match.
+        if (req.user?.id && req.user.id !== keyRecord.userId) {
+            return res.status(403).json({ message: "Forbidden: API key does not belong to authenticated user" });
+        }
+
+        req.apiKey = keyRecord;
+        if (!req.user) {
+            req.user = keyRecord.user;
+        }
 
         next();
 

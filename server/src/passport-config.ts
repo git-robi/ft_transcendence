@@ -8,7 +8,7 @@ import vaultClient from './config/vault';
 
 dotenv.config();
 
-const clientUrl = process.env.CLIENT_URL || 'https://localhost';
+const baseUrl = process.env.BASE_URL || 'https://localhost';
 
 const vaultGoogle = vaultClient.getOAuthConfig('google');
 const vaultGithub = vaultClient.getOAuthConfig('github');
@@ -35,7 +35,7 @@ if (googleClientId && googleClientSecret) {
         new GoogleStrategy({
             clientID: googleClientId,
             clientSecret: googleClientSecret,
-            callbackURL: `https://localhost/api/v1/auth/google/redirect`,
+            callbackURL: `${baseUrl}/api/v1/auth/google/redirect`,
         }, async (_accessToken, _refreshToken, profile, done) => {
             try {
                 let user = await prisma.user.findFirst({
@@ -74,7 +74,7 @@ if (githubClientId && githubClientSecret) {
         new GithubStrategy({
             clientID: githubClientId,
             clientSecret: githubClientSecret,
-            callbackURL: `https://localhost/api/v1/auth/github/redirect`,
+            callbackURL: `${baseUrl}/api/v1/auth/github/redirect`,
         }, async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
             try {
                 let user = await prisma.user.findFirst({

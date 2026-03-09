@@ -1,0 +1,146 @@
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:16-alpine
+    container_name: transcendence_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-transcendence}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    secrets:
+      - postgres_password
+    networks:
+      - transcendence_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # HashiCorp Vault for secrets management
+  vault:
+    image: hashicorp/vault:1.16
+    container_name: transcendence_vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-transcendence}
+      GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
+      GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
+    volumes:
+      - vault_data:/vault/data
+      - ./vault/config:/vault/config
+      - ./vault/policies:/vault/policies
+      - ./vault/init-vault.sh:/vault/init-vault.sh:ro
+      - ./vault/entrypoint.sh:/usr/local/bin/vault-entrypoint.sh:ro
+    networks:
+      - transcendence_network
+    secrets:
+      - postgres_password
+      - google_client_secret
+      - github_client_secret
+    entrypoint: ["/bin/sh", "/usr/local/bin/vault-entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "vault status > /dev/null 2>&1 && [ -s /vault/data/vault_backend_token ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Node.js
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: transcendence_backend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      CLIENT_URL: https://localhost
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN_FILE: /vault/shared/vault_backend_token
+      GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
+      GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
+      GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
+      GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      vault:
+        condition: service_healthy
+    networks:
+      - transcendence_network
+    volumes:
+      - vault_data:/vault/shared:ro
+    secrets:
+      - google_client_secret
+      - github_client_secret
+    # Volumes commented for production (code is already compiled in the image)
+    # Uncomment for development with hot-reload:
+    # volumes:
+    #   - ./server:/app
+    #   - /app/node_modules
+    restart: unless-stopped
+
+  # Frontend React/Vite
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://localhost/api/v1
+    container_name: transcendence_frontend
+    environment:
+      VITE_API_URL: https://localhost/api/v1
+    networks:
+      - transcendence_network
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  # Nginx with ModSecurity v3 and WAF
+  nginx:
+    image: ${NGINX_WAF_IMAGE:-owasp/modsecurity-crs:nginx}
+    container_name: transcendence_nginx
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        envsubst < /etc/nginx/templates/modsecurity.d/modsecurity.conf.template > /etc/modsecurity.d/modsecurity.conf
+        envsubst < /etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template > /etc/modsecurity.d/modsecurity-override.conf
+        envsubst < /etc/nginx/templates/modsecurity.d/setup.conf.template > /etc/modsecurity.d/setup.conf
+        /usr/sbin/nginx -g 'daemon off;'
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      # CRS is built into the image (Dockerfile); do not mount host crs/ or it overrides and breaks
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+
+networks:
+  transcendence_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  vault_data:
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
+  google_client_secret:
+    file: ./secrets/google_client_secret
+  github_client_secret:
+    file: ./secrets/github_client_secret

@@ -39,5 +39,17 @@ export const apiRateLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+/**
+ * Rate limiter for Swagger docs.
+ */
+export const docsRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 30, // max 30 requests per IP
+    message: {
+        error: 'Too many requests to API docs. Please try again later.',
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 

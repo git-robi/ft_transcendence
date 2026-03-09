@@ -34,6 +34,7 @@ services:
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
     volumes:
       - vault_data:/vault/data
+      - ./secrets/vault_backend_token:/vault/data/vault_backend_token
       - ./vault/config:/vault/config
       - ./vault/policies:/vault/policies
       - ./vault/init-vault.sh:/vault/init-vault.sh

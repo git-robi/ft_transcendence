@@ -6,6 +6,12 @@ import { prisma } from "../prisma/client";
 import { onlineUsers } from "./onlineUsers";
 import { FriendStatus } from "../prisma/generated/prisma/enums";
 
+let ioInstance: Server | null = null;
+
+export function getIO(): Server | null {
+    return ioInstance;
+}
+
 export function initSocket(httpServer: HttpServer) {
     const io = new Server(httpServer, {
         cors: {
@@ -14,7 +20,6 @@ export function initSocket(httpServer: HttpServer) {
         },
     });
 
-    // Auth middleware — verify JWT from cookie
     io.use((socket, next) => {
         const cookie = socket.handshake.headers.cookie;
         const token = cookie
@@ -38,20 +43,45 @@ export function initSocket(httpServer: HttpServer) {
     io.on("connection", async (socket) => {
         const userId: number = socket.data.userId;
 
-        // Join personal room and mark as online
+        // join room + become online
         socket.join(`user:${userId}`);
         onlineUsers.add(userId);
 
-        // Notify friends this user is now online
+        // notify browser that user is online
         const friendIds = await getFriendIds(userId);
+
+        // tell the connecting user which friends are already online
+        const onlineFriendIds = friendIds.filter(id => onlineUsers.has(id));
+        socket.emit("friends:online-list", onlineFriendIds);
+
         friendIds.forEach(friendId => {
             io.to(`user:${friendId}`).emit("friend:online", { userId });
+        });
+
+        // real-time chat
+        socket.on("message:send", async ({ receiverId, content }: { receiverId: number; content: string }) => {
+            try {
+                if (!receiverId || !content || typeof content !== "string" || content.trim().length === 0) return;
+                if (content.length > 1000) return;
+
+                const friends = await getFriendIds(userId);
+                if (!friends.includes(receiverId)) return;
+
+                const message = await prisma.message.create({
+                    data: { senderId: userId, receiverId, content: content.trim() },
+                });
+
+                io.to(`user:${receiverId}`).emit("message:receive", message);
+                socket.emit("message:sent", message);
+            } catch {
+                // silent
+            }
         });
 
         socket.on("disconnect", async () => {
             onlineUsers.delete(userId);
 
-            // Notify friends this user went offline
+            // notify browser that user is offline
             const friendIds = await getFriendIds(userId);
             friendIds.forEach(friendId => {
                 io.to(`user:${friendId}`).emit("friend:offline", { userId });
@@ -59,6 +89,7 @@ export function initSocket(httpServer: HttpServer) {
         });
     });
 
+    ioInstance = io;
     return io;
 }
 
