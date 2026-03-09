@@ -242,7 +242,7 @@ const Settings = () => {
                 {apiKeys.map(key => (
                   <div key={key.id} className="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium text-text-primary">{key.name || `Key #${key.id}`}</p>
+                      <p className="text-sm font-medium text-text-primary">{key.name}</p>
                       <p className="text-xs text-text-muted">
                         {t.settings.created}: {new Date(key.createdAt).toLocaleDateString()}
                         {' · '}
