@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
-import PongGameLarge from '../components/Game/PongGameLarge';
+import { PongSettings } from "../components/Game/pong/settings"
+import PongGame from '../components/Game/PongGame';
 import PlayerOpponentBar from '../components/Game/PlayerOpponentBar';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
@@ -20,35 +21,41 @@ const Game = () => {
   const [playMode, setPlayMode] = useState<'AI' | 'LOCAL'>('AI');
   const [aiLevel, setAiLevel] = useState<'EASY' | 'MID' | 'HARD'>('EASY');
   const [guestName, setGuestName] = useState('');
+  const [liveScore, setScore] = useState({ left: 0, right: 0 });
   const [winPoints, setWinPoints] = useState(5);
   const [paddle, setPaddle] = useState<'LEFT' | 'RIGHT'>('LEFT');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleMatchEnd = async (userScore: number, opponentScore: number) => {
-    if (!match) return;
-    try {
-      await Matches.patch(`/${match.id}`, { userScore, opponentScore });
-    } catch {
-      // silently fail — match result couldn't be saved
-    }
+  const handleMatchEnd = async (leftScore: number, rightScore: number) => {
+	if (!match) return;
+	
+	try {
+		await Matches.patch(`/${match.id}`, { userScore: leftScore, opponentScore: rightScore });
+	} catch {}
 
-    const playerName = user?.name || 'You';
-    const opponentName = match.playMode === 'AI'
-      ? `AI (${match.aiLevel.charAt(0) + match.aiLevel.slice(1).toLowerCase()})`
-      : match.guestName || 'Player 2';
+	const playerName = user?.name || 'You';
+	const opponentName = match.playMode === 'AI' 
+		? `AI (${match.aiLevel.charAt(0) + match.aiLevel.slice(1).toLowerCase()})`
+		: match.guestName || 'Player 2';
 
-    setResult({
-      winnerName: userScore > opponentScore ? playerName : opponentName,
-      userScore,
-      opponentScore,
-    });
-    setMatch(null);
+	// If the player has selected right corner, invert the scores:
+	const actualUserScore = match.paddle === 'LEFT' ? leftScore : rightScore;
+	const actualOpponentScore = match.paddle === 'LEFT' ? rightScore : leftScore;
+	
+	setResult({
+		winnerName: actualUserScore > actualOpponentScore ? playerName : opponentName,
+		userScore: actualUserScore,
+		opponentScore: actualOpponentScore,
+	});
+
+	setMatch(null);
   };
 
   const handleStart = async () => {
     setError('');
     setLoading(true);
+    setScore({left: 0, right: 0});
     try {
       const res = await Matches.post('/', {
         playMode,
@@ -65,6 +72,11 @@ const Game = () => {
     }
   };
 
+  const handleScoreUpdate = useCallback(
+    (left: number, right: number) => {
+    setScore({left, right});
+  }, []);
+
   const toggleClass = (active: boolean) =>
     `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
       active
@@ -74,9 +86,22 @@ const Game = () => {
 
   // Game is running
   if (match) {
-    const opponentName = match.playMode === 'AI'
-      ? `AI (${match.aiLevel.charAt(0) + match.aiLevel.slice(1).toLowerCase()})`
-      : match.guestName || 'Player 2';
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || navigator.maxTouchPoints > 0;
+
+    const settings = new PongSettings();
+
+    settings.device = isMobile ? "Mobile" : "PC";
+    settings.maxPoints = match.winPoints;
+    settings.mode = match.playMode === 'AI' ? '1vsAI' : '1vs1Off';
+    settings.ai_level = match.aiLevel?.toLocaleLowerCase() || 'easy';
+
+    settings.your_pad = match.paddle === 'LEFT' ? 'left' : 'right';
+    settings.plL_name = user?.name || 'You';
+    settings.plR_name = match.playMode === 'AI' ? 'AI' : match.guestName || 'Player 2';
+    settings.onGameEnd = handleMatchEnd;
+
+    const userScore = settings.your_pad === "left" ? liveScore.left : liveScore.right;
+    const opponentScore = settings.your_pad === "left" ? liveScore.right : liveScore.left;
 
     return (
       <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
@@ -85,28 +110,14 @@ const Game = () => {
           <div className="flex flex-col origin-top">
             <PlayerOpponentBar
               playerName={user?.name || 'You'}
-              opponentName={opponentName}
-              playerScore={match.userScore}
-              opponentScore={match.opponentScore}
+              opponentName={settings.plR_name}
+              playerScore={userScore}
+              opponentScore={opponentScore}
               winPoints={match.winPoints}
               paddle={match.paddle}
             />
-            <PongGameLarge />
-            {/* TODO: remove — temp button to simulate game end */}
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={() => handleMatchEnd(match.winPoints, 2)}
-                className="flex-1 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-500"
-              >
-                Simulate Win
-              </button>
-              <button
-                onClick={() => handleMatchEnd(1, match.winPoints)}
-                className="flex-1 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-500"
-              >
-                Simulate Loss
-              </button>
-            </div>
+
+            <PongGame key={match.id} pongSet={settings} onScoreChange={handleScoreUpdate} onGameEnd={handleMatchEnd}/>
           </div>
         </main>
         <Footer />
