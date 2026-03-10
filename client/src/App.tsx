@@ -39,9 +39,10 @@ const AppRoutes = () => {
       <Route path="/profile/:id" element={user ? <Profile /> : <Navigate to="/login" />} />
       <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" />} />
       <Route path="/social" element={user ? <Social /> : <Navigate to="/login" />} />
+      <Route path="/apiTest" element={user ? <ApiTest  /> : <Navigate to="/login" />} />
       <Route path="/tos" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/apiTest" element={<ApiTest />} />
+      
     </Routes>
   );
 };
