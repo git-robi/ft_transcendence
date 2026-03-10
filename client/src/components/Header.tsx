@@ -75,6 +75,7 @@ const Header = () => {
             <div onClick={() => handleNav('/social')} className={linkClass}>{t.header.social}</div>
             <div onClick={() => handleNav('/profile')} className={linkClass}>{t.header.profile}</div>
             <div onClick={() => handleNav('/settings')} className={linkClass}>{t.header.settings}</div>
+            <div onClick={() => handleNav('/apiTest')} className={linkClass}>{t.header.apiTest}</div>
             <div className="mt-auto border-t border-white/10">
               <button
                 onClick={() => { logout(); setMenuOpen(false); }}

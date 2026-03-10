@@ -2,6 +2,7 @@ import { protectApiKey } from "../middleware/api-keys";
 import express, { Response } from "express";
 import { prisma } from "../prisma/client";
 import { getRankedUsers } from "./matches";
+import { protect } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -88,6 +89,11 @@ router.get("/stats/:id", protectApiKey, async (req, res) => {
             return res.status(400).json({ message: "Invalid user ID" });
         }
 
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
         const matches = await prisma.match.findMany({
             where: {
                 userId: userId,
@@ -167,7 +173,7 @@ router.get("/stats/:id", protectApiKey, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post("/feedback", protectApiKey, async (req, res) => {
+router.post("/feedback", protect, protectApiKey, async (req, res) => {
     try {
         const userId = (req.user as { id: number }).id;
         const text = req.body.text;
@@ -236,7 +242,7 @@ router.post("/feedback", protectApiKey, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.put("/profile", protectApiKey, async (req, res) => {
+router.put("/profile", protect, protectApiKey, async (req, res) => {
     try {
         const userId = (req as any).user?.id;
 
@@ -304,7 +310,7 @@ router.put("/profile", protectApiKey, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.delete("/account", protectApiKey, async (req, res) => {
+router.delete("/account", protect, protectApiKey, async (req, res) => {
     try {
         const userId = (req as any).user?.id;
 
@@ -349,6 +355,15 @@ router.delete("/account", protectApiKey, async (req, res) => {
             await tx.user.delete({
                 where: { id: userId }
             });
+        });
+
+        // Clear auth cookie to log the user out
+        res.cookie('token', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+            maxAge: 1,
         });
 
         return res.status(200).json({

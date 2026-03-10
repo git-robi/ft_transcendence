@@ -36,6 +36,9 @@ const Home = () => {
               <Button variant="secondary" to="/settings">
                 {t.header.settings}
               </Button>
+               <Button variant="secondary" to="/APITest">
+                {t.header.apiTest}
+               </Button>
             </div>
 
             <Leaderboard />
