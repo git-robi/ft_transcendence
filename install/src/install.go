@@ -41,6 +41,7 @@ func		initData(a *App, data *Data) {
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 			if (buttonLabel == "quit" || buttonLabel == "") {
 				a.app.Stop()
+				os.Exit(1)
 			} else {
 				a.page.SwitchToPage("ports")
 			}
@@ -58,6 +59,7 @@ func		initData(a *App, data *Data) {
 		AddInputField("Port HTTPS", strconv.Itoa(data.https_port), 20, IsDigit, nil).
 		AddButton("quit", func() {
 			a.app.Stop()
+			os.Exit(1)
 		}).
 		AddButton("next", func() {
 			var tmp string
@@ -104,6 +106,7 @@ func		initData(a *App, data *Data) {
 		AddTextView("Installation", "Click on Install to install the Pong Game", 0, 0, false, true).
 		AddButton("quit", func() {
 			a.app.Stop()
+			os.Exit(1)
 		}).
 		AddButton("install", func() {
 			/*if err := env.Write("POSTGRES_USER",data.postgres_user, "test", false); err!= nil {
@@ -115,6 +118,7 @@ func		initData(a *App, data *Data) {
 			WriteSecret(SecretDir, "github_client_secret", data.github_api_key)
 			WriteEnv(data)
 			a.app.Stop()
+			os.Exit(0)
 		})
 	
 	//Error pop-up
