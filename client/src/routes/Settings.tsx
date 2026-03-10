@@ -8,6 +8,7 @@ import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import ProfileAPI from '../APIs/profile';
 import Auth from '../APIs/auth';
+import { getCsrfToken } from '../APIs/csrf';
 
 interface ApiKey {
   id: number;
@@ -121,7 +122,8 @@ const Settings = () => {
   const handleDeleteKey = async (id: number) => {
     if (!confirm(t.settings.confirmDelete)) return;
     try {
-      await fetch(`/api/v1/api-keys/${id}`, { method: 'DELETE', credentials: 'include' });
+      const csrfToken = await getCsrfToken();
+      await fetch(`/api/v1/api-keys/${id}`, { method: 'DELETE', credentials: 'include', headers: { 'X-CSRF-Token': csrfToken } });
       setApiKeys(prev => prev.filter(k => k.id !== id));
     } catch { /* ignore */ }
   };

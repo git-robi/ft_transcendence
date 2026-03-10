@@ -89,6 +89,11 @@ router.get("/stats/:id", protectApiKey, async (req, res) => {
             return res.status(400).json({ message: "Invalid user ID" });
         }
 
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
         const matches = await prisma.match.findMany({
             where: {
                 userId: userId,
@@ -350,6 +355,15 @@ router.delete("/account", protect, protectApiKey, async (req, res) => {
             await tx.user.delete({
                 where: { id: userId }
             });
+        });
+
+        // Clear auth cookie to log the user out
+        res.cookie('token', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+            maxAge: 1,
         });
 
         return res.status(200).json({

@@ -21,7 +21,7 @@ const fetchCsrfToken = async (): Promise<string> => {
     return token;
 };
 
-const getCsrfToken = async (): Promise<string> => {
+export const getCsrfToken = async (): Promise<string> => {
     if (csrfToken) return csrfToken;
 
     if (!csrfTokenRequest) {
