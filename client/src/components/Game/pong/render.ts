@@ -1,14 +1,10 @@
-/* **********************************************/
-/*                   RENDER                     */
-/* **********************************************/
+import { GAME_WIDTH, GAME_HEIGHT } from "./OBPong";
+import type { Pong } from "./OBPong";
 
-import { GAME_WIDTH, GAME_HEIGHT, gm_margin } from "./OBPong.js";
-
-/** BETTER RENDER */
 let scale = 1;
 let offsetX = 0, offsetY = 0;
 
-export function resizeCanvas(pong)
+export function resizeCanvas(pong: Pong): void
 {
 	if (pong.canvas == null)
 		return ;
@@ -27,7 +23,5 @@ export function resizeCanvas(pong)
 	const dpr = window.devicePixelRatio || 1;
 	pong.canvas.width = GAME_WIDTH * dpr;
 	pong.canvas.height = GAME_HEIGHT * dpr;
-	pong.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	pong.ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-
-/* **********************************************/

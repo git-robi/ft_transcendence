@@ -1,11 +1,7 @@
-/* **********************************************/
-/*                 PHYSICS                      */
-/* **********************************************/
+import type { Ball, Border, Corner, Paddle } from "./types";
 
-/** Collision detection - FOR BALL - */
-export function checkPaddleCollision(ball, paddle)
+export function checkPaddleCollision(ball: Ball, paddle: Paddle): void
 {
-	// AABB - Circle collision detection
 	const ballLeft = ball.x - ball.rad;
 	const ballRight = ball.x + ball.rad;
 	const ballTop = ball.y - ball.rad;
@@ -19,27 +15,22 @@ export function checkPaddleCollision(ball, paddle)
 	if ( ballRight > paddleLeft && ballLeft < paddleRight
 		&& ballBottom > paddleTop && ballTop < paddleBottom ){
 
-		// Collision detected
 		ball.dirX *= -1;
 
-		// Ajustar dirección Y según el punto de impacto
-		const hitPoint = (ball.y - paddle.y) / paddle.height; // 0 arriba, 1 abajo
-		ball.dirY = (hitPoint - 0.5) * 2; // valores entre -1 y 1
+		const hitPoint = (ball.y - paddle.y) / paddle.height;
+		ball.dirY = (hitPoint - 0.5) * 2;
 
 		if (ball.dirX > 0) {
-			// Rebota hacia la derecha → pala izquierda
 			ball.x = paddleRight + ball.rad;
 		}
 		else {
-			// Rebota hacia la izquierda → pala derecha
 			ball.x = paddleLeft - ball.rad;
 		}
 	}
 }
 
-export function checkWallCollision(ball, border)
+export function checkWallCollision(ball: Ball, border: Border): void
 {
-	// AABB - Circle collision detection
 	const ballLeft = ball.x - ball.rad;
 	const ballRight = ball.x + ball.rad;
 	const ballTop = ball.y - ball.rad;
@@ -53,15 +44,12 @@ export function checkWallCollision(ball, border)
 	if ( ballRight > borderLeft && ballLeft < borderRight
 		&& ballBottom > borderTop && ballTop < borderBottom ){
 
-		// Collision detected
 		ball.dirY *= -1;
 	}
 }
-/*----------------- */
 
-export function checkCornerCollision(ball, corner)
+export function checkCornerCollision(ball: Ball, corner: Corner): boolean
 {
-	// AABB - Circle collision detection
 	const ballLeft = ball.x - ball.rad;
 	const ballRight = ball.x + ball.rad;
 	const ballTop = ball.y - ball.rad;
@@ -79,4 +67,3 @@ export function checkCornerCollision(ball, corner)
 	else
 		return false;
 }
-/* **********************************************/

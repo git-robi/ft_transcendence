@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
-import { PongSettings } from "../components/Game/pong/settings.js"
+import { PongSettings } from "../components/Game/pong/settings"
 import PongGame from '../components/Game/PongGame';
 import PlayerOpponentBar from '../components/Game/PlayerOpponentBar';
 import { useLanguage } from '../i18n/useLanguage';

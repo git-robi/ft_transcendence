@@ -1,28 +1,25 @@
-/* **********************************************/
-/*                   AI PONG                    */
-/* **********************************************/
+import type { Ball, Paddle } from "./types";
 
-//** AI  */
 export class AI
 {
+	level: string;
+	chance: number;
+	velMax: number;
+
 	constructor()
 	{
-		this.level		=	"mid";	// Level of AI (easy - mid - hard)
-		this.chance		=	55;		// Chance of AI for mistakes
-		this.velMax		=	60;		// Max velocoty of pad
+		this.level		=	"mid";
+		this.chance		=	55;
+		this.velMax		=	60;
 	}
 
-	setLevel(ball, pad, level)
+	setLevel(ball: Ball, pad: Paddle, level?: string): void
 	{
 		pad.ai_enable = true;
 
 		if (!level)
 			level = this.level;
 
-		/* Custom dificulty:
-			- for more dificulty, less chance to stop or slow down
-			- for les dificulty, more chance to stop or slow down
-		*/
 		switch (level)
 		{
 			case	"easy":
@@ -67,7 +64,8 @@ export class AI
 		}
 		pad.smoothVel = 0;
 	}
-	smoothIT(paddle)
+
+	smoothIT(paddle: Paddle): void
 	{
 		paddle.smoothVel *= paddle.damping;
 
@@ -78,7 +76,6 @@ export class AI
 			const acceleration = paddle.dirY * paddle.maxAcc;
 			paddle.smoothVel += acceleration;
 
-			// Limit the max velocity
 			const maxSpeed = paddle.vel * 1.2;
 			paddle.smoothVel = Math.max(
 				Math.min(paddle.smoothVel, maxSpeed),
@@ -88,16 +85,14 @@ export class AI
 
 		paddle.y += paddle.smoothVel;
 
-		// Ensure paddle stays within game bounds
 		if (paddle.y < 0) {
 			paddle.y = 0;
 		} else if (paddle.y + paddle.height > paddle.maxY) {
 			paddle.y = paddle.maxY - paddle.height;
 		}
 	}
-	//*********** */
 
-	basicAI(ball, pad)
+	basicAI(ball: Ball, pad: Paddle): void
 	{
 		if (ball.y < pad.y)
 			pad.dirY = -1;
@@ -109,7 +104,6 @@ export class AI
 		var random = Math.floor(Math.random() * 100);
 		if (random < this.chance)
 		{
-			console.log("I will stop for you");
 			if (Math.random() < 0.4)
 				pad.dirY = (Math.random() * 2 - 1) * 0.3;
 			pad.vel /= 5;
@@ -120,7 +114,7 @@ export class AI
 		this.smoothIT(pad);
 	}
 
-	predictiveAI(ball, pad)
+	predictiveAI(ball: Ball, pad: Paddle): void
 	{
 		if (ball.y + ball.dirY < pad.y)
 			pad.dirY = -1;
@@ -132,7 +126,6 @@ export class AI
 		var random = Math.floor(Math.random() * 100);
 		if (random < this.chance)
 		{
-			console.log("I will stop for you");
 			if (Math.random() < 0.4)
 				pad.dirY = (Math.random() * 2 - 1) * 0.3;
 			pad.vel /= 5;
@@ -143,7 +136,7 @@ export class AI
 		this.smoothIT(pad);
 	}
 
-	ai(ball, pad)
+	ai(ball: Ball, pad: Paddle): void
 	{
 		if (!pad.ai_enable)
 			return ;
@@ -153,7 +146,6 @@ export class AI
 		else
 			this.basicAI(ball, pad);
 	}
-	/**----------------- */
 }
 
 export let ai = new AI();

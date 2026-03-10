@@ -1,17 +1,24 @@
 import { useEffect, useRef } from "react";
-import { pong } from "./pong/OBPong.js";
-import { resizeCanvas } from "./pong/render.js";
-import { startGame, stopGame } from "./pong/pong.js"
-import "./pong/pong.js";
+import { pong } from "./pong/OBPong";
+import { resizeCanvas } from "./pong/render";
+import { startGame, stopGame } from "./pong/pong";
+import type { PongSettings } from "./pong/settings";
+import "./pong/pong";
 import "./pong/pongstyle.css";
 
-function PongGame({ pongSet, onScoreChange, onGameEnd }) {
+interface PongGameProps {
+  pongSet: PongSettings;
+  onScoreChange?: (leftScore: number, rightScore: number) => void;
+  onGameEnd?: (leftScore: number, rightScore: number) => void;
+}
+
+function PongGame({ pongSet, onScoreChange, onGameEnd }: PongGameProps) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sliderLRef = useRef<HTMLInputElement>(null);
   const sliderRRef = useRef<HTMLInputElement>(null);  
 
-  const gameRef = useRef(null); 
+  const gameRef = useRef<typeof pong | null>(null);
 
   useEffect(() => {
     if (gameRef.current) return ;
