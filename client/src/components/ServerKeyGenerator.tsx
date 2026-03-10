@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useLanguage } from "../i18n/useLanguage";
+import { getCsrfToken } from "../APIs/csrf";
 import Button from "./Button";
 
 type Props = {
@@ -28,9 +29,10 @@ const ServerKeyGenerator = ({ setApiKey }: Props) => {
       const body: any = { name };
       if (expiresAt)
         body.expiresAt = expiresAt.toISOString();
+      const csrfToken = await getCsrfToken();
       const res = await fetch("/api/v1/api-keys", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
         credentials: "include",
         body: JSON.stringify(body),
       });

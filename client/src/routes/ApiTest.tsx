@@ -4,13 +4,15 @@ import Button from "../components/Button";
 import ServerKeyGenerator from "../components/ServerKeyGenerator";
 import { useLanguage } from "../i18n/useLanguage";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 type ApiChoice = '' | 'leaderboard' | 'stats' | 'feedback' | 'profile' | 'account'
 
 const ApiTest = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const navigate = useNavigate();
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [whichAPI, setWhichAPI] = useState<ApiChoice>('');
   const [statsUserId, setStatsUserId] = useState<string>('');
@@ -91,6 +93,13 @@ const ApiTest = () => {
         bodyText = await res.text();
       }
       setServerResponse(`${res.status} ${res.statusText}\n${bodyText}`);
+
+      // If account was deleted successfully, clear user and redirect home
+      if (whichAPI === 'account' && res.ok) {
+        setUser(null);
+        navigate('/');
+        return;
+      }
         
     } catch (err) {
       setServerResponse(`request failed: ${err}`);
