@@ -16,8 +16,8 @@ const WAIT_SERVE = 180; // Time to wait before serve (fps so 180 is 3s)
 
 // 	** BALL */
 const START_BALL_VEL = 0;
-const BALL_ACCELERATION = 0.15;
-const BALL_VEL	=	12;
+const BALL_ACCELERATION = 0.1;
+const BALL_VEL	=	8;
 const BALL_RAD	=	20;
 const BALL = {
 	color:	"white",
@@ -78,7 +78,7 @@ const SCORE = {
 
 //** PADDLES */
 // -- width, height, velocity
-const PADW = 16, PADH = 100, PADVEL = 18;
+const PADW = 16, PADH = 100, PADVEL = 14;
 const PAD = {
 	ai_enable:	false,	// Enable/disable
 	controller:	"keyboard",	// keyboard - mouse - slider (on mobile)
