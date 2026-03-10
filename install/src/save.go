@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func WriteEnv(data *Data) error {
@@ -24,7 +25,7 @@ GITHUB_CLIENT_ID=%s`,
 	data.postgres_db, 
 	data.http_port, 
 	data.https_port,
-	data.client_url,
+	"https://" + data.nginx_domain + ":" + strconv.Itoa(data.https_port),
 	data.google_api_id,
 	data.github_api_id)
 

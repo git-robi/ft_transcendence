@@ -2,14 +2,10 @@ package main
 
 import (
 	"strconv"
-//	"fmt"
+	"net"
 	"strings"
+	"fmt"
 )
-
-func	CheckInputs(data *Data) {
-	
-
-}
 
 func 	isEmpty(str string) bool {
 	return len(strings.TrimSpace(str)) == 0
@@ -36,10 +32,6 @@ func	InvalidChar(str string, r rune) bool {
 	return true
 }
 
-func 	ValidatePortInput(port string) {
-
-}
-
 func	CheckPortNum(port string) bool {
 	var num int
 	var err error
@@ -50,5 +42,12 @@ func	CheckPortNum(port string) bool {
 	return true 
 }
 
+func IsPortOpen(port int) error {
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return err
+	}
+	ln.Close()
+	return nil
+}
 
-		//return fmt.Errorf("port %d is invalid: number must be between 0 and 65534, recommmanded range is 1024 - 49151", port)

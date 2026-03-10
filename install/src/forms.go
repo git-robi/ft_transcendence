@@ -31,7 +31,7 @@ func WelcomePage(a *App) *tview.Modal {
 				a.app.Stop()
 				os.Exit(1)
 			} else {
-				a.page.SwitchToPage("ports")
+				a.page.SwitchToPage("network")
 			}
 		})
 }
@@ -50,7 +50,17 @@ func NetworkPage(a *App, data *Data) *tview.Flex {
 	form.AddButton("next", func() {
 			data.http_port, _ = strconv.Atoi(form.GetFormItemByLabel("Port HTTP").(*tview.InputField).GetText())
 			data.https_port, _ = strconv.Atoi(form.GetFormItemByLabel("Port HTTPS").(*tview.InputField).GetText())
-			a.page.SwitchToPage("google")
+			if err := IsPortOpen(data.http_port); err != nil {
+				a.page.AddAndSwitchToPage("error", ShowErrorModal(a, 
+				"Error port " + strconv.Itoa(data.http_port) + " is not available",
+				"network"), false)
+			} else if err := IsPortOpen(data.https_port); err != nil {
+				a.page.AddAndSwitchToPage("error", ShowErrorModal(a, 
+				"Error port " + strconv.Itoa(data.https_port) + " is not available",
+				"network"), false)	
+			} else {
+				a.page.SwitchToPage("google")
+			}
 		})
 	return centerPrimitive(header, form, 60, 10)
 }
@@ -115,10 +125,12 @@ func InstallationPage(a *App, data *Data) *tview.Flex {
 	return centerPrimitive(header, form, 60, 10)
 }
 	
-	//Error pop-up
-	/*a.prims[0] = tview.NewModal().
-		SetText("Error!").
+func ShowErrorModal (a *App, message, returnPage string) *tview.Modal { 
+	pop := tview.NewModal().
+	SetText(message).
 		AddButtons([]string {"OK"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				a.page.SwitchToPage("form")
-			})*/
+			a.page.SwitchToPage(returnPage)
+	})
+	return pop
+}

@@ -65,11 +65,11 @@ func initData(a *App, data *Data) {
 
 func setupPages(a *App) {
 	a.page.AddAndSwitchToPage("welcome", a.prims[0], false)
-	a.page.AddPage("ports", a.prims[1], true, false)
+	a.page.AddPage("network", a.prims[1], true, false)
 	a.page.AddPage("google", a.prims[2], true, false)
 	a.page.AddPage("github", a.prims[3], true, false)
 	a.page.AddPage("installation", a.prims[4], true, false)
-//	a.page.AddPage("error", a.prims[0], true, false)
+	a.page.AddPage("error", ShowErrorModal(a, "", ""), true, false)
 }
 
 
@@ -82,8 +82,9 @@ func 	main() {
 	data := &Data {
 		http_port: 3000,
 		https_port: 3001,
+		nginx_domain: "localhost",
 		postgres_user: "db_user",
-		postgres_db: "tr_database",
+		postgres_db: "pong_db",
 	}
 	if os.Getuid() == 0 {
         dropPrivileges()

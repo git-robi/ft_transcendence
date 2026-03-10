@@ -8,7 +8,7 @@ docker build \
   -t my-go-installer .
 
 touch "$(pwd)/.env"
-docker run -it --rm \
+docker run -it --net=host --rm \
   -v "$(pwd)/secrets:/app/output/secrets" \
   -v "$(pwd)/.env:/app/output/.env" \
   my-go-installer
