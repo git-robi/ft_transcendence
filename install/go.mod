@@ -2,10 +2,7 @@ module command
 
 go 1.24.4
 
-require (
-	github.com/gofor-little/env v1.0.20
-	github.com/rivo/tview v0.42.0
-)
+require github.com/rivo/tview v0.42.0
 
 require (
 	github.com/gdamore/encoding v1.0.1 // indirect

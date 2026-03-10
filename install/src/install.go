@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"syscall"
 	"github.com/rivo/tview"
+	"github.com/gdamore/tcell/v2"
 )
 
 type App struct {
@@ -71,10 +72,9 @@ func setupPages(a *App) {
 //	a.page.AddPage("error", a.prims[0], true, false)
 }
 
+
+
 func 	main() {
-	if os.Getuid() == 0 {
-        dropPrivileges()
-    }
 	window := &App {
 		app:	tview.NewApplication(),
 		page:	tview.NewPages(),
@@ -85,8 +85,19 @@ func 	main() {
 		postgres_user: "db_user",
 		postgres_db: "tr_database",
 	}
+	if os.Getuid() == 0 {
+        dropPrivileges()
+    }
 	initData(window, data)
 	setupPages(window)
+	handleSig := func (event *tcell.EventKey) *tcell.EventKey {
+	    if event.Key() == tcell.KeyCtrlC {
+			window.app.Stop()
+        	os.Exit(1)
+		}
+		return event
+    }
+	window.app.SetInputCapture(handleSig)
 	if err := window.app.
 			SetRoot(window.page, true).
 			EnableMouse(true).
