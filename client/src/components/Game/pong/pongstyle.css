@@ -61,7 +61,7 @@
 	position: static; /* override base .gmSlider's position: absolute */
 	-webkit-appearance: none;
 	appearance: none;
-	accent-color: transparent; /* kill browser blue */
+	accent-color: transparent; /* override browser standard blue */
 	writing-mode: vertical-lr;
 	width: 44px;
 	height: auto;
@@ -75,7 +75,7 @@
 .gmSliderVertical::-webkit-slider-runnable-track {
 	width: 10px;
 	border-radius: 8px;
-	background: linear-gradient(to bottom, #84cc16, #facc15); /* lime-500 → yellow-400 */
+	background: linear-gradient(to bottom, #84cc16, #facc15); /* lime-500 -> yellow-400 */
 }
 .gmSliderVertical::-moz-range-track {
 	width: 10px;
