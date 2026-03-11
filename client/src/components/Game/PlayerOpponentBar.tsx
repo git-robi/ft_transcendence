@@ -47,7 +47,7 @@ const { t } = useLanguage();
       </div>
 
       {/* Center - score target */}
-      <span className="text-xs text-text-muted">{t.game.firstTo} {winPoints}</span>
+      <span className="text-xs text-text-muted">{t.game.firstTo} {winPoints} {t.game.firstToSecondPart}</span>
 
       {/* Right side */}
       <div className="flex items-center gap-3">
