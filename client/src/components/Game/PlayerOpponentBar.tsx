@@ -1,4 +1,4 @@
-import { useLanguage } from '../i18n/useLanguage';
+import { useLanguage } from "../../i18n/useLanguage";
 
 interface PlayerOpponentBarProps {
   playerName: string;

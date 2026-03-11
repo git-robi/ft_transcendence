@@ -48,16 +48,59 @@
 
 /*  -----   */
 .sliderL {
-	/*left: -35px;*/
-	/*top: 50%;*/
 	transform-origin: center;
 	transform: translateY(-50%) rotate(90deg) scale(1.7);
 }
 .sliderR{
-	/*right: -35px;*/
-	/*top: 50%;*/
 	transform-origin: center;
 	transform: translateY(-50%) rotate(90deg) scale(1.7);
+}
+
+/* Vertical slider (outside canvas, on sides) */
+.gmSliderVertical {
+	position: static; /* override base .gmSlider's position: absolute */
+	-webkit-appearance: none;
+	appearance: none;
+	accent-color: transparent; /* kill browser blue */
+	writing-mode: vertical-lr;
+	width: 44px;
+	height: auto;
+	align-self: stretch;
+	flex-shrink: 0;
+	background: transparent;
+	padding: 0 6px;
+	cursor: pointer;
+}
+/* Track — green->yellow gradient */
+.gmSliderVertical::-webkit-slider-runnable-track {
+	width: 10px;
+	border-radius: 8px;
+	background: linear-gradient(to bottom, #84cc16, #facc15); /* lime-500 → yellow-400 */
+}
+.gmSliderVertical::-moz-range-track {
+	width: 10px;
+	border-radius: 8px;
+	background: linear-gradient(to bottom, #84cc16, #facc15);
+}
+/* Thumb on a slider — plain white circle */
+.gmSliderVertical::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: #ffffff;
+	border: 2px solid rgba(0,0,0,0.25);
+	box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+	margin-left: -9px; /* centre thumb on track */
+}
+.gmSliderVertical::-moz-range-thumb {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: #ffffff;
+	border: 2px solid rgba(0,0,0,0.25);
+	box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 /***/
 

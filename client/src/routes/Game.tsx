@@ -34,10 +34,10 @@ const Game = () => {
 		await Matches.patch(`/${match.id}`, { userScore: leftScore, opponentScore: rightScore });
 	} catch {}
 
-	const playerName = user?.name || 'You';
-	const opponentName = match.playMode === 'AI' 
-		? `AI (${match.aiLevel.charAt(0) + match.aiLevel.slice(1).toLowerCase()})`
-		: match.guestName || 'Player 2';
+  const playerName = user?.name || t.chat.you;
+  const opponentName = match.playMode === 'AI'
+    ? `${t.game.ai} (${match.aiLevel.charAt(0) + match.aiLevel.slice(1).toLowerCase()})`
+    : match.guestName || t.game.player2;
 
 	// If the player has selected right corner, invert the scores:
 	const actualUserScore = match.paddle === 'LEFT' ? leftScore : rightScore;
@@ -80,7 +80,7 @@ const Game = () => {
   const toggleClass = (active: boolean) =>
     `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
       active
-        ? 'bg-accent-purple text-white'
+        ? 'bg-accent-purple text-black'
         : 'bg-white/5 border border-white/10 text-text-secondary hover:bg-white/10'
     }`;
 
@@ -96,12 +96,50 @@ const Game = () => {
     settings.ai_level = match.aiLevel?.toLocaleLowerCase() || 'easy';
 
     settings.your_pad = match.paddle === 'LEFT' ? 'left' : 'right';
-    settings.plL_name = user?.name || 'You';
-    settings.plR_name = match.playMode === 'AI' ? 'AI' : match.guestName || 'Player 2';
+    settings.plL_name = user?.name || t.chat.you;
+    settings.plR_name = match.playMode === 'AI' ? t.game.ai : match.guestName || t.game.player2;
     settings.onGameEnd = handleMatchEnd;
 
     const userScore = settings.your_pad === "left" ? liveScore.left : liveScore.right;
     const opponentScore = settings.your_pad === "left" ? liveScore.right : liveScore.left;
+
+    if (isMobile) {
+      return (
+        <div className="fixed inset-0 z-50 bg-black text-white overflow-hidden">
+          {/* Portrait mode warning */}
+          <div className="portrait:flex hidden absolute inset-0 z-20 bg-black flex-col items-center justify-center text-center gap-4 p-8">
+            <div className="text-5xl">↻</div>
+            <p className="text-text-muted">Rotate your device to play</p>
+          </div>
+
+          {/* Landscape layout */}
+          <div className="landscape:flex hidden flex-col h-full w-full">
+            {/* Compact score bar */}
+            <div className="shrink-0 px-2 py-1 border-b border-white/10">
+              <PlayerOpponentBar
+                playerName={user?.name || t.chat.you}
+                opponentName={settings.plR_name}
+                playerScore={userScore}
+                opponentScore={opponentScore}
+                winPoints={match.winPoints}
+                paddle={match.paddle}
+              />
+            </div>
+
+            {/* Game area */}
+            <div className="flex-1 relative flex items-center justify-center overflow-hidden">
+              <PongGame key={match.id} pongSet={settings} onScoreChange={handleScoreUpdate} onGameEnd={handleMatchEnd}/>
+              <button
+                onClick={() => setMatch(null)}
+                className="absolute top-2 right-2 z-30 px-3 py-1 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20"
+              >
+                {t.chat.back}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
@@ -109,7 +147,7 @@ const Game = () => {
         <main className="flex-1 flex items-center justify-center px-1 py-2">
           <div className="flex flex-col origin-top">
             <PlayerOpponentBar
-              playerName={user?.name || 'You'}
+              playerName={user?.name || t.chat.you}
               opponentName={settings.plR_name}
               playerScore={userScore}
               opponentScore={opponentScore}
@@ -185,33 +223,35 @@ const Game = () => {
           </div>
 
           {/* AI Difficulty or Guest Name */}
-          {playMode === 'AI' ? (
-            <div>
-              <label className="block text-sm text-text-muted mb-2">{t.game.difficulty}</label>
-              <div className="flex gap-2">
-                <button onClick={() => setAiLevel('EASY')} className={toggleClass(aiLevel === 'EASY')}>
-                  {t.game.easy}
-                </button>
-                <button onClick={() => setAiLevel('MID')} className={toggleClass(aiLevel === 'MID')}>
-                  {t.game.medium}
-                </button>
-                <button onClick={() => setAiLevel('HARD')} className={toggleClass(aiLevel === 'HARD')}>
-                  {t.game.hard}
-                </button>
+          <div className='min-h-[80px] flex flex-col justify-between'>
+            {playMode === 'AI' ? (
+              <div>
+                <label className="block text-sm text-text-muted mb-2">{t.game.difficulty}</label>
+                <div className="flex gap-2 m-1">
+                  <button onClick={() => setAiLevel('EASY')} className={toggleClass(aiLevel === 'EASY')}>
+                    {t.game.easy}
+                  </button>
+                  <button onClick={() => setAiLevel('MID')} className={toggleClass(aiLevel === 'MID')}>
+                    {t.game.medium}
+                  </button>
+                  <button onClick={() => setAiLevel('HARD')} className={toggleClass(aiLevel === 'HARD')}>
+                    {t.game.hard}
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div>
-              <label className="block text-sm text-text-muted mb-2">{t.game.guestName}</label>
-              <input
-                type="text"
-                value={guestName}
-                onChange={e => setGuestName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple"
-                placeholder="Player 2"
-              />
-            </div>
-          )}
+            ) : (
+              <div>
+                <label className="block text-sm text-text-muted mb-2">{t.game.guestName}</label>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={e => setGuestName(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple"
+                  placeholder={t.game.player2}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Points to Win */}
           <div>
@@ -229,10 +269,16 @@ const Game = () => {
           <div>
             <label className="block text-sm text-text-muted mb-2">{t.game.paddle}</label>
             <div className="flex gap-2">
-              <button onClick={() => setPaddle('LEFT')} className={toggleClass(paddle === 'LEFT')}>
+              <button
+                onClick={() => setPaddle('LEFT')}
+                className={`${toggleClass(paddle === 'LEFT')} flex-1`}
+              >
                 {t.game.paddleLeft}
               </button>
-              <button onClick={() => setPaddle('RIGHT')} className={toggleClass(paddle === 'RIGHT')}>
+              <button
+                onClick={() => setPaddle('RIGHT')}
+                className={`${toggleClass(paddle === 'RIGHT')} flex-1`}
+              >
                 {t.game.paddleRight}
               </button>
             </div>
