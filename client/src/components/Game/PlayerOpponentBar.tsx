@@ -1,3 +1,5 @@
+import { useLanguage } from "../../i18n/useLanguage";
+
 interface PlayerOpponentBarProps {
   playerName: string;
   opponentName: string;
@@ -19,6 +21,8 @@ const PlayerOpponentBar = ({
   const rightName = paddle === 'RIGHT' ? playerName : opponentName;
   const leftScore = paddle === 'LEFT' ? playerScore : opponentScore;
   const rightScore = paddle === 'RIGHT' ? playerScore : opponentScore;
+
+const { t } = useLanguage();
 
   return (
     <div className="w-full bg-white/5 py-3 px-6 flex justify-between items-center rounded-t-lg">
@@ -43,7 +47,7 @@ const PlayerOpponentBar = ({
       </div>
 
       {/* Center - score target */}
-      <span className="text-xs text-text-muted">First to {winPoints}</span>
+      <span className="text-xs text-text-muted">{t.game.firstTo} {winPoints} {t.game.firstToSecondPart}</span>
 
       {/* Right side */}
       <div className="flex items-center gap-3">

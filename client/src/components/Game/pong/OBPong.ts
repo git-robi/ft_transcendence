@@ -127,6 +127,8 @@ export class Pong
 	sliderR: HTMLInputElement | null;
 	_sliderLHandler: ((e: Event) => void) | null;
 	_sliderRHandler: ((e: Event) => void) | null;
+	sliderTargetYL: number;
+	sliderTargetYR: number;
 
 	ai: AI;
 	playerL: Player;
@@ -172,6 +174,8 @@ export class Pong
 		this.sliderR = null;
 		this._sliderLHandler = null;
 		this._sliderRHandler = null;
+		this.sliderTargetYL = GAME_HEIGHT / 2 - PADH / 2;
+		this.sliderTargetYR = GAME_HEIGHT / 2 - PADH / 2;
 
 		this.ai			=	ai;
 		this.playerL	=	Object.create(PLAYER);
@@ -229,12 +233,12 @@ export class Pong
     	this._sliderLHandler = (e: Event) => {
         	const s = e.target as HTMLInputElement;
         	const normalized = Number(s.value) / Number(s.max);
-        	this.padL.y = normalized * (this.height - this.padL.height);
+        	this.sliderTargetYL = normalized * (this.height - this.padL.height);
     	};
     	this._sliderRHandler = (e: Event) => {
         	const s = e.target as HTMLInputElement;
         	const normalized = Number(s.value) / Number(s.max);
-        	this.padR.y = normalized * (this.height - this.padR.height);
+        	this.sliderTargetYR = normalized * (this.height - this.padR.height);
     	};
 
 		this.sliderL!.addEventListener("input", this._sliderLHandler);
@@ -362,11 +366,13 @@ export class Pong
 		this.padL.x = 0;
 		this.padL.y = centerY - this.padL.height / 2;
 		this.padL.smoothVel = 0;
+		this.sliderTargetYL = this.padL.y;
 		this.drawPaddle(this.padL);
 
 		this.padR.x = this.width - this.padR.width;
 		this.padR.y = centerY - this.padR.height / 2;
 		this.padR.smoothVel = 0;
+		this.sliderTargetYR = this.padR.y;
 		this.drawPaddle(this.padR);
 	}
 
@@ -510,6 +516,18 @@ export class Pong
 		} else if (paddle.y + paddle.height > this.height) {
 			paddle.y = this.height - paddle.height;
 		}
+	}
+
+	updateSliderPaddle(paddle: Paddle, targetY: number): void
+	{
+		const diff = targetY - paddle.y;
+		const step = Math.min(Math.abs(diff), paddle.vel);
+		paddle.y += Math.sign(diff) * step;
+		if (paddle.y < 0)
+			paddle.y = 0;
+		else if (paddle.y + paddle.height > this.height)
+			paddle.y = this.height - paddle.height;
+		this.drawPaddle(paddle);
 	}
 
 	updateBallPosition(ball: Ball): void

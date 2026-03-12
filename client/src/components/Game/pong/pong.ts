@@ -56,14 +56,14 @@ function gameLoop(): void
 		else if (pong.set!.device == "PC")
 			pong.updatePaddlePosition(pong.padL);
 		else
-			pong.drawPaddle(pong.padL);
+			pong.updateSliderPaddle(pong.padL, pong.sliderTargetYL);
 
 		if (pong.padR.ai_enable)
 			pong.ai.ai(pong.ball, pong.padR);
 		else if (pong.set!.device == "PC")
 			pong.updatePaddlePosition(pong.padR);
 		else
-			pong.drawPaddle(pong.padR);
+			pong.updateSliderPaddle(pong.padR, pong.sliderTargetYR);
 
 		pong.checkIfBallStuck(pong.ball);
 	}

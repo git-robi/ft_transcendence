@@ -60,28 +60,25 @@ function PongGame({ pongSet, onScoreChange, onGameEnd }: PongGameProps) {
   }, []);
 
   return (
-  <div className="flex justify-center w-full">
-    <div className="relative w-full max-w-4xl max-h-[70vh] aspect-[4/3] bg-black">
+    <div className="flex items-stretch justify-center w-full">
+      <input
+        type="range"
+        ref={sliderLRef}
+        className="gmSlider gmSliderVertical"
+      />
       <canvas
         ref={canvasRef}
         width={1280}
         height={960}
-        className="w-full h-full block"
-      />
-
-      <input
-        type="range"
-        ref={sliderLRef}
-        className="gmSlider absolute left-0 top-1/2 -translate-y-1/2"
+        className="block max-w-full max-h-[70vh] bg-black"
       />
       <input
         type="range"
         ref={sliderRRef}
-        className="gmSlider absolute right-0 top-1/2 -translate-y-1/2"
+        className="gmSlider gmSliderVertical"
       />
     </div>
-  </div>
-);
+  );
 }
 
 export default PongGame;
