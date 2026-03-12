@@ -216,24 +216,6 @@ router.post('/logout', (req: Request, res: Response) => {
     res.json({ message: 'Logged out successfully' });
 });
 
-router.get('/google', (req: Request, res: Response, next) => {
-    const state = createOauthState();
-    setOauthState(res, state);
-
-    passport.authenticate("google", {
-        scope: ['profile', 'email'],
-        state,
-    })(req, res, next);
-});
-
-router.get('/google/redirect', verifyOauthState, passport.authenticate('google', { session: false }), (req: any, res: Response) => {
-    const user = req.user as { id: number };
-    const token = generateToken(user.id);
-    rotateCsrfToken(res);
-    res.cookie('token', token, cookieOptions);
-    res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
-});
-
 router.get('/github', (req: Request, res: Response, next) => {
     const state = createOauthState();
     setOauthState(res, state);

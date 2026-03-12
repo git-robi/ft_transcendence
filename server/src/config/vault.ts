@@ -13,11 +13,6 @@ interface VaultSecrets {
         database: string;
     };
     oauth?: {
-        google?: {
-            client_id: string;
-            client_secret: string;
-            redirect_uri: string;
-        };
         github?: {
             client_id: string;
             client_secret: string;
@@ -88,10 +83,9 @@ class VaultClient {
             await this.client.health();
 
             // Load secrets from Vault
-            const [jwtSecret, dbSecret, oauthGoogleSecret, oauthGithubSecret, oauthLegacy42Secret] = await Promise.all([
+            const [jwtSecret, dbSecret, oauthGithubSecret, oauthLegacy42Secret] = await Promise.all([
                 this.client.read('transcendence/data/jwt').catch(() => null),
                 this.client.read('transcendence/data/database').catch(() => null),
-                this.client.read('transcendence/data/oauth/google').catch(() => null),
                 this.client.read('transcendence/data/oauth/github').catch(() => null),
                 this.client.read('transcendence/data/oauth/42').catch(() => null),
             ]);
@@ -110,13 +104,6 @@ class VaultClient {
             };
 
             this.secrets.oauth = {};
-            if (oauthGoogleSecret?.data?.data) {
-                this.secrets.oauth.google = {
-                    client_id: oauthGoogleSecret.data.data.client_id || '',
-                    client_secret: oauthGoogleSecret.data.data.client_secret || '',
-                    redirect_uri: oauthGoogleSecret.data.data.redirect_uri || '',
-                };
-            }
             if (oauthGithubSecret?.data?.data) {
                 this.secrets.oauth.github = {
                     client_id: oauthGithubSecret.data.data.client_id || '',
@@ -215,7 +202,7 @@ class VaultClient {
     /**
      * Returns OAuth config for the specified provider.
      */
-    getOAuthConfig(provider: 'google' | 'github' | '42') {
+    getOAuthConfig(provider: 'github' | '42') {
         if (!this.initialized) {
             throw new Error('Vault is not initialized. Call initialize() first.');
         }

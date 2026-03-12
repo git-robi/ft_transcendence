@@ -4,7 +4,6 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  googleId?: string | null;
   githubId?: string | null;
   password: string;
   createdAt: Date;
@@ -16,7 +15,6 @@ export interface PublicUser {
   id: number;
   name: string;
   email: string;
-  googleId?: string | null;
   githubId?: string | null;
 }
 

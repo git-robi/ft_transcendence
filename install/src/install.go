@@ -13,7 +13,7 @@ import (
 type App struct {
 	app 	*tview.Application
 	page 	*tview.Pages
-	prims	[6]tview.Primitive
+	prims	[5]tview.Primitive
 }
 
 type Data struct {
@@ -22,8 +22,6 @@ type Data struct {
 	http_port			int
 	https_port			int
 	nginx_domain		string	
-	google_api_id		string
-	google_api_key		string
 	github_api_id		string
 	github_api_key		string
 }
@@ -58,17 +56,15 @@ func dropPrivileges() {
 func initData(a *App, data *Data) {
 	a.prims[0] = WelcomePage(a)
 	a.prims[1] = NetworkPage(a, data)
-	a.prims[2] = GooglePage(a, data)
-	a.prims[3] = GithubPage(a, data)
-	a.prims[4] = InstallationPage(a, data)
+	a.prims[2] = GithubPage(a, data)
+	a.prims[3] = InstallationPage(a, data)
 }
 
 func setupPages(a *App) {
 	a.page.AddAndSwitchToPage("welcome", a.prims[0], false)
 	a.page.AddPage("network", a.prims[1], true, false)
-	a.page.AddPage("google", a.prims[2], true, false)
-	a.page.AddPage("github", a.prims[3], true, false)
-	a.page.AddPage("installation", a.prims[4], true, false)
+	a.page.AddPage("github", a.prims[2], true, false)
+	a.page.AddPage("installation", a.prims[3], true, false)
 	a.page.AddPage("error", ShowErrorModal(a, "", ""), true, false)
 }
 
@@ -86,11 +82,12 @@ func 	main() {
 	if os.Getuid() == 0 {
         dropPrivileges()
     }
-	ip_host, err := GetHostIP()
-	if (err != nil) {
-		data.nginx_domain = "localhost"
-	} else {
+	if lanIP := os.Getenv("HOST_LAN_IP"); lanIP != "" {
+		data.nginx_domain = lanIP
+	} else if ip_host, err := GetHostIP(); err == nil {
 		data.nginx_domain = ip_host
+	} else {
+		data.nginx_domain = "localhost"
 	}
 	if (GenerateCerts(data.nginx_domain) != nil) {
 		os.Exit(1)

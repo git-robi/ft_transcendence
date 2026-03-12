@@ -4,7 +4,6 @@ import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import Auth from '../APIs/auth';
 import Button from './Button';
-import GoogleIcon from './icons/GoogleIcon';
 import OctocatIcon from './icons/OctocatIcon';
 import EyeIcon from './icons/EyeIcon';
 import EyeOffIcon from './icons/EyeOffIcon';
@@ -119,7 +118,7 @@ const SignUpForm = () => {
         <div className="flex-1 h-px bg-white/10" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <Button
           type="button"
           variant="secondary"
@@ -127,14 +126,6 @@ const SignUpForm = () => {
         >
           <OctocatIcon className="w-5 h-5" />
           <span className="text-sm">GitHub</span>
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
-        >
-          <GoogleIcon />
-          <span className="text-sm">Google</span>
         </Button>
       </div>
 

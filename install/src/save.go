@@ -17,16 +17,14 @@ NGINX_PORT_HTTP=%d
 NGINX_PORT_HTTPS=%d
 CLIENT_URL=%s
 
-# OAuth Client IDs 
-GOOGLE_CLIENT_ID=%s
-GITHUB_CLIENT_ID=%s`, 
+# OAuth Client IDs
+GITHUB_ID_CLIENT=%s`,
 
-	data.postgres_user, 
-	data.postgres_db, 
-	data.http_port, 
+	data.postgres_user,
+	data.postgres_db,
+	data.http_port,
 	data.https_port,
 	"https://" + data.nginx_domain + ":" + strconv.Itoa(data.https_port),
-	data.google_api_id,
 	data.github_api_id)
 
     return os.WriteFile("/app/output/.env", []byte(content), 0644)
