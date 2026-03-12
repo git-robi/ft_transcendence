@@ -1,41 +1,27 @@
 FROM golang:alpine AS builder
-
-WORKDIR /app
-COPY install/go.mod install/go.sum ./
-RUN go mod download
-
-COPY install/src ./src
-
-RUN go build -C ./src -o ../setup
-
-FROM alpine:latest
-
-ARG USER_ID
-ARG GROUP_ID
-RUN if getent group $GROUP_ID > /dev/null 2>&1; then \
-        EXISTING_GROUP=$(getent group $GROUP_ID | cut -d: -f1); \
-    else \
-        addgroup -g $GROUP_ID appgroup; \
-        EXISTING_GROUP=appgroup; \
-    fi && \
-    if getent passwd $USER_ID > /dev/null 2>&1; then \
-        EXISTING_USER=$(getent passwd $USER_ID | cut -d: -f1); \
-    else \
-        adduser -D -u $USER_ID -G $EXISTING_GROUP appuser; \
-        EXISTING_USER=appuser; \
-    fi && \
-    echo "$EXISTING_USER" > /tmp/run_user
-
-ENV TERM=xterm
-
-RUN mkdir -p /app/output/secrets
-RUN mkdir -p /app/output/ssl
-
-COPY --from=builder /app/setup /app/setup
-RUN chown $(cat /tmp/run_user) /app/setup && chmod +x /app/setup
-
-WORKDIR /app
-USER ${USER_ID}
-
-CMD ["./setup"]
+  
+  WORKDIR /app
+  COPY install/go.mod install/go.sum ./
+  RUN go mod download
+  
+  COPY install/src ./src
+  
+  RUN go build -C ./src -o ../setup
+  
+  FROM alpine:latest
+  
+  RUN addgroup -g 1000 appgroup && \
+      adduser -D -u 1000 -G appgroup appuser
+  
+  ENV TERM=xterm
+  
+  RUN mkdir -p /app/output/secrets
+  RUN mkdir -p /app/output/ssl
+  
+  COPY --from=builder /app/setup /app/setup
+  RUN chmod +x /app/setup
+  
+  WORKDIR /app
+  
+  CMD ["./setup"]
 

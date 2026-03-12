@@ -35,21 +35,26 @@ const (
 func dropPrivileges() {
 	user, err := user.Lookup("appuser")
 	if err != nil {
-		log.Fatalf("Failed to lookup appuser: %v", err)
+		log.Printf("Warning: Failed to lookup appuser, skipping privilege drop: %v", err)
+		return
 	}
 	uid, err := strconv.Atoi(user.Uid)
 	if err != nil {
-		log.Fatalf("Failed to parse UID: %v", err)
+		log.Printf("Warning: Failed to parse UID, skipping privilege drop: %v", err)
+		return
 	}
 	gid, err := strconv.Atoi(user.Gid)
 	if err != nil {
-		log.Fatalf("Failed to parse GID: %v", err)
+		log.Printf("Warning: Failed to parse GID, skipping privilege drop: %v", err)
+		return
 	}
 	if err := syscall.Setgid(gid); err != nil {
-		log.Fatalf("Failed to set GID: %v", err)
+		log.Printf("Warning: Failed to set GID, continuing as current user: %v", err)
+		return
 	}
 	if err := syscall.Setuid(uid); err != nil {
-		log.Fatalf("Failed to set UID: %v", err)
+		log.Printf("Warning: Failed to set UID, continuing as current user: %v", err)
+		return
 	}
 }
 
@@ -79,9 +84,6 @@ func 	main() {
 		postgres_user: "db_user",
 		postgres_db: "pong_db",
 	}
-	if os.Getuid() == 0 {
-        dropPrivileges()
-    }
 	if lanIP := os.Getenv("HOST_LAN_IP"); lanIP != "" {
 		data.nginx_domain = lanIP
 	} else if ip_host, err := GetHostIP(); err == nil {
