@@ -64,7 +64,7 @@ function PongGame({ pongSet, onScoreChange, onGameEnd }: PongGameProps) {
       <input
         type="range"
         ref={sliderLRef}
-        className="gmSlider gmSliderVertical"
+        className="gmSlider absolute left-0 top-1/2 -translate-y-1/2 sliderL"
       />
       <canvas
         ref={canvasRef}
@@ -75,7 +75,7 @@ function PongGame({ pongSet, onScoreChange, onGameEnd }: PongGameProps) {
       <input
         type="range"
         ref={sliderRRef}
-        className="gmSlider gmSliderVertical"
+        className="gmSlider absolute right-0 top-1/2 -translate-y-1/2 sliderR"
       />
     </div>
   );
