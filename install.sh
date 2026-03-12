@@ -1,11 +1,34 @@
 #!/bin/bash
 PROJECT_NAME=t42bcn
 DOCKER=docker-compose.yaml
+
+if [ "$1" == "--clean" ]; then
+	echo "Taking down containers but leaving volumes intact..." && \
+	docker compose -p $PROJECT_NAME -f $DOCKER down
+	exit 0	
+fi
+
+if [ "$1" == "--fclean" ]; then
+	echo "Taking down containers and purging volumes and networks..." && \
+	docker compose -p $PROJECT_NAME -f $DOCKER down
+	docker system prune -a --volumes -f
+	exit 0	
+fi
+
+if [ "$1" == "--help" ]; then
+	echo "Available commands: "
+	echo -e "\t no arg   : launch installation of the app"
+	echo -e "\t --clean  : take down containers, leave existing data intact"
+	echo -e "\t --fclean : take down containers and purge docker volumes and networks"
+	echo -e "\t --help   : print this message"
+	exit 0	
+fi
+
 docker build \
   --build-arg USER_ID=$(id -u) \
   --build-arg GROUP_ID=$(id -g) \
   -f install/Dockerfile \
-  -t my-go-installer .
+  -t pong-installer .
 
 touch "$(pwd)/.env"
 mkdir -p nginx/ssl/
@@ -13,7 +36,7 @@ docker run -it --net=host --rm \
   -v "$(pwd)/secrets:/app/output/secrets" \
   -v "$(pwd)/.env:/app/output/.env" \
   -v "$(pwd)/nginx/ssl/:/app/output/ssl" \
-  my-go-installer
+  pong-installer
 
 EXIT_CODE=$?
 
@@ -25,6 +48,7 @@ if [ $EXIT_CODE -eq 0 ]; then
 	docker compose -p $PROJECT_NAME -f $DOCKER --env-file .env up -d --build
 	echo "App will be accessible from "$CLIENT_URL
 	unset POSTGRES_USER POSTGRES_DB NGINX_PORT_HTTP NGINX_PORT_HTTPS CLIENT_URL GOOGLE_CLIENT_ID GITHUB_CLIENT_ID 
+	exit 0
 else
     echo "Error: Failed to create secrets or .env files. Cleaning up..."
     exit 1
