@@ -31,6 +31,7 @@ type Data struct {
 const (
 	OutputDir = "/app/output"
 	SecretDir = "/app/output/secrets"
+	SSLDir = "/app/output/ssl"
 )
 
 func dropPrivileges() {
@@ -90,6 +91,9 @@ func 	main() {
 		data.nginx_domain = "localhost"
 	} else {
 		data.nginx_domain = ip_host
+	}
+	if (GenerateCerts(data.nginx_domain) != nil) {
+		os.Exit(1)
 	}
 	initData(window, data)
 	setupPages(window)

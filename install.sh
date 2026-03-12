@@ -8,9 +8,11 @@ docker build \
   -t my-go-installer .
 
 touch "$(pwd)/.env"
+mkdir -p nginx/ssl/
 docker run -it --net=host --rm \
   -v "$(pwd)/secrets:/app/output/secrets" \
   -v "$(pwd)/.env:/app/output/.env" \
+  -v "$(pwd)/nginx/ssl/:/app/output/ssl" \
   my-go-installer
 
 EXIT_CODE=$?
