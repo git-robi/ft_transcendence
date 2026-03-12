@@ -115,18 +115,6 @@ if ! vault kv get transcendence/oauth/42 >/dev/null 2>&1; then
       redirect_uri="${BASE_URL:-https://localhost}/api/v1/auth/oauth/42/callback"
 fi
 
-# Store Google OAuth secrets
-GOOGLE_SECRET=""
-if [ -f /run/secrets/google_client_secret ]; then
-  GOOGLE_SECRET="$(cat /run/secrets/google_client_secret)"
-fi
-if [ -n "${GOOGLE_ID_CLIENT:-}" ] && [ -n "${GOOGLE_SECRET}" ]; then
-  vault kv put transcendence/oauth/google \
-      client_id="${GOOGLE_ID_CLIENT}" \
-      client_secret="${GOOGLE_SECRET}" \
-      redirect_uri="${BASE_URL:-https://localhost}/api/v1/auth/google/redirect"
-fi
-
 # Store GitHub OAuth secrets
 GITHUB_SECRET=""
 if [ -f /run/secrets/github_client_secret ]; then

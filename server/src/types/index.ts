@@ -7,4 +7,4 @@ export type User = user;
 export type UserResponse = Omit<User, 'password'>;
 
 // Export a public user type (only what frontend needs)
-export type PublicUser = Pick<User, 'id' | 'email' | 'googleId' | 'githubId' | 'password' | 'createdAt'>;
+export type PublicUser = Pick<User, 'id' | 'email' | 'githubId' | 'password' | 'createdAt'>;

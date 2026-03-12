@@ -30,7 +30,6 @@ services:
       VAULT_ADDR: http://127.0.0.1:8200
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-transcendence}
-      GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
     volumes:
       - vault_data:/vault/data
@@ -45,7 +44,6 @@ services:
       - vault_root_token
       - vault_backend_token
       - postgres_password
-      - google_client_secret
       - github_client_secret
     entrypoint: ["/bin/sh", "/usr/local/bin/vault-entrypoint.sh"]
     healthcheck:
@@ -65,11 +63,10 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 3001
-      CLIENT_URL: https://localhost
+      CLIENT_URL: ${CLIENT_URL:-https://localhost}
+      BASE_URL: ${CLIENT_URL:-https://localhost}
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN_FILE: /run/secrets/vault_backend_token
-      GOOGLE_ID_CLIENT: ${GOOGLE_ID_CLIENT:-}
-      GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
       GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
       GIT_BRANCH$: ${GIT_BRANCH}
@@ -87,7 +84,6 @@ services:
       - transcendence_network
     secrets:
       - vault_backend_token
-      - google_client_secret
       - github_client_secret
       - postgres_password
     volumes:
@@ -162,7 +158,5 @@ secrets:
     file: ./secrets/vault_root_token
   vault_backend_token:
     file: ./secrets/vault_backend_token
-  google_client_secret:
-    file: ./secrets/google_client_secret
   github_client_secret:
     file: ./secrets/github_client_secret

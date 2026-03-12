@@ -195,7 +195,7 @@ const Settings = () => {
           </div>
 
           {/* Password — hidden for OAuth users */}
-          {!user?.googleId && !user?.githubId && (
+          {!user?.githubId && (
             <div className={sectionClass}>
               <p className={labelClass}>{t.settings.password}</p>
 

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../Button';
-import GoogleButton from '../GoogleButton';
 import Input from '../Input';
 import { useLanguage } from '../../i18n/useLanguage';
 import Auth from '../../APIs/auth';
@@ -111,7 +110,6 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
           >
             {t.logIn.githubLogIn}
           </Button>
-          <GoogleButton />
         </div>
 
         <div className="pt-4" onClick={handleSignUp}>

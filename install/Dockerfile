@@ -12,8 +12,18 @@ FROM alpine:latest
 
 ARG USER_ID
 ARG GROUP_ID
-RUN addgroup -g $GROUP_ID appgroup && \
-    adduser -D -u $USER_ID -G appgroup appuser
+RUN if getent group $GROUP_ID > /dev/null 2>&1; then \
+        EXISTING_GROUP=$(getent group $GROUP_ID | cut -d: -f1); \
+    else \
+        addgroup -g $GROUP_ID appgroup; \
+        EXISTING_GROUP=appgroup; \
+    fi && \
+    if getent passwd $USER_ID > /dev/null 2>&1; then \
+        EXISTING_USER=$(getent passwd $USER_ID | cut -d: -f1); \
+        adduser -D -G $EXISTING_GROUP appuser 2>/dev/null || true; \
+    else \
+        adduser -D -u $USER_ID -G $EXISTING_GROUP appuser; \
+    fi
 
 ENV TERM=xterm
 

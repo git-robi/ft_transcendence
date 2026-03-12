@@ -59,26 +59,8 @@ func NetworkPage(a *App, data *Data) *tview.Flex {
 				"Error port " + strconv.Itoa(data.https_port) + " is not available",
 				"network"), false)	
 			} else {
-				a.page.SwitchToPage("google")
+				a.page.SwitchToPage("github")
 			}
-		})
-	return centerPrimitive(header, form, 60, 10)
-}
-
-func GooglePage(a *App, data *Data) *tview.Flex {
-	header := tview.NewTextView().
-		SetText("Please copy paste Google API ID and Google API Key that are provided to you").
-		SetTextAlign(tview.AlignLeft)
-	form := tview.NewForm()
-	form.AddInputField("Google API ID", data.google_api_id, 20, nil, nil)
-	form.AddPasswordField("Google API Key", "", 30, '*', nil)
-	form.AddButton("prev", func() {
-			a.page.SwitchToPage("ports")
-		})
-	form.AddButton("next", func() {
-			data.google_api_id = form.GetFormItemByLabel("Google API ID").(*tview.InputField).GetText()
-			data.google_api_key = form.GetFormItemByLabel("Google API Key").(*tview.InputField).GetText()
-			a.page.SwitchToPage("github")
 		})
 	return centerPrimitive(header, form, 60, 10)
 }
@@ -91,7 +73,7 @@ func GithubPage(a *App, data *Data) *tview.Flex {
 	form.AddInputField("Github API ID", data.github_api_id, 20, nil, nil)
 	form.AddPasswordField("Github API Key", "", 30, '*', nil)
 	form.AddButton("prev", func() {
-			a.page.SwitchToPage("google")
+			a.page.SwitchToPage("network")
 		})
 	form.AddButton("next", func() {
 			data.github_api_id = form.GetFormItemByLabel("Github API ID").(*tview.InputField).GetText()
@@ -116,7 +98,6 @@ func InstallationPage(a *App, data *Data) *tview.Flex {
 			GeneratePassword(SecretDir, "postgres_password")
 			GeneratePassword(SecretDir, "vault_backend_token")
 			GeneratePassword(SecretDir, "vault_root_token")
-			WriteSecret(SecretDir, "google_client_secret", data.google_api_key)
 			WriteSecret(SecretDir, "github_client_secret", data.github_api_key)
 			WriteEnv(data)
 			a.app.Stop()
