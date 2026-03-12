@@ -20,21 +20,22 @@ RUN if getent group $GROUP_ID > /dev/null 2>&1; then \
     fi && \
     if getent passwd $USER_ID > /dev/null 2>&1; then \
         EXISTING_USER=$(getent passwd $USER_ID | cut -d: -f1); \
-        adduser -D -G $EXISTING_GROUP appuser 2>/dev/null || true; \
     else \
         adduser -D -u $USER_ID -G $EXISTING_GROUP appuser; \
-    fi
+        EXISTING_USER=appuser; \
+    fi && \
+    echo "$EXISTING_USER" > /tmp/run_user
 
 ENV TERM=xterm
 
 RUN mkdir -p /app/output/secrets
 RUN mkdir -p /app/output/ssl
 
-COPY --from=builder --chown=appuser /app/setup /app/setup
-RUN chmod +x /app/setup 
+COPY --from=builder /app/setup /app/setup
+RUN chown $(cat /tmp/run_user) /app/setup && chmod +x /app/setup
 
 WORKDIR /app
-USER appuser
+USER ${USER_ID}
 
 CMD ["./setup"]
 
