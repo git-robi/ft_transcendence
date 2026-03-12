@@ -23,7 +23,8 @@ const Home = () => {
               {t.home.newGame}
             </Button>
 
-            <div className="flex gap-3 mt-4">
+            <div className="grid grid-cols-3 gap-2 md:flex md:gap-3 mt-4">
+
               <Button variant="secondary" to="/profile">
                 {t.header.profile}
               </Button>
