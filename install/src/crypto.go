@@ -26,8 +26,6 @@ func GeneratePassword(path, filename string) {
 		fmt.Println("Error generating random string:", err)
 		return
 	}
-
-	// Write the random hex string to a file
 	if err := writeToFile(path + "/" + filename, randomHex); err != nil {
 		fmt.Println("Error writing to file:", err)
 		return

@@ -2,9 +2,7 @@ package main
 
 import (
 	"strconv"
-	"net"
 	"strings"
-	"fmt"
 )
 
 func 	isEmpty(str string) bool {
@@ -42,12 +40,4 @@ func	CheckPortNum(port string) bool {
 	return true 
 }
 
-func IsPortOpen(port int) error {
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		return err
-	}
-	ln.Close()
-	return nil
-}
 

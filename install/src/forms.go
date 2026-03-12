@@ -103,7 +103,7 @@ func GithubPage(a *App, data *Data) *tview.Flex {
 
 func InstallationPage(a *App, data *Data) *tview.Flex {
 	header := tview.NewTextView().
-	SetText("Installation: Click on Install to install the Pong Game").
+	SetText("Installation: Click on Install to install the Pong Game\nThe app will be accessible from "	+ "https://" + data.nginx_domain + ":" + strconv.Itoa(data.https_port)).
 		SetTextAlign(tview.AlignLeft)
 	form := tview.NewForm()
 	form.AddButton("quit", func() {
