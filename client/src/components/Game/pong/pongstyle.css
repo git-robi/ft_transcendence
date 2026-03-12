@@ -22,12 +22,10 @@
 .gmSlider::-webkit-slider-runnable-track {
 	height: 35px;
 	border-radius: 22px;
-	background: linear-gradient(to bottom, #84cc16, #facc15);
 }
 .gmSlider::-moz-range-track {
 	height: 35px;
 	border-radius: 22px;
-	background: linear-gradient(to bottom, #84cc16, #facc15);
 }
 
 /* Thumb */
