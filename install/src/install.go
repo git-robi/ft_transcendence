@@ -22,7 +22,6 @@ type Data struct {
 	http_port			int
 	https_port			int
 	nginx_domain		string	
-	client_url			string
 	google_api_id		string
 	google_api_key		string
 	github_api_id		string
@@ -32,6 +31,7 @@ type Data struct {
 const (
 	OutputDir = "/app/output"
 	SecretDir = "/app/output/secrets"
+	SSLDir = "/app/output/ssl"
 )
 
 func dropPrivileges() {
@@ -72,8 +72,6 @@ func setupPages(a *App) {
 	a.page.AddPage("error", ShowErrorModal(a, "", ""), true, false)
 }
 
-
-
 func 	main() {
 	window := &App {
 		app:	tview.NewApplication(),
@@ -82,13 +80,21 @@ func 	main() {
 	data := &Data {
 		http_port: 3000,
 		https_port: 3001,
-		nginx_domain: "localhost",
 		postgres_user: "db_user",
 		postgres_db: "pong_db",
 	}
 	if os.Getuid() == 0 {
         dropPrivileges()
     }
+	ip_host, err := GetHostIP()
+	if (err != nil) {
+		data.nginx_domain = "localhost"
+	} else {
+		data.nginx_domain = ip_host
+	}
+	if (GenerateCerts(data.nginx_domain) != nil) {
+		os.Exit(1)
+	}
 	initData(window, data)
 	setupPages(window)
 	handleSig := func (event *tcell.EventKey) *tcell.EventKey {

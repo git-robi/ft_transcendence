@@ -8,17 +8,23 @@ docker build \
   -t my-go-installer .
 
 touch "$(pwd)/.env"
+mkdir -p nginx/ssl/
 docker run -it --net=host --rm \
   -v "$(pwd)/secrets:/app/output/secrets" \
   -v "$(pwd)/.env:/app/output/.env" \
+  -v "$(pwd)/nginx/ssl/:/app/output/ssl" \
   my-go-installer
 
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 0 ]; then
     echo "Success: Secrets and .env files created. Proceeding with Pong application deployment..."
+	source .env
+	echo "App will be accessible from "$CLIENT_URL
 	docker compose -p $PROJECT_NAME -f $DOCKER --env-file .env down --remove-orphans 2>/dev/null || true && \
 	docker compose -p $PROJECT_NAME -f $DOCKER --env-file .env up -d --build
+	echo "App will be accessible from "$CLIENT_URL
+	unset POSTGRES_USER POSTGRES_DB NGINX_PORT_HTTP NGINX_PORT_HTTPS CLIENT_URL GOOGLE_CLIENT_ID GITHUB_CLIENT_ID 
 else
     echo "Error: Failed to create secrets or .env files. Cleaning up..."
     exit 1

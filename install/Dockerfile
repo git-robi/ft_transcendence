@@ -18,6 +18,7 @@ RUN addgroup -g $GROUP_ID appgroup && \
 ENV TERM=xterm
 
 RUN mkdir -p /app/output/secrets
+RUN mkdir -p /app/output/ssl
 
 COPY --from=builder --chown=appuser /app/setup /app/setup
 RUN chmod +x /app/setup 
