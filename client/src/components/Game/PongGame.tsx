@@ -70,12 +70,13 @@ function PongGame({ pongSet, onScoreChange, onGameEnd }: PongGameProps) {
         ref={canvasRef}
         width={1280}
         height={960}
-        className="block max-w-full max-h-[70vh] bg-black"
+        className="block max-w-full max-h-[70vh] bg-black slider
+        l"
       />
       <input
         type="range"
         ref={sliderRRef}
-        className="gmSlider gmSliderVertical"
+        className="gmSlider gmSliderVertical sliderR"
       />
     </div>
   );

@@ -25,8 +25,6 @@ if [ "$1" == "--help" ]; then
 fi
 
 docker build \
-  --build-arg USER_ID=$(id -u) \
-  --build-arg GROUP_ID=$(id -g) \
   -f install/Dockerfile \
   -t pong-installer .
 
