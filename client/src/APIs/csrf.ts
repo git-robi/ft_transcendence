@@ -2,9 +2,14 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const CSRF_HEADER_NAME = "X-CSRF-Token";
+const CSRF_COOKIE_NAME = "csrf_token";
 const SAFE_METHODS = new Set(["get", "head", "options"]);
 
-let csrfToken: string | null = null;
+const readCsrfCookie = (): string | null => {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${CSRF_COOKIE_NAME}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+};
+
 let csrfTokenRequest: Promise<string> | null = null;
 
 const fetchCsrfToken = async (): Promise<string> => {
@@ -17,12 +22,12 @@ const fetchCsrfToken = async (): Promise<string> => {
         throw new Error("Missing CSRF token");
     }
 
-    csrfToken = token;
     return token;
 };
 
 export const getCsrfToken = async (): Promise<string> => {
-    if (csrfToken) return csrfToken;
+    const cookieToken = readCsrfCookie();
+    if (cookieToken) return cookieToken;
 
     if (!csrfTokenRequest) {
         csrfTokenRequest = fetchCsrfToken().finally(() => {
