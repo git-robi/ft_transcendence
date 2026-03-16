@@ -383,7 +383,7 @@ export class Pong
 	{
 		this.ctx!.font = FONT_SCORE;
 		this.ctx!.strokeStyle = score.color;
-		this.ctx!.strokeText(score.score + "", score.x, score.y);
+		this.ctx!.fillText(score.score + "", score.x, score.y);
 	}
 
 	drawPaddle(paddle: Paddle): void
