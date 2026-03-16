@@ -34,7 +34,7 @@ const Profile = () => {
 
   if (!profile || !stats) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-accent-purple text-xl animate-pulse">{t.common.loading}</div>
@@ -45,7 +45,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+    <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
       <Header />
 
       <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 md:py-8">

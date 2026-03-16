@@ -105,7 +105,7 @@ const Chat = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-accent-purple text-xl animate-pulse">{t.common.loading}</div>
@@ -116,7 +116,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+    <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
       <Header />
 
       <div className="flex flex-1 max-w-5xl mx-auto w-full px-4 py-6 gap-4 overflow-hidden">
