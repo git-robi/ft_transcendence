@@ -35,6 +35,8 @@ window.addEventListener("keyup", (e: KeyboardEvent) => {
 		pong.padR.dirY = 0;
 });
 
+let animationID: number | null = null;
+
 function gameLoop(): void
 {
 	if (pong.gameOver)
@@ -78,10 +80,8 @@ function gameLoop(): void
 
 	pong.reDraw();
 
-	requestAnimationFrame(gameLoop);
+	animationID = requestAnimationFrame(gameLoop);
 }
-
-let animationID: number | null = null;
 
 export function startGame(): void {
 	stopGame();
