@@ -21,6 +21,22 @@ const cookieOptions: CookieOptions = {
     path: '/',
 };
 
+const sessionFlagOptions: CookieOptions = {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/',
+};
+
+const setSessionFlag = (res: Response) => {
+    res.cookie('has_session', '1', sessionFlagOptions);
+};
+
+const clearSessionFlag = (res: Response) => {
+    res.cookie('has_session', '', { ...sessionFlagOptions, maxAge: 1 });
+};
+
 const oauthStateCookieOptions: CookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -154,6 +170,7 @@ router.post("/register", authRateLimiter, async (req: Request, res: Response) =>
 
         const token = generateToken(newUser.id);
         rotateCsrfToken(res);
+        setSessionFlag(res);
         res.cookie("token", token, cookieOptions);
 
         return res.status(201).json({
@@ -207,6 +224,7 @@ router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
 
         const token = generateToken(user.id);
         rotateCsrfToken(res);
+        setSessionFlag(res);
         res.cookie("token", token, cookieOptions);
 
         return res.status(200).json({
@@ -228,6 +246,7 @@ router.get('/me', protect, async (req: any, res: Response) => {
 
 router.post('/logout', (req: Request, res: Response) => {
     rotateCsrfToken(res);
+    clearSessionFlag(res);
     res.cookie('token', '', { ...cookieOptions, maxAge: 1 });
     res.json({ message: 'Logged out successfully' });
 });
@@ -246,6 +265,7 @@ router.get('/github/redirect', verifyOauthState, passport.authenticate('github',
     const user = req.user as { id: number };
     const token = generateToken(user.id);
     rotateCsrfToken(res);
+    setSessionFlag(res);
     res.cookie('token', token, cookieOptions);
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173');
 });
