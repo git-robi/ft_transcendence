@@ -359,4 +359,29 @@ router.patch("/password", protect, async (req: any, res) => {
     }
 });
 
+router.get("/:id", protect, async (req: any, res: Response) => {
+    try {
+        const userId = Number(req.params.id);
+
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const profile = await prisma.profile.findUnique({
+            where: { userId },
+        });
+
+        if (!profile) {
+            return res.status(404).json({ message: "Profile not found" });
+        }
+
+        return res.status(200).json({
+            ...profile,
+            xp: displayXpFromUnits(profile.xp),
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 export default router;

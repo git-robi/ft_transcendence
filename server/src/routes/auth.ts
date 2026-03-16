@@ -81,6 +81,22 @@ router.get("/health", protectApiKey, (req, res) => {
     res.json({ message: "API key is valid" });
 });
 
+router.get("/users", protect, async (req: any, res: Response) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                profile: { select: { name: true, avatarUrl: true } },
+            },
+        });
+
+        return res.status(200).json(users);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 router.get("/csrf-token", issueCsrfToken);
 
 router.post("/register", authRateLimiter, async (req: Request, res: Response) => {
