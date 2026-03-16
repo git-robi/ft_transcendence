@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -84,6 +84,22 @@ const Game = () => {
         : 'bg-white/5 border border-white/10 text-text-secondary hover:bg-white/10'
     }`;
 
+  const [isLandscape, setIsLandscape] = useState(
+    () => window.innerWidth > window.innerHeight
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLandscape(window.innerWidth > window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
   // Game is running
   if (match) {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || navigator.maxTouchPoints > 0;
@@ -106,37 +122,36 @@ const Game = () => {
     if (isMobile) {
       return (
         <div className="fixed inset-0 z-50 bg-black text-white overflow-hidden">
-          {/* Portrait mode warning */}
-          <div className="portrait:flex hidden absolute inset-0 z-20 bg-black flex-col items-center justify-center text-center gap-4 p-8">
-            <div className="text-5xl">↻</div>
-            <p className="text-text-muted">Rotate your device to play</p>
-          </div>
-
-          {/* Landscape layout */}
-          <div className="landscape:flex hidden flex-col h-full w-full">
-            {/* Compact score bar */}
-            <div className="shrink-0 px-2 py-1 border-b border-white/10">
-              <PlayerOpponentBar
-                playerName={user?.name || t.chat.you}
-                opponentName={settings.plR_name}
-                playerScore={userScore}
-                opponentScore={opponentScore}
-                winPoints={match.winPoints}
-                paddle={match.paddle}
-              />
+          {!isLandscape ? (
+            /* Portrait mode warning */
+            <div className="absolute inset-0 z-20 bg-black flex flex-col items-center justify-center text-center gap-4 p-8">
+              <div className="text-5xl">↻</div>
+              <p className="text-text-muted">Rotate your device to play</p>
             </div>
-
-            {/* Game area */}
-            <div className="flex-1 relative flex items-center justify-center overflow-hidden">
-              <PongGame key={match.id} pongSet={settings} onScoreChange={handleScoreUpdate} onGameEnd={handleMatchEnd}/>
-              <button
-                onClick={() => setMatch(null)}
-                className="absolute top-2 right-2 z-30 px-3 py-1 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20"
-              >
-                {t.chat.back}
-              </button>
+          ) : (
+            /* Landscape layout */
+            <div className="flex flex-col h-full w-full">
+              <div className="shrink-0 px-2 py-1 border-b border-white/10">
+                <PlayerOpponentBar
+                  playerName={user?.name || t.chat.you}
+                  opponentName={settings.plR_name}
+                  playerScore={userScore}
+                  opponentScore={opponentScore}
+                  winPoints={match.winPoints}
+                  paddle={match.paddle}
+                />
+              </div>
+              <div className="flex-1 relative flex items-center justify-center overflow-hidden">
+                <PongGame key={match.id} pongSet={settings} onScoreChange={handleScoreUpdate} onGameEnd={handleMatchEnd}/>
+                <button
+                  onClick={() => setMatch(null)}
+                  className="absolute top-2 right-2 z-30 px-3 py-1 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20"
+                >
+                  {t.chat.back}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       );
     }
