@@ -32,12 +32,12 @@ const LanguageSelector = () => {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="text-sm px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-text-secondary hover:text-text-primary hover:bg-white/10 transition-colors"
+        className="text-sm px-3 py-1.5 rounded-lg md:bg-white/5 bg-neutral-950/75  border border-white/10 text-text-secondary hover:text-text-primary hover:bg-white/10 transition-colors"
       >
         {current}
       </button>
       {open && (
-        <div className="absolute right-0 bottom-full mb-2 w-40 bg-white/5 border border-white/10 rounded-xl py-1 z-50">
+        <div className="absolute right-0 bottom-full mb-2 w-40  md:bg-white/5 bg-neutral-950/75 border border-white/10 rounded-xl py-1 z-50">
           {languages.map((lang) => (
             <button
               key={lang.code}
@@ -47,7 +47,7 @@ const LanguageSelector = () => {
               }}
               className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
                 lang.code === language
-                  ? 'text-accent-purple bg-accent-purple/10'
+                  ? 'text-accent-purple bg-[#3b3313]/80 md:bg-accent-purple/10 '
                   : 'text-text-secondary hover:text-text-primary hover:bg-white/10'
               }`}
             >
