@@ -30,8 +30,11 @@ const Game = () => {
   const handleMatchEnd = async (leftScore: number, rightScore: number) => {
 	if (!match) return;
 	
+  const actualUserScore = match.paddle === 'LEFT' ? leftScore : rightScore;
+  const actualOpponentScore = match.paddle === 'LEFT' ? rightScore : leftScore;
+
 	try {
-		await Matches.patch(`/${match.id}`, { userScore: leftScore, opponentScore: rightScore });
+		await Matches.patch(`/${match.id}`, { userScore: actualUserScore, opponentScore: actualOpponentScore });
 	} catch {}
 
   const playerName = user?.name || t.chat.you;
@@ -39,10 +42,6 @@ const Game = () => {
     ? `${t.game.ai} (${match.aiLevel.charAt(0) + match.aiLevel.slice(1).toLowerCase()})`
     : match.guestName || t.game.player2;
 
-	// If the player has selected right corner, invert the scores:
-	const actualUserScore = match.paddle === 'LEFT' ? leftScore : rightScore;
-	const actualOpponentScore = match.paddle === 'LEFT' ? rightScore : leftScore;
-	
 	setResult({
 		winnerName: actualUserScore > actualOpponentScore ? playerName : opponentName,
 		userScore: actualUserScore,
