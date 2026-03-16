@@ -162,7 +162,7 @@ const Game = () => {
     }
 
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
         <Header />
         <main className="flex-1 flex items-center justify-center px-1 py-2">
           <div className="flex flex-col origin-top">
@@ -186,7 +186,7 @@ const Game = () => {
   // Result screen
   if (result) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
         <Header />
         <main className="flex-1 flex items-center justify-center px-4 py-8">
           <div className="w-full max-w-md text-center space-y-6">
@@ -216,7 +216,7 @@ const Game = () => {
 
   // Settings screen
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+    <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
       <Header />
 
       <main className="flex-1 flex items-center justify-center px-4 py-8">

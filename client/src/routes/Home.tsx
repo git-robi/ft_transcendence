@@ -10,7 +10,7 @@ const Home = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+    <div className="min-h-dvh bg-bg-primary text-text-primary flex flex-col">
       <Header />
 
       <main className="flex-1 flex flex-col items-center px-4 py-8">
