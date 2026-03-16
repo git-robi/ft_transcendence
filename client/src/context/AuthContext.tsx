@@ -21,6 +21,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const hasSession = document.cookie.split('; ').some(c => c.startsWith('has_session='));
+    if (!hasSession) {
+      setLoading(false);
+      return;
+    }
     Auth.get('/me')
       .then(res => setUser(res.data))
       .catch(() => setUser(null))
