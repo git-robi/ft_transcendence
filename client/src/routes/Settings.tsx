@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import ProfileAPI from '../APIs/profile';
 import Auth from '../APIs/auth';
 import { getCsrfToken } from '../APIs/csrf';
+import { MAX_NAME_LENGTH } from '../constants';
 
 interface ApiKey {
   id: number;
@@ -69,6 +70,11 @@ const Settings = () => {
   };
 
   const handleSaveName = async () => {
+    if (name.length > MAX_NAME_LENGTH) {
+      setNameMsg(t.common.nameMaxLen);
+      return;
+    }
+
     try {
       await ProfileAPI.patch('/me', { name });
       const me = await Auth.get('/me');
@@ -177,7 +183,13 @@ const Settings = () => {
           {/* Name */}
           <div className={sectionClass}>
             <p className={labelClass}>{t.settings.name}</p>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} className={inputClass} />
+            <input
+              type="text"
+              value={name}
+              maxLength={MAX_NAME_LENGTH}
+              onChange={e => setName(e.target.value)}
+              className={inputClass}
+            />
             <div className="flex items-center gap-3">
               <Button onClick={handleSaveName}>{t.settings.save}</Button>
               {nameMsg && <span className="text-sm text-accent-blue">{nameMsg}</span>}
