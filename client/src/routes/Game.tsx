@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
 import { PongSettings } from "../components/Game/pong/settings"
+import { MAX_NAME_LENGTH } from '../constants';
 import PongGame from '../components/Game/PongGame';
 import PlayerOpponentBar from '../components/Game/PlayerOpponentBar';
 import { useLanguage } from '../i18n/useLanguage';
@@ -264,6 +265,7 @@ const Game = () => {
                 <input
                   type="text"
                   value={guestName}
+                  maxLength={MAX_NAME_LENGTH}
                   onChange={e => setGuestName(e.target.value)}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple"
                   placeholder={t.game.player2}
