@@ -1,3 +1,4 @@
+*This project has been created as part of the 42 curriculum by  **alphbarr**, **mfleury**, **mpietrza**, **rgiambon**, and **sadoming** at 42.*
 # ft_transcendence
 
 A full-stack single-page web application centered around a real-time 1v1 Pong game, built as part of the [42 curriculum](https://42.fr/).
@@ -368,4 +369,4 @@ AI tools were primarily used as a **learning aid** while exploring new technolog
 
 ---
 
-*Built by **alphbarr**, **mfleury**, **mpietrza**, **rgiambon**, and **sadoming** at 42.*
+
