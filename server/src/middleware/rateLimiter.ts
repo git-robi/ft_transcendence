@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
  */
 export const authRateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // max 5 attempts per IP
+    max: 20, // max 20 attempts per IP
     message: {
         error: 'Too many login attempts. Please try again in 15 minutes.',
     },
@@ -31,7 +31,7 @@ export const authRateLimiter = rateLimit({
  */
 export const apiRateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // max 100 requests per IP
+    max: 500, // max 500 requests per IP
     message: {
         error: 'Too many requests. Please try again later.',
     },
