@@ -23,8 +23,7 @@ const MatchHistory = ({ userId }: { userId: number }) => {
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
       <h2 className="text-lg font-semibold px-4 pt-4 pb-2">{t.profile.matchHistory}</h2>
-      <div className="w-full overflow-x-auto">
-        <table className="w-full text-sm table-fixed">
+      <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-white/10 text-text-muted text-xs">
             <th className="py-3 px-4 text-left">{t.profile.opponent}</th>
@@ -42,7 +41,7 @@ const MatchHistory = ({ userId }: { userId: number }) => {
             return (
               <tr key={m.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td className="py-3 px-4">
-                  <span className="block max-w-[4rem] sm:max-w-[12rem]  truncate">{opponent}</span>
+                  <span className="block max-w-[4rem] sm:max-w-[14rem] truncate">{opponent}</span>
                 </td>
                 <td className="py-3 px-4 text-center font-medium">{m.userScore} - {m.opponentScore}</td>
                 <td className="py-3 px-4 text-center">
