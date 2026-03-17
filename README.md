@@ -4,6 +4,8 @@ A full-stack single-page web application centered around a real-time 1v1 Pong ga
 
 Users can sign up, play Pong against each other or an AI opponent, chat with friends, climb the leaderboard, and manage their profiles. The platform also exposes a public API with an interactive playground, supports six languages, and runs in a fully containerized Docker environment secured with a WAF, rate limiting, and HashiCorp Vault.
 
+![Homepage](docs/homepage.png)
+
 ---
 
 ## Table of Contents
@@ -130,6 +132,8 @@ The frontend is a single-page application built with the latest versions of Reac
 ---
 
 ## Database Schema
+
+![Database Schema](docs/database-schema.png)
 
 PostgreSQL database managed via Prisma ORM with 8 models:
 
