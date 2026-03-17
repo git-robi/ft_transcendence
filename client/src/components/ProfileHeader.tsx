@@ -29,21 +29,33 @@ const ProfileHeader = ({ profile }: { profile: ProfileData }) => {
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-      <div className="flex items-start gap-6">
+      <div className="flex items-start gap-6 flex-nowrap">
         <img
           src={profile.avatarUrl}
           alt="avatar"
           className="w-24 h-24 rounded-full object-cover border-2 border-white/10"
         />
 
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold">{profile.name}</h1>
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-1">
+            <h1 className="text-2xl font-bold truncate max-w-full w-full">
+              {profile.name}
+            </h1>
             <span className="px-2 py-0.5 rounded-full bg-accent-purple/20 text-accent-purple text-xs font-medium">
               {t.profile.level} {profile.level}
             </span>
           </div>
-          <p className="text-text-muted text-sm mb-3">
+          <p
+            className="text-text-muted text-sm mb-3 break-words break-all w-full max-w-full overflow-hidden max-h-16"
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              whiteSpace: 'normal',
+              wordBreak: 'break-word',
+            }}
+          >
             {profile.bio || t.profile.noBio}
           </p>
 

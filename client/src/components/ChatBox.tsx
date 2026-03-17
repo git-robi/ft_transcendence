@@ -114,7 +114,17 @@ const ChatBox = ({ friendId, friendName, friendAvatar, onMessageSent }: ChatBoxP
                     : 'bg-white/10 text-text-primary'
                 }`}
               >
-                <p>{msg.content}</p>
+                <p
+                  className="break-words whitespace-pre-wrap"
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 5,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {msg.content}
+                </p>
                 <p className="text-xs text-text-muted mt-1">
                   {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>

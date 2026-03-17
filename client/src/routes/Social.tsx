@@ -103,7 +103,16 @@ const Social = () => {
                       alt=""
                       className="w-10 h-10 rounded-full object-cover border border-white/10"
                     />
-                    <Link to={`/profile/${req.sender.id}`} className="flex-1 text-sm hover:text-accent-purple transition-colors">
+                    <Link
+                      to={`/profile/${req.sender.id}`}
+                      className="flex-1 text-sm hover:text-accent-purple transition-colors break-words"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
                       {req.sender.profile?.name || 'User'}
                     </Link>
                     <Button onClick={() => acceptRequest(req.senderId)} className="text-xs px-3 py-1">
@@ -139,7 +148,16 @@ const Social = () => {
                           className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-bg-primary ${online ? 'bg-green-400' : 'bg-gray-500'}`}
                         />
                       </div>
-                      <Link to={`/profile/${f.friend.id}`} className="flex-1 text-sm hover:text-accent-purple transition-colors">
+                      <Link
+                        to={`/profile/${f.friend.id}`}
+                        className="flex-1 text-sm hover:text-accent-purple transition-colors break-words"
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
                         {f.friend.profile?.name || 'User'}
                       </Link>
                       <span className={`text-xs ${online ? 'text-green-400' : 'text-text-muted'}`}>
@@ -173,7 +191,16 @@ const Social = () => {
                         alt=""
                         className="w-10 h-10 rounded-full object-cover border border-white/10"
                       />
-                      <Link to={`/profile/${u.id}`} className="flex-1 text-sm hover:text-accent-purple transition-colors">
+                      <Link
+                        to={`/profile/${u.id}`}
+                        className="flex-1 text-sm hover:text-accent-purple transition-colors break-words"
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
                         {u.profile?.name || 'User'}
                       </Link>
                       {isFriend ? (

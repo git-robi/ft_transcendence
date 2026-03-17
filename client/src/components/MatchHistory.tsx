@@ -40,7 +40,9 @@ const MatchHistory = ({ userId }: { userId: number }) => {
 
             return (
               <tr key={m.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                <td className="py-3 px-4">{opponent}</td>
+                <td className="py-3 px-4">
+                  <span className="block max-w-[4rem] sm:max-w-[14rem] truncate">{opponent}</span>
+                </td>
                 <td className="py-3 px-4 text-center font-medium">{m.userScore} - {m.opponentScore}</td>
                 <td className="py-3 px-4 text-center">
                   <span className={won ? 'text-green-400' : 'text-red-400'}>
