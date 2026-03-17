@@ -76,7 +76,7 @@ export const translations = {
       emailPlaceholder: 'email',
       emailComment: 'Unique per User',
       passwordPlaceholder: 'Password',
-      passwordComment: 'Alphanumeric + symbols (without \' and ")',
+      passwordComment: 'Alphanumeric + symbols',
       showPassword: 'Show password',
       keepLoggedIn: 'Keep me logged in',
       
@@ -205,6 +205,7 @@ export const translations = {
       failed: 'Failed',
       generating: "Generating...",
       copyToClipboard: 'Copy to clipboard',
+      nameMaxLen: 'Maximum length of name is 30 characters!'
     },
   },
   es: {
@@ -281,7 +282,7 @@ export const translations = {
       emailPlaceholder: 'Correo electrónico',
       emailComment: 'Único por usuario',
       passwordPlaceholder: 'Contraseña',
-      passwordComment: 'Alfanumérico + símbolos (sin \' y ")',
+      passwordComment: 'Alfanumérico + símbolos',
       showPassword: 'Mostrar contraseña',
       keepLoggedIn: 'Mantenerme conectado',
       
@@ -412,6 +413,7 @@ export const translations = {
       failed: 'Falló',
       generating: 'Generando...',
       copyToClipboard: 'Copiar al portapapeles',
+      nameMaxLen: 'La longitud máxima del nombre es de 30 caracteres',
     },
   },
   ca: {
@@ -488,7 +490,7 @@ export const translations = {
       emailPlaceholder: 'e-mail',
       emailComment: 'Únic per usuari',
       passwordPlaceholder: 'Contrasenya',
-      passwordComment: 'Alfanumèric + símbols (sense \' i ")',
+      passwordComment: 'Alfanumèric + símbols',
       showPassword: 'Mostrar contrasenya',
       keepLoggedIn: 'Mantenir-me connectat',
       
@@ -617,6 +619,7 @@ export const translations = {
       failed: 'Error',
       generating: 'Generant...',
       copyToClipboard: 'Copia al porta-retalls',
+      nameMaxLen: 'La longitud màxima del nom és de 30 caràcters',
     },
   },
   fr: {
@@ -693,7 +696,7 @@ export const translations = {
       emailPlaceholder: 'e-mail',
       emailComment: 'Unique par utilisateur',
       passwordPlaceholder: 'Mot de passe',
-      passwordComment: 'Alphanumérique + symboles (sans \' et ")',
+      passwordComment: 'Alphanumérique + symboles',
       showPassword: 'Afficher le mot de passe',
       keepLoggedIn: 'Rester connecté',
       
@@ -822,6 +825,7 @@ export const translations = {
       failed: 'Échec',
       generating: 'Génération...',
       copyToClipboard: 'Copier dans le presse-papiers',
+      nameMaxLen: 'La longueur maximale du nom est de 30 caractères',
     },
   },
   it: {
@@ -898,7 +902,7 @@ export const translations = {
       emailPlaceholder: 'email',
       emailComment: 'Unico per utente',
       passwordPlaceholder: 'Password',
-      passwordComment: 'Alfanumerico + simboli (senza \' e ")',
+      passwordComment: 'Alfanumerico + simboli',
       showPassword: 'Mostra password',
       keepLoggedIn: 'Resta connesso',
       
@@ -1027,6 +1031,7 @@ export const translations = {
       failed: 'Fallito',
       generating: 'Generazione...',
       copyToClipboard: 'Copia negli appunti',
+      nameMaxLen: 'La lunghezza massima del nome è di 30 caratteri',
     },
   },
   pl: {
@@ -1103,7 +1108,7 @@ export const translations = {
       emailPlaceholder: 'e-mail',
       emailComment: 'Unikalny dla użytkownika',
       passwordPlaceholder: 'Hasło',
-      passwordComment: 'Alfanumeryczne + symbole (bez \' i ")',
+      passwordComment: 'Alfanumeryczne + symbole',
       showPassword: 'Pokaż hasło',
       keepLoggedIn: 'Pozostań zalogowany',
       
@@ -1232,6 +1237,7 @@ export const translations = {
       failed: 'Niepowodzenie',
       generating: 'Generowanie...',
       copyToClipboard: 'Kopiuj do schowka',
+      nameMaxLen: 'Maksymalna długość nazwy to 30 znaków',
     },
   },
 };

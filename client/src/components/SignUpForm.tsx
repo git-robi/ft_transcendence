@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
+import { MAX_NAME_LENGTH } from '../constants';
 import Auth from '../APIs/auth';
 import Button from './Button';
 import OctocatIcon from './icons/OctocatIcon';
@@ -33,6 +34,10 @@ const SignUpForm = () => {
       return;
     }
 
+    if (name.length > MAX_NAME_LENGTH) {
+      setError(t.common.nameMaxLen);
+      return;
+    }
     setLoading(true);
 
     try {
@@ -64,12 +69,13 @@ const SignUpForm = () => {
           {error}
         </div>
       )}
-
+      {/* name field */}
       <div>
         <input
           type="text"
           placeholder={t.signUp.namePlaceholder}
           value={name}
+          max={MAX_NAME_LENGTH}
           onChange={(e) => setName(e.target.value)}
           className={inputClass}
         />
