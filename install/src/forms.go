@@ -108,8 +108,6 @@ func InstallationPage(a *App, data *Data) *tview.Flex {
 			os.Exit(1)
 		})
 	form.AddButton("install", func() {
-			/*if err := env.Write("POSTGRES_USER",data.postgres_user, "test", false); err!= nil {
-				panic(err)}*/
 			GeneratePassword(SecretDir, "postgres_password")
 			GeneratePassword(SecretDir, "vault_backend_token")
 			GeneratePassword(SecretDir, "vault_root_token")

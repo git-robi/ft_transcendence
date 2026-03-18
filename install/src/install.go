@@ -1,11 +1,7 @@
 package main
 
 import (
-	"log"
 	"os"
-	"os/user"
-	"strconv"
-	"syscall"
 	"github.com/rivo/tview"
 	"github.com/gdamore/tcell/v2"
 )
@@ -31,32 +27,6 @@ const (
 	SecretDir = "/app/output/secrets"
 	SSLDir = "/app/output/ssl"
 )
-
-func dropPrivileges() {
-	user, err := user.Lookup("appuser")
-	if err != nil {
-		log.Printf("Warning: Failed to lookup appuser, skipping privilege drop: %v", err)
-		return
-	}
-	uid, err := strconv.Atoi(user.Uid)
-	if err != nil {
-		log.Printf("Warning: Failed to parse UID, skipping privilege drop: %v", err)
-		return
-	}
-	gid, err := strconv.Atoi(user.Gid)
-	if err != nil {
-		log.Printf("Warning: Failed to parse GID, skipping privilege drop: %v", err)
-		return
-	}
-	if err := syscall.Setgid(gid); err != nil {
-		log.Printf("Warning: Failed to set GID, continuing as current user: %v", err)
-		return
-	}
-	if err := syscall.Setuid(uid); err != nil {
-		log.Printf("Warning: Failed to set UID, continuing as current user: %v", err)
-		return
-	}
-}
 
 func initData(a *App, data *Data) {
 	a.prims[0] = WelcomePage(a)
