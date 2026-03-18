@@ -76,8 +76,8 @@ func GithubPage(a *App, data *Data) *tview.Flex {
 			a.page.SwitchToPage("network")
 		})
 	form.AddButton("next", func() {
-			data.github_api_id = form.GetFormItemByLabel("Github API ID").(*tview.InputField).GetText()
-			data.github_api_key = form.GetFormItemByLabel("Github API Key").(*tview.InputField).GetText()
+			data.github_api_id = form.GetFormItemByLabel("Github Client ID").(*tview.InputField).GetText()
+			data.github_api_key = form.GetFormItemByLabel("Github Secret Key").(*tview.InputField).GetText()
 			a.page.SwitchToPage("installation")
 		})
 	return centerPrimitive(header, form, 60, 10)
