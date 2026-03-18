@@ -5,17 +5,8 @@ import (
 	"strings"
 )
 
-func 	isEmpty(str string) bool {
-	return len(strings.TrimSpace(str)) == 0
-}
-
 func	IsDigit(str string, r rune) bool {
 	return r >= '0' && r <= '9'
-}
-
-func	isNotDigit(str string) bool {
-	_, err := strconv.Atoi(str)
-	return err != nil
 }
 
 func 	isTooLong(str string, length int) bool {
@@ -33,6 +24,9 @@ func	InvalidChar(str string, r rune) bool {
 func	CheckPortNum(port string) bool {
 	var num int
 	var err error
+	if len(strings.TrimSpace(port)) == 0 {
+		return false
+	}
 	num, err = strconv.Atoi(port)
 	if (num < 0 || num > 65535 || err != nil) {
 		return false
