@@ -160,6 +160,28 @@ PostgreSQL database managed via Prisma ORM with 8 models:
 ---
 
 ## Modules
+Point calculation (Major = 2pts, Minor = 1pt)
+| **Category** | **Module name** | **Points** |
+|---|---|---|
+| **Web** | Use a framework for both the frontend and backend | 2 |
+| **Web** | Implement real-time features using WebSockets or similar technology | 2 |
+| **Web** | Allow users to interact with other users | 2 |
+| **Web** | A public API with a secured API key, rate limiting, documentation, and at least 5 endpoints | 2 |
+| **Web** | Use an ORM for the database | 1 |
+| **Web** | Custom-made design system with reusable components | 1 |
+| **Accessibility and Internationalization** | Support for multiple languages (at least 3 languages) | 1 |
+| **Accessibility and Internationalization** | Support for additional browsers | 1 |
+| **User Management** | Standard user management and authentication | 2 |
+| **User Management** | Game statistics and match history | 1 |
+| **User Management** | Implement remote authentication with OAuth 2.0 | 1 |
+| **Artificial Intelligence** | Introduce an AI Opponent for games | 2 |
+| **Cybersecurity** | Implement WAF/ModSecurity (hardened) + HashiCorp Vault for secrets | 2 |
+| **Gaming and User Experience** | Implement a complete web-based game where users can play against each other | 2 |
+| **Gaming and User Experience** | A gamification system to reward users for their actions | 1 |
+| **Module of Choice** | Implement an automated installer | 1 |
+| | Sum: | 24 |
+
+
 
 ### IV.1 Web
 
