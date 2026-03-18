@@ -43,7 +43,6 @@ EXIT_CODE=$?
 if [ $EXIT_CODE -eq 0 ]; then
     echo "Success: Secrets and .env files created. Proceeding with Pong application deployment..."
 	source .env
-	echo "App will be accessible from "$CLIENT_URL
 	docker compose -p $PROJECT_NAME -f $DOCKER --env-file .env down --remove-orphans -v 2>/dev/null || true && \
 	docker compose -p $PROJECT_NAME -f $DOCKER --env-file .env up -d --build
 	echo "App will be accessible from "$CLIENT_URL

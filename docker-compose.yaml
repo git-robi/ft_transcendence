@@ -69,7 +69,7 @@ services:
       VAULT_TOKEN_FILE: /run/secrets/vault_backend_token
       GITHUB_ID_CLIENT: ${GITHUB_ID_CLIENT:-}
       GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
-      GIT_BRANCH$: ${GIT_BRANCH}
+      GIT_BRANCH: "prod"
       PGPASSWORD: /run/secrets/postgres_password
       PGUSER: ${POSTGRES_USER:-postgres}
       PGDATABASE: ${POSTGRES_DB:-transcendence}
