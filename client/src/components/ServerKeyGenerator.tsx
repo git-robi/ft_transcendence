@@ -80,6 +80,7 @@ const ServerKeyGenerator = ({ setApiKey }: Props) => {
               className={inputClass}
               placeholder={t.apiTest.keyNamePlaceholder}
               value={name}
+              maxLength={50}
               onChange={(e) => setName(e.target.value)}
             />
             <span className={labelClass}>{t.apiTest.expiresAt}</span>

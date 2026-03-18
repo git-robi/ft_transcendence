@@ -171,7 +171,7 @@ const ApiTest = () => {
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     placeholder={t.apiTest.feedbackPlaceholder}
-                    maxLength={300}
+                    maxLength={500}
                     rows={7}
                     className={`${inputClass} resize-none`}
                   />

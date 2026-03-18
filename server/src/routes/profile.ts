@@ -233,6 +233,10 @@ router.patch("/me", protect, async (req: any, res: Response) => {
       return res.status(400).json({ message: "name cannot be empty" });
     }
 
+    if (name !== undefined && name.trim().length > 30) {
+      return res.status(400).json({ message: "name must be 30 characters or less" });
+    }
+
    
     if (bio !== undefined && bio.length > 255) {
       return res.status(400).json({ message: "bio must be 255 characters or less" });
@@ -341,6 +345,10 @@ router.patch("/password", protect, async (req: any, res) => {
 
         if (newPassword.length < 12) {
             return res.status(400).json({ message: 'Password must be at least 12 characters'});
+        }
+
+        if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+            return res.status(400).json({ message: 'Password must contain at least one letter and one number'});
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 12);

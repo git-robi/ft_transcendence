@@ -133,6 +133,10 @@ router.post("/register", authRateLimiter, async (req: Request, res: Response) =>
             return res.status(400).json({ message: "Invalid name or email" });
         }
 
+        if (trimmedName.length > 30) {
+            return res.status(400).json({ message: "Name must be 30 characters or less" });
+        }
+
         if (!validatePassword(password)) {
             return res.status(400).json({
                 message: "Invalid password. Password must be at least 12 characters long and contain at least one letter and one number.",

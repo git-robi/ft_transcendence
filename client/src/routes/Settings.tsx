@@ -56,9 +56,16 @@ const Settings = () => {
     fetchApiKeys();
   }, []);
 
+  const [avatarError, setAvatarError] = useState('');
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setAvatarError('');
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarError(t.settings.avatarTooLarge);
+      return;
+    }
     const formData = new FormData();
     formData.append('avatar', file);
     try {
@@ -70,6 +77,10 @@ const Settings = () => {
   };
 
   const handleSaveName = async () => {
+    if (!name.trim()) {
+      setNameMsg(t.settings.nameRequired);
+      return;
+    }
     if (name.length > MAX_NAME_LENGTH) {
       setNameMsg(t.common.nameMaxLen);
       return;
@@ -96,6 +107,11 @@ const Settings = () => {
     setPwMsg('');
     setPwError(false);
 
+    if (!oldPassword.trim()) {
+      setPwMsg(t.settings.oldPasswordRequired);
+      setPwError(true);
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setPwMsg(t.settings.passwordMismatch);
       setPwError(true);
@@ -103,6 +119,11 @@ const Settings = () => {
     }
     if (newPassword.length < 12) {
       setPwMsg(t.settings.passwordMinLength);
+      setPwError(true);
+      return;
+    }
+    if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      setPwMsg(t.settings.passwordRequirements);
       setPwError(true);
       return;
     }
@@ -172,6 +193,7 @@ const Settings = () => {
                 <input ref={fileInputRef} type="file" accept="image/png,image/jpeg" onChange={handleAvatarUpload} className="hidden" />
               </div>
             </div>
+            {avatarError && <span className="text-sm text-red-400">{avatarError}</span>}
           </div>
 
           {/* Id */}
