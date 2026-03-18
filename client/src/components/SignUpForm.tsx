@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
-import { MAX_NAME_LENGTH } from '../constants';
+import { MAX_NAME_LENGTH, EMAIL_REGEX, PASSWORD_MIN_LENGTH } from '../constants';
 import Auth from '../APIs/auth';
 import Button from './Button';
 import OctocatIcon from './icons/OctocatIcon';
@@ -29,8 +29,18 @@ const SignUpForm = () => {
       return;
     }
 
-    if (password.length < 12) {
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError(t.signUp.invalidEmail);
+      return;
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
       setError(t.signUp.passwordMinLength);
+      return;
+    }
+
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setError(t.signUp.passwordRequirements);
       return;
     }
 

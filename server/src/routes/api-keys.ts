@@ -36,6 +36,10 @@ router.post("/", protect, async (req: any, res) => {
         return res.status(400).json({ message: "Name is required" });
     }
 
+    if (name.trim().length > 50) {
+        return res.status(400).json({ message: "Name must be 50 characters or less" });
+    }
+
     const {hashed, plain} =  generateApiKey();
 
     //store hashed in db
