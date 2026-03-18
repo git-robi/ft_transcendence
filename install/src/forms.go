@@ -67,11 +67,11 @@ func NetworkPage(a *App, data *Data) *tview.Flex {
 
 func GithubPage(a *App, data *Data) *tview.Flex {
 	header := tview.NewTextView().
-		SetText("Please copy paste Github API ID and Github API Key that are provided to you").
+		SetText("Please copy paste Github Client ID and Github Secret Key that are provided to you").
 		SetTextAlign(tview.AlignLeft)
 	form := tview.NewForm()
-	form.AddInputField("Github API ID", data.github_api_id, 20, nil, nil)
-	form.AddPasswordField("Github API Key", "", 30, '*', nil)
+	form.AddInputField("Github Client ID", data.github_api_id, 20, nil, nil)
+	form.AddPasswordField("Github Secret Key", "", 30, '*', nil)
 	form.AddButton("prev", func() {
 			a.page.SwitchToPage("network")
 		})
