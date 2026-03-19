@@ -4,6 +4,7 @@ import (
 	"os"
 	"github.com/rivo/tview"
 	"github.com/gdamore/tcell/v2"
+	"strconv"
 )
 
 type App struct {
@@ -20,6 +21,7 @@ type Data struct {
 	nginx_domain		string	
 	github_api_id		string
 	github_api_key		string
+	ports				bool
 }
 
 const (
@@ -29,6 +31,22 @@ const (
 )
 
 func initData(a *App, data *Data) {
+	if p_http := os.Getenv("PORT_HTTP"); p_http != "" {
+		data.http_port, _ = strconv.Atoi(p_http)
+	}
+	if p_https := os.Getenv("PORT_HTTPS"); p_https != "" {
+		data.https_port, _ = strconv.Atoi(p_https)
+	}
+	if lanIP := os.Getenv("HOST_LAN_IP"); lanIP != "" {
+		data.nginx_domain = lanIP
+	} else if ip_host, err := GetHostIP(); err == nil {
+		data.nginx_domain = ip_host
+	} else {
+		data.nginx_domain = "localhost"
+	}
+	if (GenerateCerts(data.nginx_domain) != nil) {
+		os.Exit(1)
+	}
 	a.prims[0] = WelcomePage(a)
 	a.prims[1] = NetworkPage(a, data)
 	a.prims[2] = GithubPage(a, data)
@@ -53,16 +71,6 @@ func 	main() {
 		https_port: 3001,
 		postgres_user: "db_user",
 		postgres_db: "pong_db",
-	}
-	if lanIP := os.Getenv("HOST_LAN_IP"); lanIP != "" {
-		data.nginx_domain = lanIP
-	} else if ip_host, err := GetHostIP(); err == nil {
-		data.nginx_domain = ip_host
-	} else {
-		data.nginx_domain = "localhost"
-	}
-	if (GenerateCerts(data.nginx_domain) != nil) {
-		os.Exit(1)
 	}
 	initData(window, data)
 	setupPages(window)

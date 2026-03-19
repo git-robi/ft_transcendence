@@ -24,12 +24,14 @@ func centerPrimitive(header *tview.TextView, form *tview.Form, width, height int
 
 func WelcomePage(a *App) *tview.Modal {
 	return tview.NewModal().
-		SetText("Installation process will begin.\nPlease press continue").
-		AddButtons([]string{"continue", "quit"}).
+		SetText("Installation process will begin.\nPlease press continue for standard installation. If required you can reconfigure ports to be used by the app.").
+		AddButtons([]string{"continue", "reconfigure ports", "quit"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 			if buttonLabel == "quit" || buttonLabel == "" {
 				a.app.Stop()
 				os.Exit(1)
+			} else if buttonLabel == "continue"{
+				a.page.SwitchToPage("github")
 			} else {
 				a.page.SwitchToPage("network")
 			}
@@ -38,17 +40,17 @@ func WelcomePage(a *App) *tview.Modal {
 
 func NetworkPage(a *App, data *Data) *tview.Flex {
 	header := tview.NewTextView().
-		SetText("Please select a port for the application.\nIt is recommended to select a port between 1024 and 49151").
+		SetText("We do not recommend to change values below, unless you know what you are doing").
 		SetTextAlign(tview.AlignLeft).
 		SetWordWrap(true)
 	form := tview.NewForm()
 	form.AddInputField("Port HTTP", strconv.Itoa(data.http_port), 20, IsDigit, nil)
 	form.AddInputField("Port HTTPS", strconv.Itoa(data.https_port), 20, IsDigit, nil)
-	form.AddButton("quit", func() { 
+	form.AddButton("quit install", func() { 
 			a.app.Stop(); 
 			os.Exit(1) 
 		})
-	form.AddButton("next", func() {
+	form.AddButton("configure Github", func() {
 			http := form.GetFormItemByLabel("Port HTTP").(*tview.InputField).GetText()
 			https := form.GetFormItemByLabel("Port HTTPS").(*tview.InputField).GetText()
 			data.http_port, _ = strconv.Atoi(http)
@@ -87,13 +89,14 @@ func GithubPage(a *App, data *Data) *tview.Flex {
 	form.AddInputField("Github Client ID", data.github_api_id, 40, nil, nil)
 	form.AddPasswordField("Github Secret Key", "", 40, '*', nil)
 	form.AddButton("prev", func() {
-			a.page.SwitchToPage("network")
-		})
+		a.page.SwitchToPage("welcome")
+	})
 	form.AddButton("next", func() {
 			data.github_api_id = form.GetFormItemByLabel("Github Client ID").(*tview.InputField).GetText()
 			data.github_api_key = form.GetFormItemByLabel("Github Secret Key").(*tview.InputField).GetText()
 			a.page.SwitchToPage("installation")
 		})
+	form.SetFocus(0)
 	return centerPrimitive(header, form, 100, 30, 5)
 }
 
@@ -116,6 +119,7 @@ func InstallationPage(a *App, data *Data) *tview.Flex {
 			a.app.Stop()
 			os.Exit(0)
 		})
+	form.SetFocus(1)
 	return centerPrimitive(header, form, 60, 10, 3)
 }
 	
