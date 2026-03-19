@@ -96,6 +96,7 @@ func GithubPage(a *App, data *Data) *tview.Flex {
 			data.github_api_key = form.GetFormItemByLabel("Github Secret Key").(*tview.InputField).GetText()
 			a.page.SwitchToPage("installation")
 		})
+	form.SetFocus(0)
 	return centerPrimitive(header, form, 100, 30, 5)
 }
 
@@ -118,6 +119,7 @@ func InstallationPage(a *App, data *Data) *tview.Flex {
 			a.app.Stop()
 			os.Exit(0)
 		})
+	form.SetFocus(1)
 	return centerPrimitive(header, form, 60, 10, 3)
 }
 	
