@@ -48,15 +48,10 @@ const SignUpForm = ({ setUser }: SignUpFormProps) => {
       setUser(res.data.user);
       navigate('/home');
     } catch (err: unknown) {
-      console.error('Registration failed - Full error:', err);
-      console.error('Error type:', typeof err);
-      console.error('Error object:', JSON.stringify(err, null, 2));
-      
       let errorMessage = 'Registration failed. Please try again.';
-      
+
       if (err && typeof err === 'object' && 'response' in err) {
         const response = (err as { response?: { data?: { message?: string } } }).response;
-        console.error('Response data:', response?.data);
         errorMessage = response?.data?.message || errorMessage;
       }
       

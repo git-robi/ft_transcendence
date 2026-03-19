@@ -38,12 +38,9 @@ const ChatBox = ({ friendId, friendName, friendAvatar, onMessageSent }: ChatBoxP
   
   useEffect(() => {
     if (!socket) {
-      console.log('[ChatBox] No socket available');
       return;
     }
-    console.log('[ChatBox] Listening for messages from friend:', friendId);
     const handler = (msg: ChatMessage) => {
-      console.log('[ChatBox] Received message:', msg);
       if (msg.senderId === friendId) {
         setMessages(prev => [...prev, msg]);
       }

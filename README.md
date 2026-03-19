@@ -57,7 +57,7 @@ The interactive installer will prompt you for OAuth credentials, generate secret
 | **JWT (HTTP-only cookies)** | Session management (XSS-resistant) |
 | **bcrypt** | Password hashing (12 salt rounds) |
 | **HashiCorp Vault** | Secret management (JWT key, DB credentials, OAuth secrets) |
-| **Swagger** | Auto-generated API documentation at `/api-docs` |
+| **Swagger** | Interactive public API documentation at `/api-docs` |
 | **Helmet / CORS / express-rate-limit** | HTTP hardening and rate limiting |
 | **Axios** | Server-side HTTP requests during OAuth flows |
 | **multer** | Avatar uploads (PNG/JPEG only, timestamped filenames) |
@@ -66,7 +66,7 @@ The API is served under `/api/v1` across seven route groups: **auth**, **profile
 
 Authentication combines JWT in HTTP-only cookies (to prevent XSS token theft), Passport.js for Google and GitHub OAuth, and bcrypt (12 salt rounds) for password hashing. All secrets (JWT key, DB password, OAuth credentials) live in Vault and are fetched at startup -- nothing is hardcoded or stored in plaintext. Helmet sets secure HTTP headers (HSTS, CSP, X-Frame-Options), CORS is locked to the frontend origin with credentials enabled, and express-rate-limit enforces per-group thresholds: 20 requests/15 min on auth endpoints, 500/15 min elsewhere.
 
-Real-time features (chat, online status) use Socket.io with a room system (`user:{id}`) for targeted delivery, alongside REST endpoints as a fallback. The full API is documented with Swagger at `/api-docs`, generated from JSDoc annotations in the route files.
+Real-time features (chat, online status) use Socket.io with a room system (`user:{id}`) for targeted delivery, alongside REST endpoints as a fallback. The public API is documented with Swagger at `/api-docs`, generated from OpenAPI annotations in the route files.
 
 #### Why These Choices?
 
@@ -199,7 +199,7 @@ We built a friends system where you send a request and the other person accepts 
 
 **Major: A public API with a secured API key, rate limiting, documentation, and at least 5 endpoints** *(rgiambon, mpietrza)*
 
-We exposed five endpoints (leaderboard, player stats, feedback, profile update, account deletion) under `/api/v1/public/`. They're all protected by API keys: when a key is created we hash it with SHA-256 and only store the hash, so even if the database leaks the keys are safe. We added rate limiting at both the Nginx and Express layers, and documented everything with Swagger so developers can explore the API at `/api-docs`.
+We exposed five endpoints (leaderboard, player stats, feedback, profile update, account deletion) under `/api/v1/public/`. They're all protected by API keys: when a key is created we hash it with SHA-256 and only store the hash, so even if the database leaks the keys are safe. We added rate limiting at both the Nginx and Express layers. The full public API documentation is available at `/api-docs`, where developers can browse all available endpoints, see request/response schemas, and understand authentication requirements — all generated from OpenAPI annotations in the codebase.
 
 **Minor: Use an ORM for the database** *(rgiambon)*
 

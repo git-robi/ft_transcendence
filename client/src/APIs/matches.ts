@@ -5,8 +5,6 @@ const AUTH_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 let api: any;
 
 if (import.meta.env.DEV) {
-  console.log("Using DEV mock for Matches API (DEV)");
-
   // Mock que *ecoa* los datos que le pasas en POST
   api = {
     post: async (_path: string, data?: any) => {

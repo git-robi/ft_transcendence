@@ -10,6 +10,7 @@ import PlayerOpponentBar from '../components/Game/PlayerOpponentBar';
 import { useLanguage } from '../i18n/useLanguage';
 import { useAuth } from '../context/AuthContext';
 import Matches from '../APIs/matches';
+import Profile from '../APIs/profile';
 import type { Match, MatchResult } from '../types';
 
 const Game = () => {
@@ -27,6 +28,17 @@ const Game = () => {
   const [paddle, setPaddle] = useState<'LEFT' | 'RIGHT'>('LEFT');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [playerAvatar, setPlayerAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    Profile.get('/me', { withCredentials: true })
+      .then(res => {
+        if (res.data.avatarUrl) {
+          setPlayerAvatar(res.data.avatarUrl);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleMatchEnd = async (leftScore: number, rightScore: number) => {
 	if (!match) return;
@@ -144,6 +156,8 @@ const Game = () => {
                   opponentScore={opponentScore}
                   winPoints={match.winPoints}
                   paddle={match.paddle}
+                  playerAvatar={playerAvatar}
+                  playMode={match.playMode}
                 />
               </div>
               <div className="flex-1 relative flex items-center justify-center overflow-hidden">
@@ -173,6 +187,8 @@ const Game = () => {
               opponentScore={opponentScore}
               winPoints={match.winPoints}
               paddle={match.paddle}
+              playerAvatar={playerAvatar}
+              playMode={match.playMode}
             />
 
             <PongGame key={match.id} pongSet={settings} onScoreChange={handleScoreUpdate} onGameEnd={handleMatchEnd}/>

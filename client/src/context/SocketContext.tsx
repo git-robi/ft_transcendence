@@ -25,21 +25,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return;
 
     const url = getSocketUrl();
-    console.log('[Socket] Connecting to:', url);
     const s: Socket = io(url, { withCredentials: true, transports: ['websocket'] });
     setSocket(s);
 
-    s.on('connect', () => {
-      console.log('[Socket] Connected, id:', s.id);
-    });
+    s.on('connect', () => {});
 
-    s.on('connect_error', (err) => {
-      console.error('[Socket] Connection error:', err.message);
-    });
+    s.on('connect_error', () => {});
 
-    s.on('disconnect', (reason) => {
-      console.log('[Socket] Disconnected:', reason);
-    });
+    s.on('disconnect', () => {});
 
     s.on('friends:online-list', (ids: number[]) => {
       setOnlineUsers(new Set(ids));
