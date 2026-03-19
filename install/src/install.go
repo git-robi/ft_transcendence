@@ -21,6 +21,7 @@ type Data struct {
 	nginx_domain		string	
 	github_api_id		string
 	github_api_key		string
+	ports				bool
 }
 
 const (
