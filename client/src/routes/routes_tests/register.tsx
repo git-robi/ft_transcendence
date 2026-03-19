@@ -24,9 +24,8 @@ const Register = ({ setUser }: { setUser: (user: any) => void }) => {
       setUser(res.data.user);
       navigate("/");
 
-    } catch (err) {
-      //setError("Registration failed")
-      console.log("registration failed")
+    } catch {
+      // silent
     }
   }
 

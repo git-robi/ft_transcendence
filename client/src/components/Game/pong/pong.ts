@@ -70,14 +70,6 @@ function gameLoop(): void
 		pong.checkIfBallStuck(pong.ball);
 	}
 
-	if (pong.log_app != 1)
-	{
-		pong.log_app = 1;
-		console.log(pong.padL);
-		console.log(pong.padR);
-		console.log(pong.set);
-	}
-
 	pong.reDraw();
 
 	animationID = requestAnimationFrame(gameLoop);

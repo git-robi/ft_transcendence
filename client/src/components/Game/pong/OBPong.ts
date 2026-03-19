@@ -139,7 +139,6 @@ export class Pong
 	serveNow: boolean;
 	waitServe: number;
 	screenText: Score;
-	log_app: number;
 
 	constructor()
 	{
@@ -186,7 +185,6 @@ export class Pong
 		this.serveNow = false;
 		this.waitServe = WAIT_SERVE;
 		this.screenText = Object.create(SCORE);
-		this.log_app = 0;
 	}
 
 	setGameEndCallback(cb: ((scoreL: number, scoreR: number) => void) | null): void { this.onGameEnd = cb; }
@@ -291,8 +289,6 @@ export class Pong
 		this.screenText.score = WAIT_SERVE / 60;
 		this.screenText.x = this.width / 2 - SCORE_SIZE / 2 + 25;
 		this.screenText.y = this.height / 2 + SCORE_SIZE / 2 - 25;
-		this.log_app = 0;
-
 		this.gL.x = 0;
 		this.gL.y = 0;
 		this.gR.x = this.width;

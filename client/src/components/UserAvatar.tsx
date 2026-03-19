@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Profile from "../APIs/profile";
 
-const BACKEND_URL = "http://localhost:3001";
+const BACKEND_URL = (import.meta.env.VITE_API_URL || "").replace(/\/api\/v1$/, '') || window.location.origin;
 
 export default function UserAvatar({ size = 150 }: { size?: number }) {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -15,8 +15,8 @@ export default function UserAvatar({ size = 150 }: { size?: number }) {
                 else
                     setAvatarUrl(BACKEND_URL + res.data.avatarUrl);
             }
-        } catch (error) {
-            console.error("Failed to fetch profile", error);
+        } catch {
+            // silent
         }
     }
 

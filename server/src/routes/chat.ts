@@ -19,23 +19,6 @@ async function areFriends(userA: number, userB: number): Promise<boolean> {
     return !!friendship;
 }
 
-/**
- * @swagger
- * /api/v1/chat/conversations:
- *   get:
- *     summary: List chat conversations
- *     description: Returns friends the user has exchanged messages with, ordered by most recent message.
- *     tags: [Chat]
- *     security:
- *       - CookieAuth: []
- *     responses:
- *       200:
- *         description: List of conversations
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
 router.get("/conversations", protect, async (req: any, res) => {
     try {
         const userId: number = req.user.id;
@@ -83,45 +66,6 @@ router.get("/conversations", protect, async (req: any, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/v1/chat/{friendId}:
- *   get:
- *     summary: Get message history
- *     description: Returns messages between the authenticated user and the given friend. Paginated.
- *     tags: [Chat]
- *     security:
- *       - CookieAuth: []
- *     parameters:
- *       - in: path
- *         name: friendId
- *         required: true
- *         schema:
- *           type: integer
- *         description: The friend's user ID
- *       - in: query
- *         name: before
- *         schema:
- *           type: integer
- *         description: Return messages with ID less than this (for pagination)
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 50
- *         description: Number of messages to return (max 100)
- *     responses:
- *       200:
- *         description: Array of messages
- *       400:
- *         description: Invalid friend ID
- *       403:
- *         description: Not friends
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
 router.get("/:friendId", protect, async (req: any, res) => {
     try {
         const userId: number = req.user.id;
@@ -157,46 +101,6 @@ router.get("/:friendId", protect, async (req: any, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/v1/chat/{friendId}:
- *   post:
- *     summary: Send a message
- *     description: Send a message to a friend. Also emits a socket event for real-time delivery.
- *     tags: [Chat]
- *     security:
- *       - CookieAuth: []
- *     parameters:
- *       - in: path
- *         name: friendId
- *         required: true
- *         schema:
- *           type: integer
- *         description: The friend's user ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - content
- *             properties:
- *               content:
- *                 type: string
- *                 description: Message text (max 1000 characters)
- *     responses:
- *       201:
- *         description: Message sent
- *       400:
- *         description: Invalid input
- *       403:
- *         description: Not friends
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
 router.post("/:friendId", protect, async (req: any, res) => {
     try {
         const userId: number = req.user.id;

@@ -58,8 +58,7 @@ const ServerKeyGenerator = ({ setApiKey }: Props) => {
       try {
         await navigator.clipboard.writeText(plainKey);
         return;
-      } catch (err) {
-        console.warn("Clipboard write failed:", err);
+      } catch {
         setError("Automatic copy failed — please copy the key manually from the prompt.");
       }
     }

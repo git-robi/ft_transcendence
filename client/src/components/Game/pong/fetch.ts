@@ -4,8 +4,7 @@ export async function GetJSONdata(url: string): Promise<unknown> {
         let data = await result.json();
         return (data);
     }
-    catch (err) {
-        console.error(err);
+    catch {
         return (null);
     }
 }

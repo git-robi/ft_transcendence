@@ -32,8 +32,6 @@ const LogInForm = ({ setUser }: LogInFormProps) => {
       setUser(res.data.user);
       navigate('/home');
     } catch (err: unknown) {
-      console.error('Login failed:', err);
-      
       let errorMessage = 'Login failed. Please try again.';
       
       if (err && typeof err === 'object' && 'response' in err) {
