@@ -2,12 +2,6 @@
 PROJECT_NAME=t42bcn
 DOCKER=docker-compose.yaml
 
-if [ "$1" == "--clean" ]; then
-	echo "Taking down containers but leaving volumes intact..." && \
-	docker compose -p $PROJECT_NAME -f $DOCKER down
-	exit 0	
-fi
-
 if [ "$1" == "--fclean" ]; then
 	echo "Taking down containers and purging volumes and networks..." && \
 	docker compose -p $PROJECT_NAME -f $DOCKER down
@@ -18,11 +12,16 @@ fi
 if [ "$1" == "--help" ]; then
 	echo "Available commands: "
 	echo -e "\t no arg   : launch installation of the app"
-	echo -e "\t --clean  : take down containers, leave existing data intact"
 	echo -e "\t --fclean : take down containers and purge docker volumes and networks"
 	echo -e "\t --help   : print this message"
 	exit 0	
 fi
+
+if 	[ -n "$1" ]; then
+	echo "Unrecognized command. Type ./intall.sh --help for details"
+	exit 1
+fi
+
 
 is_port_available() {
     if nc -z 127.0.0.1 "$1"; then
