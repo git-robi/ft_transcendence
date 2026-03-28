@@ -29,7 +29,6 @@ Users can sign up, play Pong against each other or an AI opponent, chat with fri
 
 - [Docker](https://docs.docker.com/engine/install/) with Docker Compose
 - A GitHub OAuth client ID and secret
-- A Google OAuth client ID and secret
 
 ### Installation
 
@@ -53,7 +52,7 @@ The interactive installer will prompt you for OAuth credentials, generate secret
 | **PostgreSQL 16** | Relational database |
 | **Prisma 7** | ORM with type-safe queries and automatic migrations |
 | **Socket.io** | Real-time chat and presence via WebSockets |
-| **Passport.js** | OAuth 2.0 (Google, GitHub, 42) |
+| **Passport.js** | OAuth 2.0 (GitHub, 42) |
 | **JWT (HTTP-only cookies)** | Session management (XSS-resistant) |
 | **bcrypt** | Password hashing (12 salt rounds) |
 | **HashiCorp Vault** | Secret management (JWT key, DB credentials, OAuth secrets) |
@@ -64,7 +63,7 @@ The interactive installer will prompt you for OAuth credentials, generate secret
 
 The API is served under `/api/v1` across seven route groups: **auth**, **profile**, **matches**, **friends**, **chat**, **api-keys**, and **public**. Protected routes use a `protect` middleware that verifies a JWT from an HTTP-only cookie against a secret stored in HashiCorp Vault; public routes authenticate via API keys sent as Bearer tokens and hashed with SHA-256 server-side.
 
-Authentication combines JWT in HTTP-only cookies (to prevent XSS token theft), Passport.js for Google and GitHub OAuth, and bcrypt (12 salt rounds) for password hashing. All secrets (JWT key, DB password, OAuth credentials) live in Vault and are fetched at startup -- nothing is hardcoded or stored in plaintext. Helmet sets secure HTTP headers (HSTS, CSP, X-Frame-Options), CORS is locked to the frontend origin with credentials enabled, and express-rate-limit enforces per-group thresholds: 20 requests/15 min on auth endpoints, 500/15 min elsewhere.
+Authentication combines JWT in HTTP-only cookies (to prevent XSS token theft), Passport.js for GitHub OAuth, and bcrypt (12 salt rounds) for password hashing. All secrets (JWT key, DB password, OAuth credentials) live in Vault and are fetched at startup -- nothing is hardcoded or stored in plaintext. Helmet sets secure HTTP headers (HSTS, CSP, X-Frame-Options), CORS is locked to the frontend origin with credentials enabled, and express-rate-limit enforces per-group thresholds: 20 requests/15 min on auth endpoints, 500/15 min elsewhere.
 
 Real-time features (chat, online status) use Socket.io with a room system (`user:{id}`) for targeted delivery, alongside REST endpoints as a fallback. The public API is documented with Swagger at `/api-docs`, generated from OpenAPI annotations in the route files.
 
@@ -116,7 +115,7 @@ The frontend is a single-page application built with the latest versions of Reac
 | Feature | Description | Contributors |
 |---|---|---|
 | **Pong Game** | Multiplayer game with AI opponent (3 difficulty levels), keyboard and touch input | sadoming |
-| **User Authentication** | Sign up, log in, Google/GitHub/42 OAuth, JWT sessions, CSRF protection | mpietrza, alphbarr, rgiambon |
+| **User Authentication** | Sign up, log in, GitHub OAuth, JWT sessions, CSRF protection | mpietrza, alphbarr, rgiambon |
 | **User Profiles** | Customizable profiles with avatar upload, stats, match history, achievements | rgiambon, mpietrza, alphbarr |
 | **Real-time Chat** | Direct messaging between friends with online/offline status indicators | mpietrza, rgiambon |
 | **Social System** | Friend requests, friend list, online status tracking via Socket.io | rgiambon, mpietrza |
@@ -154,7 +153,7 @@ PostgreSQL database managed via Prisma ORM with 8 models:
 - **Cascade deletes** on most tables: if a user is removed, their profile, messages, friendships, and API keys are automatically cleaned up.
 - **Unique constraints** where it matters: a user can only send one friend request to the same person, and achievements can't be unlocked twice.
 - **Composite indexes** on messages (sender, receiver, timestamp) so chat history queries stay fast even with a lot of data.
-- **Optional password field** because users who sign in through Google or GitHub don't have one.
+- **Optional password field** because users who sign in through GitHub don't have one.
 - **Database-level enums** (like `PENDING`/`ACCEPTED` for friend status, or `AI`/`LOCAL` for game mode) instead of plain strings to prevent invalid values from ever being stored.
 
 ---
@@ -231,7 +230,7 @@ Every match gets saved with scores, game mode, and timestamps. The server comput
 
 **Minor: Implement remote authentication with OAuth 2.0** *(alphbarr, rgiambon)*
 
-We integrated Google, GitHub, and 42 as login providers using Passport.js. All the OAuth credentials live in Vault rather than environment files. We also added state cookies during the OAuth flow to prevent CSRF attacks, and the callback URLs are configurable through an environment variable so everything works across different deployment environments.
+We integrated GitHub as login providers using Passport.js. All the OAuth credentials live in Vault rather than environment files. We also added state cookies during the OAuth flow to prevent CSRF attacks, and the callback URLs are configurable through an environment variable so everything works across different deployment environments.
 
 ### IV.4 Artificial Intelligence
 
@@ -259,7 +258,7 @@ We added four achievements that unlock automatically when you play: first game c
 
 **Minor: Implement an automated installer** *(mfleury)*
 
-We added this module because the subject requires the app to run with a single command, but without detailing how the environment is set up. Having an installer with a terminal graphical interface gives a better user experience, helping the user set up the required Google/GitHub APIs that cannot be shipped with the app, silently generate tokens and secrets, and check if the chosen port is effectively available on the machine. The choice was made to use Go with the tview library (similar to ncurses), giving us the opportunity to learn a new language while the rest of the app was built in TypeScript.
+We added this module because the subject requires the app to run with a single command, but without detailing how the environment is set up. Having an installer with a terminal graphical interface gives a better user experience, helping the user set up the required GitHub APIs that cannot be shipped with the app, silently generate tokens and secrets, and check if the chosen port is effectively available on the machine. The choice was made to use Go with the tview library (similar to ncurses), giving us the opportunity to learn a new language while the rest of the app was built in TypeScript.
 
 ---
 
@@ -366,7 +365,7 @@ Built the entire replication of the Pong game, with an option for mobile play, i
 Security architect and full-stack contributor covering Vault secret handling, JWT/Passport authentication, WAF (ModSecurity/OWASP CRS) tuning, rate limiting, HTTP hardening (Helmet, CORS, cookies), CSRF double-submit protection, and Prisma constraints that ensure data integrity for friends, matches, chats, API keys, and achievements. Ensured XP/leaderboard logic and achievement triggers are consistent with the gamification plan.
 
 - **Security perimeter:** Led the ModSecurity v3 deployment on Nginx with the OWASP CRS tuned to avoid false positives on REST, JSON, OAuth, and Socket.io traffic, while enforcing rate limits at both Nginx (20 req/min auth, 500 req/min APIs) and Express layers (20 req/15 min auth, 500 req/15 min APIs). Helmet headers, strict CORS, and secrets fetched from HashiCorp Vault protect every facet of the HTTP layer.
-- **User authentication and protection:** Architected the JWT-in-HTTP-only-cookie flow, Passport strategies (Google, GitHub, 42), and bcrypt password hashing (12 salt rounds) that back the `/auth` routes; added double-submit CSRF tokens, `Secure`/`SameSite` cookie flags, and Prisma constraints so user management stays resilient against XSS/CSRF attacks.
+- **User authentication and protection:** Architected the JWT-in-HTTP-only-cookie flow, Passport strategies (GitHub), and bcrypt password hashing (12 salt rounds) that back the `/auth` routes; added double-submit CSRF tokens, `Secure`/`SameSite` cookie flags, and Prisma constraints so user management stays resilient against XSS/CSRF attacks.
 - **Data hygiene and gamification:** Ensured matches, achievements, and XP calculations persist through Prisma with cascade deletes; rolled out unique constraints so friends/messages/API keys stay consistent and achievements (first win, perfect game, five matches) unlock only once, while the backend computes leaderboard stats (wins, win rate) users see in their profile.
 - **Backend partnership with rgiambon:** Paired on backend modules (authentication, user profiles, match history, leaderboard, real-time chat/presence, gamification, and OAuth) to make sure the secure JWT + Passport flows, Prisma models, and API endpoints were wired consistently while honoring the rate limits, Vault secrets, and WAF protections.
 
