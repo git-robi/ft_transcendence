@@ -228,9 +228,8 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* Password — hidden for OAuth users */}
-          {!user?.githubId && (
-            <div className={sectionClass}>
+          {/* Password — disabled for OAuth users */}
+          <div className={`${sectionClass} ${user?.githubId ? 'opacity-50 pointer-events-none' : ''}`}>
               <p className={labelClass}>{t.settings.password}</p>
 
               <div className="relative">
@@ -239,9 +238,10 @@ const Settings = () => {
                   placeholder={t.settings.oldPassword}
                   value={oldPassword}
                   onChange={e => setOldPassword(e.target.value)}
+                  disabled={!!user?.githubId}
                   className={`${inputClass} pr-12`}
                 />
-                <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1}>
+                <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1} disabled={!!user?.githubId}>
                   {showOld ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
@@ -252,9 +252,10 @@ const Settings = () => {
                   placeholder={t.settings.newPassword}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
+                  disabled={!!user?.githubId}
                   className={`${inputClass} pr-12`}
                 />
-                <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1}>
+                <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors" tabIndex={-1} disabled={!!user?.githubId}>
                   {showNew ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
@@ -264,15 +265,15 @@ const Settings = () => {
                 placeholder={t.settings.confirmPassword}
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
+                disabled={!!user?.githubId}
                 className={inputClass}
               />
 
               <div className="flex items-center gap-3">
-                <Button onClick={handleSavePassword}>{t.settings.save}</Button>
+                <Button onClick={handleSavePassword} disabled={!!user?.githubId}>{t.settings.save}</Button>
                 {pwMsg && <span className={`text-sm ${pwError ? 'text-red-400' : 'text-accent-blue'}`}>{pwMsg}</span>}
               </div>
             </div>
-          )}
 
           {/* API Keys */}
           <div className={sectionClass}>

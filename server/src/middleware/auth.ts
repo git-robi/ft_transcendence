@@ -22,6 +22,7 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
             select: {
                 id: true,
                 email: true,
+                githubId: true,
                 profile: { select: { name: true } },
             },
         });
@@ -34,6 +35,7 @@ export const protect = async (req: any, res: Response, next: NextFunction) => {
             id: user.id,
             email: user.email,
             name: user.profile?.name ?? null,
+            githubId: user.githubId ?? null,
         };
         next();
     } catch (err) {
