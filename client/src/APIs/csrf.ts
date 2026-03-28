@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api/v1";
 const CSRF_HEADER_NAME = "X-CSRF-Token";
 const CSRF_COOKIE_NAME = "csrf_token";
 const SAFE_METHODS = new Set(["get", "head", "options"]);
