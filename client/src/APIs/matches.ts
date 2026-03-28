@@ -1,6 +1,6 @@
 import axios from "axios"
 import { attachCsrfInterceptor } from "./csrf";
-const AUTH_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const AUTH_BASE_URL = import.meta.env.VITE_API_URL || "/api/v1";
 
 let api: any;
 
